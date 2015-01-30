@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import sun.applet.Main;
+
 public class Server {
 
 	/**
@@ -11,20 +13,23 @@ public class Server {
 	 */
 	static String prepath ="/home/m1/";
 	
+	
+	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		ServerSocket serverskt=null;
+		Boolean keepServingRunning =  true;
 		
 		try {
 			serverskt = new ServerSocket(2100);
 			
-			while(true){
-				   Socket clskt = serverskt.accept() ;
-				   FtpRequest ftpreq = new FtpRequest(clskt);
+			while(keepServingRunning){
+				   Socket cltSocCtrl = serverskt.accept() ;
+				   System.out.println("Server:incoming connection from " + cltSocCtrl.getInetAddress().getHostName());
+				   FtpRequest ftpreq = new FtpRequest(serverskt,cltSocCtrl);
 				   ftpreq.msgAcceuil();
 				}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.err.println(Main.class.getName()+": erreur\n");
 			e.printStackTrace();
 		}
 		
