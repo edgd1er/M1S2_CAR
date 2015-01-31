@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import sun.applet.Main;
-
 public class Server {
 
 	/**
 	 * @param args
 	 */
-	static String prepath ="/home/m1/";
+	static String prepath ="/home/m1";
 	
 	
 	
@@ -26,11 +24,19 @@ public class Server {
 				   Socket cltSocCtrl = serverskt.accept() ;
 				   System.out.println("Server:incoming connection from " + cltSocCtrl.getInetAddress().getHostName());
 				   FtpRequest ftpreq = new FtpRequest(serverskt,cltSocCtrl);
-				   ftpreq.msgAcceuil();
+				   ftpreq.run();
+				   System.out.println("Server:closed connection from " + cltSocCtrl.getInetAddress().getHostName());
 				}
+			
+			serverskt.close();
 		} catch (IOException e) {
-			System.err.println(Main.class.getName()+": erreur\n");
+			System.err.println(Thread.currentThread().getClass().getName()+": erreur\n");
 			e.printStackTrace();
+			try {
+			serverskt.close();}
+			catch(Exception e1){
+				e1.printStackTrace();
+			}
 		}
 		
 	

@@ -2,27 +2,27 @@ package com.ftp.server;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
-import sun.org.mozilla.javascript.tools.shell.QuitAction;
+public class FtpRequest extends Thread {
 
-public class FtpRequest {
-
-	Socket cltSocketCtrl;
-	ServerSocket srvSocketCtrl;
-	String currentUser;
-	String home = Server.prepath;
-	DataOutputStream dataOutControl;
-	Boolean bUserConnected = true;
-	BufferedReader bufRdr;
+	private Socket cltSocketCtrl;
+	private ServerSocket srvSocketCtrl;
+	private String currentUser;
+	private String home = Server.prepath;
+	private String currentDir = "";
+	private DataOutputStream dataOutControl;
+	private 	Boolean bUserConnected = true;
+	private BufferedReader bufRdr;
+	private Boolean clientAuthentified = false;
+	private String ftpType;
 
 	public FtpRequest(ServerSocket _srvSocket, Socket _clskt) {
 		cltSocketCtrl = _clskt;
@@ -53,7 +53,7 @@ public class FtpRequest {
 
 		System.out.println(this.getClass() + " :client ip: "
 				+ cltSocketCtrl.getInetAddress().toString());
-		String adr = srvSocketCtrl.getInetAddress().getHostName();
+		String adr = srvSocketCtrl.getInetAddress().getHostAddress();
 		String message = ErrorCode.getMessage("220", srvSocketCtrl
 				.getInetAddress().getHostName().toString());
 
@@ -63,8 +63,6 @@ public class FtpRequest {
 			System.err.println(this.getClass().getName() + ": erreur\n");
 			e.printStackTrace();
 		}
-
-		this.processRequest();
 	}
 
 	// ecoute les commandes envoyés et lance le process adéquat
@@ -87,10 +85,24 @@ public class FtpRequest {
 					processPASS(acmd[1]);
 					break;
 
+				case "SYST":
+					processSYST();
+					break;
+
+				case "PWD":
+					processPWD();
+					break;
+					
+				case "TYPE":
+					processTYPE(acmd[1]);
+					break;
+
+					
 				default:
 					System.out.println(this.getClass().toString()
 							+ " Erreur, commande non reconnue:" + strcmd);
-					Tools.sendMessage(cltSocketCtrl, ErrorCode.getMessage("502",""));
+					Tools.sendMessage(cltSocketCtrl,
+							ErrorCode.getMessage("502", ""));
 					break;
 				}
 
@@ -132,20 +144,21 @@ public class FtpRequest {
 
 		HashMap<String, String> usrMap;
 		String rep = "";
-		String temppwd = "";
 
 		try {
 			rep = ErrorCode.getMessage("430", "");
 			usrMap = loadPasswordList();
-			
+
 			if (usrMap.containsKey(currentUser)) {
-			temppwd = usrMap.get(currentUser);
-			boolean b = strcmd.equals(usrMap.get(currentUser));
-			if (strcmd.equals(usrMap.get(currentUser))) {
-				rep = ErrorCode.getMessage("230", "");
+				if (strcmd.equals(usrMap.get(currentUser))) {
+					rep = ErrorCode.getMessage("230", "");
+					clientAuthentified = true;
+				}
 			}
-			}
+
 			Tools.sendMessage(cltSocketCtrl, rep);
+			System.out.println(this.getClass().toString() + " user: "
+					+ currentUser + ".isAuth= " + clientAuthentified);
 
 		} catch (IOException ioe) {
 			System.out
@@ -171,11 +184,14 @@ public class FtpRequest {
 			String[] aligne = ligne.split(":");
 			usrMap.put(aligne[0], aligne[1]);
 		}
+		brr.close();
 		return usrMap;
 	}
 
 	private void killConnection() {
 		try {
+			clientAuthentified = false;
+			currentUser = "Anonymous";
 			System.out.println(this.getClass().toString()
 					+ " Killing the connection");
 			this.cltSocketCtrl.close();
@@ -198,4 +214,40 @@ public class FtpRequest {
 
 	}
 
+	private void processSYST() throws IOException {
+		String Rep = ErrorCode.getMessage("215", "");
+		Tools.sendMessage(this.cltSocketCtrl, Rep);
+		System.out.println(this.getClass().toString() + ": SYST" +Rep);
+	}
+
+	private void processPWD() throws IOException {
+		String PWD= currentDir;
+		String message = ErrorCode.getMessage("257", PWD);
+		
+		if (clientAuthentified){
+			if (currentDir.equals("")){
+				PWD= home+ File.separator + currentUser;}
+				currentDir=PWD;
+				message = ErrorCode.getMessage("257", PWD);
+		}
+		
+		Tools.sendMessage(cltSocketCtrl, message);
+		System.out.println(this.getClass().toString() + ": user: "+currentUser +" PWD:"+ PWD);
+	}
+	
+	private void processTYPE(String reponse) throws IOException {
+	
+		String rep, paramCode;
+		if (reponse.equals("A")){
+			ftpType="A";
+			paramCode="Le mode ASCII a été défini";
+		} else {ftpType="I";
+		paramCode="Le mode BINAIRE a été défini";}
+		
+		rep=ErrorCode.getMessage("200", paramCode);
+		Tools.sendMessage(cltSocketCtrl, rep);
+		System.out.println(this.getClass().toString() + ": TYPE  "+ ftpType);
+				
+		
+	}
 }

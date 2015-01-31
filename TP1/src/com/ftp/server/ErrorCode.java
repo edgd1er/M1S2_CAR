@@ -2,8 +2,6 @@ package com.ftp.server;
 
 import java.util.HashMap;
 
-import sun.applet.Main;
-
 public final class ErrorCode {
 
 	private static HashMap<String, String> ftpErrorMap;
@@ -28,7 +26,7 @@ public final class ErrorCode {
 			message=message.replace("PARAM", _paramCode);
 		}
 		
-		System.out.println(message);
+		//System.out.println(message);
 		return message;
 
 	}
@@ -42,7 +40,7 @@ public final class ErrorCode {
 		ftpErrorMap.put("125",
 				"Connexion établie, transfert en cours de démarrage.");
 		ftpErrorMap.put("150", "");
-		ftpErrorMap.put("200", "SeriesAction demandée accomplie avec succès.");
+		ftpErrorMap.put("200", "PARAM.");
 		ftpErrorMap.put("202", "Commande non prise en charge par ce site.");
 		ftpErrorMap.put("211", "");
 		ftpErrorMap.put("212", "Statut de répertoire.");
@@ -50,7 +48,7 @@ public final class ErrorCode {
 		ftpErrorMap
 				.put("214",
 						"Message d'aide sur l'utilisation du serveur ou la signification d'une commande particulière non-standard. Cette réponse est uniquement utile à un utilisateur humain.");
-		ftpErrorMap.put("215", "");
+		ftpErrorMap.put("215", "Master 1 CAR 2014-2015 Serveur FTP en Java. PARAM");
 		ftpErrorMap
 				.put("220",
 						"Bienvenue dans le serveur PARAM.Identifiez vous avec la commande USER");
@@ -66,7 +64,7 @@ public final class ErrorCode {
 				.put("232",
 						"Commande de déconnexion enregistrée. S'effectuera à la fin du transfert.");
 		ftpErrorMap.put("250", "");
-		ftpErrorMap.put("257", "PATHNAME créé.");
+		ftpErrorMap.put("257", "PARAM créé.");
 		ftpErrorMap
 				.put("300",
 						"La commande a été acceptée, mais l'action demandée est en attente de plus amples informations.");
