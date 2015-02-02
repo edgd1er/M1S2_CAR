@@ -19,7 +19,7 @@ public class FtpRequest extends Thread {
 	private String home = Server.prepath;
 	private String currentDir = "";
 	private DataOutputStream dataOutControl;
-	private 	Boolean bUserConnected = true;
+	private Boolean bUserConnected = true;
 	private BufferedReader bufRdr;
 	private Boolean clientAuthentified = false;
 	private String ftpType;
@@ -27,6 +27,22 @@ public class FtpRequest extends Thread {
 	public FtpRequest(ServerSocket _srvSocket, Socket _clskt) {
 		cltSocketCtrl = _clskt;
 		srvSocketCtrl = _srvSocket;
+		String msg = "\n Creation " + this.getClass().toString();
+
+		msg += "\nClient socket:";
+		msg += "\n localAdress: " + cltSocketCtrl.getLocalAddress() + ":"
+				+ cltSocketCtrl.getLocalPort();
+		msg += "\n remote Adress: "
+				+ cltSocketCtrl.getRemoteSocketAddress().toString();
+		msg += "\n Port: " + cltSocketCtrl.getPort();
+
+		msg += "\nServer socket:";
+		msg += "\n InetAdress: " + srvSocketCtrl.getInetAddress()
+				+ " localport:" + srvSocketCtrl.getLocalPort();
+		msg += "\n localSocketAdress: "
+				+ srvSocketCtrl.getLocalSocketAddress().toString();
+		msg += "\n Fin constructeur";
+		System.out.println(msg);
 	}
 
 	// lancement du futur thread
@@ -92,12 +108,11 @@ public class FtpRequest extends Thread {
 				case "PWD":
 					processPWD();
 					break;
-					
+
 				case "TYPE":
 					processTYPE(acmd[1]);
 					break;
 
-					
 				default:
 					System.out.println(this.getClass().toString()
 							+ " Erreur, commande non reconnue:" + strcmd);
@@ -140,34 +155,56 @@ public class FtpRequest extends Thread {
 
 	}
 
-	private void processPASS(String strcmd) {
+	private void processPASS(String strcmd) throws IOException {
 
 		HashMap<String, String> usrMap;
-		String rep = "";
+		String rep = ErrorCode.getMessage("430", "");
 
-		try {
-			rep = ErrorCode.getMessage("430", "");
-			usrMap = loadPasswordList();
-
-			if (usrMap.containsKey(currentUser)) {
-				if (strcmd.equals(usrMap.get(currentUser))) {
-					rep = ErrorCode.getMessage("230", "");
-					clientAuthentified = true;
-				}
+		if (currentUser.toLowerCase().equals("anonymous")) {
+			if (checkEmail(strcmd)) {
+				rep = ErrorCode.getMessage("230", "");
+				clientAuthentified = true;
 			}
+		} else {
+			try {
+				usrMap = loadPasswordList();
+				if (usrMap.containsKey(currentUser)) {
+					if (strcmd.equals(usrMap.get(currentUser))) {
+						rep = ErrorCode.getMessage("230", "");
+						clientAuthentified = true;
+					}
+				}
 
-			Tools.sendMessage(cltSocketCtrl, rep);
-			System.out.println(this.getClass().toString() + " user: "
-					+ currentUser + ".isAuth= " + clientAuthentified);
-
-		} catch (IOException ioe) {
-			System.out
-					.println(this.getClass().toString()
-							+ " erreur: Impossible de charger la listes des utilisateurs,mdp\n");
-			ioe.printStackTrace();
-			killConnection();
+			} catch (IOException ioe) {
+				System.out
+						.println(this.getClass().toString()
+								+ " erreur: Impossible de charger la listes des utilisateurs,mdp\n");
+				ioe.printStackTrace();
+				killConnection();
+			}
 		}
+		
+		if (this.clientAuthentified) {
+			this.currentDir = this.home + File.separator
+					+ this.currentUser;
+		}
+		Tools.sendMessage(cltSocketCtrl, rep);
+		String msg = "\n" + this.getClass().toString() + " user: "
+				+ currentUser + ".isAuth= " + clientAuthentified
+				+ " pwd:" + strcmd + " currentDir: " + this.home
+				+ File.separator + this.currentUser;
+		System.out.println(msg);
 
+	}
+
+	private boolean checkEmail(String strcmd) {
+
+		if (strcmd
+				.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$")) {
+
+			return true;
+		}
+		return false;
 	}
 
 	// Chargement de la liste des users et des mdp...
@@ -217,37 +254,40 @@ public class FtpRequest extends Thread {
 	private void processSYST() throws IOException {
 		String Rep = ErrorCode.getMessage("215", "");
 		Tools.sendMessage(this.cltSocketCtrl, Rep);
-		System.out.println(this.getClass().toString() + ": SYST" +Rep);
+		System.out.println(this.getClass().toString() + ": SYST" + Rep);
 	}
 
 	private void processPWD() throws IOException {
-		String PWD= currentDir;
+		String PWD = currentDir;
 		String message = ErrorCode.getMessage("257", PWD);
-		
-		if (clientAuthentified){
-			if (currentDir.equals("")){
-				PWD= home+ File.separator + currentUser;}
-				currentDir=PWD;
-				message = ErrorCode.getMessage("257", PWD);
+
+		if (clientAuthentified) {
+			if (currentDir.equals("")) {
+				PWD = home + File.separator + currentUser;
+			}
+			currentDir = PWD;
+			message = ErrorCode.getMessage("257", PWD);
 		}
-		
+
 		Tools.sendMessage(cltSocketCtrl, message);
-		System.out.println(this.getClass().toString() + ": user: "+currentUser +" PWD:"+ PWD);
+		System.out.println(this.getClass().toString() + ": user: "
+				+ currentUser + " PWD:" + PWD);
 	}
-	
+
 	private void processTYPE(String reponse) throws IOException {
-	
+
 		String rep, paramCode;
-		if (reponse.equals("A")){
-			ftpType="A";
-			paramCode="Le mode ASCII a été défini";
-		} else {ftpType="I";
-		paramCode="Le mode BINAIRE a été défini";}
-		
-		rep=ErrorCode.getMessage("200", paramCode);
+		if (reponse.equals("A")) {
+			ftpType = "A";
+			paramCode = "Le mode ASCII a été défini";
+		} else {
+			ftpType = "I";
+			paramCode = "Le mode BINAIRE a été défini";
+		}
+
+		rep = ErrorCode.getMessage("200", paramCode);
 		Tools.sendMessage(cltSocketCtrl, rep);
-		System.out.println(this.getClass().toString() + ": TYPE  "+ ftpType);
-				
-		
+		System.out.println(this.getClass().toString() + ": TYPE  " + ftpType);
+
 	}
 }
