@@ -1,5 +1,7 @@
 package com.ftp.server;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.HashMap;
 
 public final class ErrorCode {
@@ -30,19 +32,25 @@ public final class ErrorCode {
 		return message;
 
 	}
+	
+	public static void sendErrorMessage(Socket s,String errorcode,String message) throws IOException{
+		System.out.println("Erreur: " + errorcode + " " + message);
+		Tools.sendMessage(s, message);
+	} 
+
 
 	private static void populateCode() {
 		ftpErrorMap
 				.put("100",
 						"L'action demandée est lancée, attendre une autre réponse avant de procéder à une nouvelle commande.");
-		ftpErrorMap.put("110", "");
+		ftpErrorMap.put("110", "Restart marker replay . In this case, the text is exact and not left to the particular implementatio");
 		ftpErrorMap.put("120", "Service prêt dans nnn minutes.");
 		ftpErrorMap.put("125",
 				"Connexion établie, transfert en cours de démarrage.");
-		ftpErrorMap.put("150", "");
+		ftpErrorMap.put("150", " 	File status okay; about to open data connection.");
 		ftpErrorMap.put("200", "PARAM.");
 		ftpErrorMap.put("202", "Commande non prise en charge par ce site.");
-		ftpErrorMap.put("211", "");
+		ftpErrorMap.put("211", " 	System status, or system help reply.");
 		ftpErrorMap.put("212", "Statut de répertoire.");
 		ftpErrorMap.put("213", "Statut de fichier.");
 		ftpErrorMap
@@ -52,13 +60,13 @@ public final class ErrorCode {
 		ftpErrorMap
 				.put("220",
 						"Bienvenue dans le serveur PARAM.Identifiez vous avec la commande USER");
-		ftpErrorMap.put("221", "");
-		ftpErrorMap.put("225", "");
+		ftpErrorMap.put("221", "Service closing control connection.");
+		ftpErrorMap.put("225", "Data connection open; no transfer in progress.");
 		ftpErrorMap.put("226", "Transfert terminé avec succès");
-		ftpErrorMap.put("227", "");
-		ftpErrorMap.put("228", "");
-		ftpErrorMap.put("229", "");
-		ftpErrorMap.put("230", "");
+		ftpErrorMap.put("227", "Entering Passive Mode (PARAM).");
+		ftpErrorMap.put("228", "Entering Long Passive Mode (PARAM).");
+		ftpErrorMap.put("229", "Entering Extended Passive Mode (|||port|).");
+		ftpErrorMap.put("230", "User logged in, proceed. Logged out if appropriate.");
 		ftpErrorMap.put("231", "Utilisateur déconnecté. Fin de service.");
 		ftpErrorMap
 				.put("232",
