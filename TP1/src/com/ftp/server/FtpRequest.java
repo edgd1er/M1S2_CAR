@@ -271,7 +271,7 @@ public class FtpRequest extends Thread {
 
 		Tools.sendMessage(cltSocketCtrl, message);
 		System.out.println(this.getClass().toString() + ": user: "
-				+ currentUser + " PWD:" + PWD);
+				+ currentUser + " Path:" + PWD);
 	}
 
 	private void processTYPE(String reponse) throws IOException {
@@ -279,10 +279,10 @@ public class FtpRequest extends Thread {
 		String rep, paramCode;
 		if (reponse.equals("A")) {
 			ftpType = "A";
-			paramCode = "Le mode ASCII a été défini";
+			paramCode = "Le mode ASCII a ete defini";
 		} else {
 			ftpType = "I";
-			paramCode = "Le mode BINAIRE a été défini";
+			paramCode = "Le mode BINAIRE a ete defini";
 		}
 
 		rep = ErrorCode.getMessage("200", paramCode);

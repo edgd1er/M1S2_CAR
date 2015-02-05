@@ -9,7 +9,8 @@ public class Server {
 	/**
 	 * @param args
 	 */
-	static String prepath ="/home/m1";
+	//static String prepath ="/home/m1";
+	static String prepath ="homedir";
 	
 	
 	
