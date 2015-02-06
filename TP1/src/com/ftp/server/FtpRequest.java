@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -16,6 +17,7 @@ public class FtpRequest extends Thread {
 
 	private Socket cltSocketCtrl;
 	private ServerSocket srvSocketCtrl;
+	private ServerSocket dataSrvSocket;
 	private String currentUser = "";
 	private String home = Server.prepath;
 	private String currentDir = "";
@@ -87,7 +89,7 @@ public class FtpRequest extends Thread {
 		if (idx!=-1 ){
 			tempcom=receiveMessage.substring(0, idx);
 			temppar=receiveMessage.substring(idx+1, receiveMessage.length());
-		}
+		} else {tempcom=receiveMessage; temppar="";}
 
 		if (Arrays.asList(ftpcmdList).contains(tempcom)){
 			commande= tempcom;
@@ -113,6 +115,10 @@ public class FtpRequest extends Thread {
 				processTYPE();
 			} else if (commande.toUpperCase().startsWith("FEAT")){
 				processFEAT(); 
+			} else if (commande.toUpperCase().startsWith("PASV")){
+					processPASV();
+			} else if (commande.toUpperCase().startsWith("PORT")){
+				processPORT();
 			} else {
 				System.out.println(this.getClass().toString()
 						+ " Erreur, commande non reconnue:" + commande + " "
@@ -149,6 +155,8 @@ public class FtpRequest extends Thread {
 			System.out.println(this.getClass().toString() + " " + parametre	
 					+ "> currentUser:" + this.currentUser);
 			ftpetat= ftpEtat.FS_WAIT_PASS;
+			commande="";
+			parametre="";
 		} else {
 			ErrorParametre("430", ErrorCode.getMessage("430", ""));
 		}
@@ -189,20 +197,29 @@ public class FtpRequest extends Thread {
 			Tools.sendMessage(cltSocketCtrl, rep);
 			System.out.println(this.getClass().toString() + " user: "
 					+ currentUser + ".isAuth= " + ftpetat);
+			commande="";
+			parametre="";
 
-		} catch (IOException ioe) {
+
+		} catch (SocketException se) {
+			System.out
+			.println(this.getClass().toString()
+					+ " erreur: Perte de la connection avec la socket\n");
+			se.printStackTrace();
+
+		}
+		catch (IOException ioe) {
 			System.out
 					.println(this.getClass().toString()
 							+ " erreur: Impossible de charger la listes des utilisateurs,mdp\n");
 			ioe.printStackTrace();
-			killConnection();
 		}
 	}
 
 	// Chargement de la liste des users et des mdp...
 	private HashMap<String, String> loadPasswordList() throws IOException {
 
-		String TableDesMdps = "mdp.txt";
+		String TableDesMdps = "TP1" + File.separator + "mdp.txt";
 		HashMap<String, String> usrMap = new HashMap<String, String>();
 
 		InputStream ipss = new FileInputStream(TableDesMdps);
@@ -242,6 +259,9 @@ public class FtpRequest extends Thread {
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
 		}
+		commande="";
+		parametre="";
+
 	}
 
 	// recuperation du chemin du serveur
@@ -260,6 +280,9 @@ public class FtpRequest extends Thread {
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
 		}
+		commande="";
+		parametre="";
+
 	}
 
 	// definition du type de fichier a transferer
@@ -279,6 +302,9 @@ public class FtpRequest extends Thread {
 		Tools.sendMessage(cltSocketCtrl, rep);
 		System.out.println(this.getClass().toString() + ": TYPE  " + ftpType);
 		}
+		commande="";
+		parametre="";
+
 	}
 
 	// presentation des features du serveur
@@ -287,7 +313,57 @@ public class FtpRequest extends Thread {
 			Tools.sendMessage(cltSocketCtrl, "Ben, en fait il n'ya en pas");
 			Tools.sendMessage(cltSocketCtrl, "vraiment pas");
 			Tools.sendMessage(cltSocketCtrl, "211 EndFeature");
+			commande="";
+			parametre="";
+
 	}
+
+	private void processPORT() {
+		//	227 Entering Passive Mode (192,168,150,90,195,149).
+		String rep="502", paramCode="Mode Type inconnu";
+		if (commande.equalsIgnoreCase("port")){
+		if (parametre.matches("([0-9]{1,3},){5}[0-9]{1,3}")){
+			System.out.println(commande + " " + parametre);
+			//TODO
+			String toto="";
+			}
+		}
+	
+	}
+
+	private void processPASV() throws IOException {
+		//	227 Entering Passive Mode (192,168,150,90,195,149).
+		String rep="502", paramCode="";
+		if (commande.equalsIgnoreCase("pasv")){
+		dataSrvSocket =  new ServerSocket(0);
+		String port_url= getEncPort();
+		
+		rep=ErrorCode.getMessage("227", port_url );
+				
+		Tools.sendMessage(cltSocketCtrl, port_url );
+		
+		//TODO
+		//lancer le thread FTPDATA
+		
+		
+		}
+	
+	}
+	
+	
+	// calcul de l'url a partir de l'@ IP et du port 
+	private String getEncPort() {
+		String port_url="";
+		port_url = dataSrvSocket.getInetAddress().getHostAddress();
+		//.replace(".", ",");
+		
+		String p1=String.valueOf(dataSrvSocket.getLocalPort()/256);
+		String p2= String.valueOf(dataSrvSocket.getLocalPort()%256);
+		
+		return port_url+","+p1+","+p2;
+		
+	}
+
 	// envoi du message d'erreur sur la socket cliente
 	private void ErrorParametre(String string, String message) throws IOException {
 
