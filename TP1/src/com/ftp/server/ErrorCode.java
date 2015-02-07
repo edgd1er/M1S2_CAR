@@ -47,7 +47,7 @@ public final class ErrorCode {
 		ftpErrorMap.put("120", "Service prêt dans nnn minutes.");
 		ftpErrorMap.put("125",
 				"Connexion établie, transfert en cours de démarrage.");
-		ftpErrorMap.put("150", " 	File status okay; about to open data connection.");
+		ftpErrorMap.put("150", "File status okay; about to open data connection.");
 		ftpErrorMap.put("200", "PARAM.");
 		ftpErrorMap.put("202", "Commande non prise en charge par ce site.");
 		ftpErrorMap.put("211", " 	System status, or system help reply.");
@@ -72,7 +72,7 @@ public final class ErrorCode {
 				.put("232",
 						"Commande de déconnexion enregistrée. S'effectuera à la fin du transfert.");
 		ftpErrorMap.put("250", "");
-		ftpErrorMap.put("257", "PARAM créé.");
+		ftpErrorMap.put("257", "PARAM");
 		ftpErrorMap
 				.put("300",
 						"La commande a été acceptée, mais l'action demandée est en attente de plus amples informations.");

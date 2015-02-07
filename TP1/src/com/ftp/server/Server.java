@@ -10,13 +10,15 @@ public class Server {
 	 * @param args
 	 */
 	static String prepath ;
+	private  int nbClients;
 	
 	
 	
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;
-		
+		int nbClients=0;
+		FtpRequest ftpreq=null;
 				 
 		 prepath = "/tmp/homedir";
 		
@@ -26,8 +28,15 @@ public class Server {
 			while(keepServingRunning){
 				   Socket cltSocCtrl = serverskt.accept() ;
 				   System.out.println("Server:incoming connection from " + cltSocCtrl.getInetAddress().getHostName());
-				   FtpRequest ftpreq = new FtpRequest(serverskt,cltSocCtrl);
-				   ftpreq.run();
+				   
+				   if (nbClients>5) {
+					   ftpreq = new FtpRequest(serverskt,cltSocCtrl,true);
+				   }else {
+					   ftpreq = new FtpRequest(serverskt,cltSocCtrl,false);
+				   }
+
+				   if (ftpreq !=null){ftpreq.start();}
+				   
 				   // thread start
 				   //ftpreq.start();
 				   System.out.println("Server:closed connection from " + cltSocCtrl.getInetAddress().getHostName());
