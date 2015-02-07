@@ -9,13 +9,16 @@ public class Server {
 	/**
 	 * @param args
 	 */
-	static String prepath ="/home/m1";
+	static String prepath ;
 	
 	
 	
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;
+		
+				 
+		 prepath = "/tmp/homedir";
 		
 		try {
 			serverskt = new ServerSocket(2100);
@@ -25,6 +28,8 @@ public class Server {
 				   System.out.println("Server:incoming connection from " + cltSocCtrl.getInetAddress().getHostName());
 				   FtpRequest ftpreq = new FtpRequest(serverskt,cltSocCtrl);
 				   ftpreq.run();
+				   // thread start
+				   //ftpreq.start();
 				   System.out.println("Server:closed connection from " + cltSocCtrl.getInetAddress().getHostName());
 				}
 			

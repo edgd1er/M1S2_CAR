@@ -7,17 +7,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class FtpRequest extends Thread {
 
 	private Socket cltSocketCtrl;
 	private ServerSocket srvSocketCtrl;
 	private ServerSocket dataSrvSocket;
+	private Socket datasocket ;
+	private String cltDataAddr;
+	private Integer cltDataPort;
 	private String currentUser = "";
 	private String home = Server.prepath;
 	private String currentDir = "";
@@ -35,7 +40,7 @@ public class FtpRequest extends Thread {
 
 	// lancement du futur thread
 	public void run() {
-		msgAccueil();
+		msgAccueil();		
 		try {
 			while (KeepRunning) {
 				parseCommande(Tools.receiveMessage(cltSocketCtrl));
@@ -50,20 +55,21 @@ public class FtpRequest extends Thread {
 					processRequest();
 					break;
 				}
+				commande = "";
+				parametre = "";
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			killConnection();
 			KeepRunning = false;
-			e.printStackTrace();
+			
 		}
 	}
-
 
 	public void msgAccueil() {
 
 		System.out.println(this.getClass() + " :client ip: "
 				+ cltSocketCtrl.getInetAddress().toString());
-		String adr = srvSocketCtrl.getInetAddress().getHostAddress();
 		String message = ErrorCode.getMessage("220", srvSocketCtrl
 				.getInetAddress().getHostName().toString());
 
@@ -75,30 +81,35 @@ public class FtpRequest extends Thread {
 		}
 	}
 
-	//reconnaissance des commandes
-	//http://www.iana.org/assignments/ftp-commands-extensions/ftp-commands-extensions.xhtml
+	// reconnaissance des commandes
+	// http://www.iana.org/assignments/ftp-commands-extensions/ftp-commands-extensions.xhtml
 	//
 	private void parseCommande(String receiveMessage) {
-		String tempcom="", temppar="";
-		String[] ftpcmdList= { "ABOR","ACCT", "ALLO", "APPE", "CWD", "DELE", "HELP", "LIST", "MODE", "NLST", "NOOP",
-			    "PASS", "PASV", "PORT", "QUIT", "REIN", "REST", "RETR", "RNFR", "RNTO", "SITE", "STAT",
-			    "STOR", "STRU", "TYPE", "USER","CDUP", "MKD", "PWD", "RMD", "SMNT","STOU", "SYST", "LIST","NLST", "PASV", "REST",
-			    "SITE" , "STOU" };
-		if (receiveMessage!=null){
-		int idx= receiveMessage.indexOf(" ");
-		if (idx!=-1 ){
-			tempcom=receiveMessage.substring(0, idx);
-			temppar=receiveMessage.substring(idx+1, receiveMessage.length());
-		} else {tempcom=receiveMessage; temppar="";}
+		String tempcom = "", temppar = "";
+		String[] ftpcmdList = { "ABOR", "ACCT", "ALLO", "APPE", "CWD", "DELE",
+				"HELP", "LIST", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT",
+				"QUIT", "REIN", "REST", "RETR", "RNFR", "RNTO", "SITE", "STAT",
+				"STOR", "STRU", "TYPE", "USER", "CDUP", "MKD", "PWD", "RMD",
+				"SMNT", "STOU", "SYST", "LIST", "NLST", "PASV", "REST", "SITE",
+				"STOU" };
+		if (receiveMessage != null) {
+			int idx = receiveMessage.indexOf(" ");
+			if (idx != -1) {
+				tempcom = receiveMessage.substring(0, idx);
+				temppar = receiveMessage.substring(idx + 1,
+						receiveMessage.length());
+			} else {
+				tempcom = receiveMessage;
+				temppar = "";
+			}
 
-		if (Arrays.asList(ftpcmdList).contains(tempcom)){
-			commande= tempcom;
-			parametre= temppar;
-		} 
+			if (Arrays.asList(ftpcmdList).contains(tempcom)) {
+				commande = tempcom;
+				parametre = temppar;
+			}
 		}
 	}
 
-	
 	// ecoute les commandes envoyés et lance le process adéquat
 	public void processRequest() {
 
@@ -113,20 +124,23 @@ public class FtpRequest extends Thread {
 				processPWD();
 			} else if (commande.toUpperCase().startsWith("TYPE")) {
 				processTYPE();
-			} else if (commande.toUpperCase().startsWith("FEAT")){
-				processFEAT(); 
-			} else if (commande.toUpperCase().startsWith("PASV")){
-					processPASV();
-			} else if (commande.toUpperCase().startsWith("PORT")){
+			} else if (commande.toUpperCase().startsWith("FEAT")) {
+				processFEAT();
+			} else if (commande.toUpperCase().startsWith("PASV")) {
+				processPASV();
+			} else if (commande.toUpperCase().startsWith("PORT")) {
 				processPORT();
+			} else if (commande.toUpperCase().startsWith("LIST")) {
+				processLIST();
 			} else {
 				System.out.println(this.getClass().toString()
 						+ " Erreur, commande non reconnue:" + commande + " "
 						+ parametre);
 
-				Tools.sendMessage(cltSocketCtrl,"500 Syntax error, command unrecognized");
+				Tools.sendMessage(cltSocketCtrl,
+						"500 Syntax error, command unrecognized");
 			}
-	
+
 		} catch (IOException e1) {
 			System.out.println(this.getClass().toString() + " erreur\n");
 			e1.printStackTrace();
@@ -134,9 +148,6 @@ public class FtpRequest extends Thread {
 			killConnection();
 		}
 		/*
-		 
-		 * (strcmd.startsWith("PASV")) {processPASV(strcmd);} else { if
-		 * (strcmd.startsWith("LIST")) {processLIST(strcmd);} else { if
 		 * (strcmd.startsWith("CWD")) {processCWD(strcmd);} else { if
 		 * (strcmd.startsWith("CDUP")) {processCDUP(strcmd);} else { if
 		 * (strcmd.startsWith("RETR")) {processRETR(strcmd);} else { if
@@ -148,15 +159,16 @@ public class FtpRequest extends Thread {
 	private void processUSER() throws IOException {
 
 		// Verification des conditions d'entrées
-		if (this.commande.toUpperCase().startsWith("USER")	&& (parametre.length() > 1)) {
+		if (this.commande.toUpperCase().startsWith("USER")
+				&& (parametre.length() > 1)) {
 			this.currentUser = parametre;
 			String Rep = ErrorCode.getMessage("331", "");
 			Tools.sendMessage(this.cltSocketCtrl, Rep);
-			System.out.println(this.getClass().toString() + " " + parametre	
+			System.out.println(this.getClass().toString() + " " + parametre
 					+ "> currentUser:" + this.currentUser);
-			ftpetat= ftpEtat.FS_WAIT_PASS;
-			commande="";
-			parametre="";
+			ftpetat = ftpEtat.FS_WAIT_PASS;
+			commande = "";
+			parametre = "";
 		} else {
 			ErrorParametre("430", ErrorCode.getMessage("430", ""));
 		}
@@ -166,40 +178,38 @@ public class FtpRequest extends Thread {
 	private void processPASS() {
 
 		HashMap<String, String> usrMap;
-		String rep = "";
+		String rep= ErrorCode.getMessage("430", "");
+
 		// Verification des conditions d'entrées
 		if (!this.commande.toUpperCase().startsWith("PASS")
-				|| (currentUser.equals("anonymous"))
-				|| (currentUser.length() < 1)) {
-
-			try{
-			ErrorParametre("430", ErrorCode.getMessage("430", ""));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
+		|| (currentUser.length() < 1)) {
+			rep= ErrorCode.getMessage("430", "");
+		} else if (currentUser.equals("anonymous")) {
+			ftpetat=ftpEtat.FS_LOGGED;
+			rep = ErrorCode.getMessage("230", "");
 		}
-
+		else {
 		try {
-			// error par défaut
-			rep = ErrorCode.getMessage("430", "");
 			// Chargement de la liste des mdp
 			usrMap = loadPasswordList();
 
 			// verification du login/pwd
-			if (usrMap.containsKey(currentUser)) {
-				if (parametre.equals(usrMap.get(currentUser))) {
+			if ((usrMap.containsKey(currentUser)) && (parametre.equals(usrMap.get(currentUser)))) {
 					rep = ErrorCode.getMessage("230", "");
 					ftpetat=ftpEtat.FS_LOGGED;
-				}
-			}
-
+				} 
+			
+			//Homedir
+			currentDir=(ftpetat==ftpEtat.FS_LOGGED)?home + File.separator + currentUser:"";
 			Tools.sendMessage(cltSocketCtrl, rep);
+			// log
 			System.out.println(this.getClass().toString() + " user: "
-					+ currentUser + ".isAuth= " + ftpetat);
-			commande="";
-			parametre="";
-
+					+ currentUser + ".status= " + ftpetat +"(0=wait_login, 1=wait_pass, 2=logged)");
+			
+			if (ftpetat!=ftpEtat.FS_LOGGED) {
+				//rien ne va plus, envoi du refus de pass et cloture de la connection.
+				killConnection();
+			}
 
 		} catch (SocketException se) {
 			System.out
@@ -215,11 +225,13 @@ public class FtpRequest extends Thread {
 			ioe.printStackTrace();
 		}
 	}
+	}
 
 	// Chargement de la liste des users et des mdp...
 	private HashMap<String, String> loadPasswordList() throws IOException {
 
-		String TableDesMdps = "TP1" + File.separator + "mdp.txt";
+		// String TableDesMdps = "TP1" + File.separator + "mdp.txt";
+		String TableDesMdps = "mdp.txt";
 		HashMap<String, String> usrMap = new HashMap<String, String>();
 
 		InputStream ipss = new FileInputStream(TableDesMdps);
@@ -236,7 +248,7 @@ public class FtpRequest extends Thread {
 
 	private void killConnection() {
 		try {
-			KeepRunning = false;
+ 			KeepRunning = false;
 			currentUser = "Anonymous";
 			System.out.println(this.getClass().toString()
 					+ " Killing the connection");
@@ -259,9 +271,6 @@ public class FtpRequest extends Thread {
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
 		}
-		commande="";
-		parametre="";
-
 	}
 
 	// recuperation du chemin du serveur
@@ -280,94 +289,123 @@ public class FtpRequest extends Thread {
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
 		}
-		commande="";
-		parametre="";
-
 	}
 
 	// definition du type de fichier a transferer
 	private void processTYPE() throws IOException {
-		
-		String rep="502", paramCode="Mode Type inconnu";
-		if (commande.equalsIgnoreCase("type")){
-		if (parametre.equalsIgnoreCase("A")) {
-			ftpType = "A";
-			paramCode = "Le mode ASCII a été défini";
-		}else  if (parametre.equalsIgnoreCase("A")){
-			ftpType = "I";
-			paramCode = "Le mode BINAIRE a été défini";
-		} 
 
-		rep = ErrorCode.getMessage("200", paramCode);
-		Tools.sendMessage(cltSocketCtrl, rep);
-		System.out.println(this.getClass().toString() + ": TYPE  " + ftpType);
+		String rep = "502", paramCode = "Mode Type inconnu";
+		if (commande.equalsIgnoreCase("type")) {
+			if (parametre.equalsIgnoreCase("A")) {
+				ftpType = "A";
+				paramCode = "Le mode ASCII a été défini";
+			} else if (parametre.equalsIgnoreCase("I")) {
+				ftpType = "I";
+				paramCode = "Le mode BINAIRE a été défini";
+			}
+
+			rep = ErrorCode.getMessage("200", paramCode);
+			Tools.sendMessage(cltSocketCtrl, rep);
+			System.out.println(this.getClass().toString() + ": TYPE  "
+					+ ftpType);
 		}
-		commande="";
-		parametre="";
-
 	}
 
 	// presentation des features du serveur
 	private void processFEAT() throws IOException {
-			Tools.sendMessage(cltSocketCtrl, "211- Features");
-			Tools.sendMessage(cltSocketCtrl, "Ben, en fait il n'ya en pas");
-			Tools.sendMessage(cltSocketCtrl, "vraiment pas");
-			Tools.sendMessage(cltSocketCtrl, "211 EndFeature");
-			commande="";
-			parametre="";
-
+		Tools.sendMessage(cltSocketCtrl, "211- Features");
+		Tools.sendMessage(cltSocketCtrl, "Ben, en fait il n'ya en pas");
+		Tools.sendMessage(cltSocketCtrl, "vraiment pas");
+		Tools.sendMessage(cltSocketCtrl, "211 EndFeature");
 	}
 
-	private void processPORT() {
-		//	227 Entering Passive Mode (192,168,150,90,195,149).
-		String rep="502", paramCode="Mode Type inconnu";
-		if (commande.equalsIgnoreCase("port")){
-		if (parametre.matches("([0-9]{1,3},){5}[0-9]{1,3}")){
-			System.out.println(commande + " " + parametre);
-			//TODO
-			String toto="";
+	private void processPORT() throws IOException {
+		// 227 Entering Passive Mode (192,168,150,90,195,149).
+		String rep = "502", paramCode = "Mode Type inconnu";
+		if (commande.equalsIgnoreCase("port")) {
+			if (parametre.matches("([0-9]{1,3},){5}[0-9]{1,3}")) {
+				System.out.println("processPORT"+commande + " " + parametre);
+				//recuperation de l @ et port client
+				String[] atmp =parametre.split(",");
+				cltDataAddr =atmp[0]+"."+atmp[1]+"."+atmp[2]+"."+atmp[3];
+				cltDataPort = Integer.parseInt(atmp[4])*256+Integer.parseInt(atmp[5]);
+				
+				rep = ErrorCode.getMessage("200", "Port accepted on "+ cltDataAddr + ":" + String.valueOf(cltDataPort));
+				Tools.sendMessage(cltSocketCtrl, rep);
 			}
 		}
-	
+
 	}
 
 	private void processPASV() throws IOException {
-		//	227 Entering Passive Mode (192,168,150,90,195,149).
-		String rep="502", paramCode="";
-		if (commande.equalsIgnoreCase("pasv")){
-		dataSrvSocket =  new ServerSocket(0);
-		String port_url= getEncPort();
-		
-		rep=ErrorCode.getMessage("227", port_url );
-				
-		Tools.sendMessage(cltSocketCtrl, port_url );
-		
-		//TODO
-		//lancer le thread FTPDATA
-		
-		
+		// 227 Entering Passive Mode (192,168,150,90,195,149).
+		String rep = "502", paramCode = "";
+		if (commande.equalsIgnoreCase("pasv")) {
+			dataSrvSocket = new ServerSocket(0);
+			
+			String port_url = getEncPort();
+			String msg ="ProcessPASV: creation de la ServerSocket " +dataSrvSocket.getInetAddress().getHostAddress() +":"+dataSrvSocket.getLocalPort();
+			rep = ErrorCode.getMessage("227", port_url);
+
+			Tools.sendMessage(cltSocketCtrl, rep);
+			System.out.println(msg);
+
 		}
-	
+
 	}
-	
-	
-	// calcul de l'url a partir de l'@ IP et du port 
+
+	// calcul de l'url a partir de l'@ IP et du port
 	private String getEncPort() {
-		String port_url="";
+		String port_url = "";
 		port_url = dataSrvSocket.getInetAddress().getHostAddress();
-		//.replace(".", ",");
-		
-		String p1=String.valueOf(dataSrvSocket.getLocalPort()/256);
-		String p2= String.valueOf(dataSrvSocket.getLocalPort()%256);
-		
-		return port_url+","+p1+","+p2;
-		
+		// .replace(".", ",");
+
+		String p1 = String.valueOf(dataSrvSocket.getLocalPort() / 256);
+		String p2 = String.valueOf(dataSrvSocket.getLocalPort() % 256);
+
+		return port_url + "," + p1 + "," + p2;
+
 	}
 
 	// envoi du message d'erreur sur la socket cliente
-	private void ErrorParametre(String string, String message) throws IOException {
+	private void ErrorParametre(String string, String message)
+			throws IOException {
 
 		ErrorCode.sendErrorMessage(cltSocketCtrl, string, message);
+
+	}
+	
+	private void processLIST() throws IOException {
+		// 
+		String rep = "502", paramCode = "";
+		if (commande.equalsIgnoreCase("list")) {
+			
+			//amorce de l'envoi
+			Tools.sendMessage(cltSocketCtrl,ErrorCode.getMessage("150", ""));
+			List<String> msg= Tools.getDirectoryListing(currentDir);
+			// envoi du listing
+			if (cltDataAddr!=null)
+			{
+				datasocket = new Socket(cltDataAddr, cltDataPort);
+				DataOutputStream DataOutStream = new DataOutputStream(datasocket.getOutputStream()); 
+				
+				for(String strTemp: msg){
+					DataOutStream.writeBytes(strTemp);
+				}
+				// nice and quiet close
+				DataOutStream.flush();
+				DataOutStream.close();
+			}
+			
+			
+			
+			datasocket.close();
+			Tools.sendMessage(cltSocketCtrl,ErrorCode.getMessage("226", ""));
+
+			String strTemp ="ProcessList: contenu du repertoire local" +msg.toString();
+			System.out.println(strTemp );
+
+		}
 
 	}
 }
