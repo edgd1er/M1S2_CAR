@@ -13,27 +13,58 @@ import java.util.List;
 
 public class Tools {
 
+	static InputStream is =null;
+	static InputStreamReader isr = null;
+	static BufferedReader br =null;
+	static OutputStream os =null;
+	static DataOutputStream dos=null;
+	
+	Tools(Socket s) throws IOException{
+		is = s.getInputStream();
+		isr = new InputStreamReader(is);
+		br = new BufferedReader(isr);
+		os = s.getOutputStream();
+		dos = new DataOutputStream(os);
+
+	}
+	
 	// Read mesasge on socket
-	public static String receiveMessage(Socket s) throws IOException {
-		InputStream is = s.getInputStream();
-		InputStreamReader isr = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(isr);
+	public String receiveMessage() throws IOException {
+		 //is = s.getInputStream();
+		//isr = new InputStreamReader(is);
+		 br = new BufferedReader(isr);
 		return br.readLine();
 	}
 
 	// Write Message on socket
-	public static void sendMessage(Socket s, String message) throws IOException {
-		OutputStream os = s.getOutputStream();
-		DataOutputStream dos = new DataOutputStream(os);
+	public void sendMessage(String message) throws IOException {
+		//os = s.getOutputStream();
+		//dos = new DataOutputStream(os);
 		if (!message.endsWith("\n")) {
 			message += "\n";
 		}
 		dos.writeBytes(message);
 
 	}
-
+	
+	
+	public void CloseStreams() {
+		try {
+			System.out.println(" closing input/output streams");
+			dos.writeBytes("226 Fermeture de la connection");
+			dos.close();
+			os.close();
+			br.close();
+			isr.close();
+			is.close();
+			
+		} catch (Exception e) {
+			System.out.println(" erreur: requesting closing streams");
+			e.printStackTrace();
+		}
+	}
 	//est ce un email
-	public static Boolean isEmail(String emailaTester){
+	public Boolean isEmail(String emailaTester){
 		
 		boolean res= false;
 	
@@ -45,7 +76,7 @@ public class Tools {
 		return res;
 	} 
 	// returns the localDir contents
-	public static List<String> getDirectoryListing(String localDir) {
+	public List<String> getDirectoryListing(String localDir) {
 
 		String strTemp=null;
 		File thisDir = new File(localDir);
@@ -68,7 +99,7 @@ public class Tools {
 		return message;
 	}
 
-	public static String checkDir(String parametre, String _CDir) {
+	public String checkDir(String parametre, String _CDir) {
 		// TODO
 		String tempdir=null, res="0 ";
 		

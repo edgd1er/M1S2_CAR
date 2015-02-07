@@ -7,10 +7,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +18,7 @@ public class FtpRequest extends Thread {
 	private Socket cltSocketCtrl;
 	private ServerSocket srvSocketCtrl;
 	private ServerSocket dataSrvSocket;
-	private Socket datasocket ;
+	private Socket datasocket;
 	private String cltDataAddr;
 	private Integer cltDataPort;
 	private String currentUser = "";
@@ -31,36 +29,48 @@ public class FtpRequest extends Thread {
 	private String parametre = "";
 	private boolean KeepRunning = true;
 	private String ftpType = "";
-	boolean tooManyClient=false;
-	boolean isPASV=false;
+	boolean tooManyClient = false;
+	boolean isPASV = false;
+	Tools mytools = null;
 
-	public FtpRequest(ServerSocket _srvSocket, Socket _clskt,boolean _tooMAny) {
+	public FtpRequest(ServerSocket _srvSocket, Socket _clskt, boolean _tooMAny) {
 		cltSocketCtrl = _clskt;
 		srvSocketCtrl = _srvSocket;
-		tooManyClient=_tooMAny;
+		tooManyClient = _tooMAny;
 		ftpetat = ftpEtat.FS_WAIT_LOGIN;
 	}
 
 	// lancement du futur thread
 	public void run() {
-		msgAccueil();
-		
-		if (tooManyClient){
-			String message=ErrorCode.getMessage("10068","");
-			try{
-			Tools.sendMessage(cltSocketCtrl, message);
-			killConnection();
-			}
-			catch(Exception e){
-				//Rien A Faire: cloture de la connection de tt façon.
-			}
 
+		try {
+			mytools = new Tools(cltSocketCtrl);
+		} catch (IOException e) {
+			System.out.println("ca commence mal, le client est parti....");
+			KeepRunning = false;
+		}
+
+		if (tooManyClient) {
+			String message = ErrorCode
+					.getMessage(
+							"421",
+							" La limite du nombre de client connectes a ete depasse. Veuillez reessayer plus tard.");
+			try {
+				mytools.sendMessage(message);
+				killConnection();
+			} catch (Exception e) {
+				// Rien A Faire: cloture de la connection de tt façon.
+				e.printStackTrace();
 			}
-		
+		} else {
+			msgAccueil();
+		}
+
 		try {
 			while (KeepRunning) {
-				parseCommande(Tools.receiveMessage(cltSocketCtrl));
-				System.out.println("Commande reçue a traiter :" + commande +" " +parametre);
+				parseCommande(mytools.receiveMessage());
+				System.out.println("Commande reçue a traiter :" + commande
+						+ " " + parametre);
 				switch (ftpetat) {
 				case ftpEtat.FS_WAIT_LOGIN:
 					processUSER();
@@ -79,10 +89,10 @@ public class FtpRequest extends Thread {
 			e.printStackTrace();
 			killConnection();
 			KeepRunning = false;
-			
+
 		}
-		//fin de try
-		System.out.println("Commande reçue:" + commande +" " +parametre);
+		// fin de try
+		System.out.println("fin de cette connection.");
 	}
 
 	public void msgAccueil() {
@@ -90,10 +100,12 @@ public class FtpRequest extends Thread {
 		System.out.println(this.getClass() + " :client ip: "
 				+ cltSocketCtrl.getInetAddress().toString());
 		String message = ErrorCode.getMessage("220", srvSocketCtrl
-				.getInetAddress().getHostName().toString());
+				.getInetAddress().toString()
+				+ ". il y a actuellement "
+				+ Server.nbClients + " utilisateur(s) en ligne");
 
 		try {
-			Tools.sendMessage(cltSocketCtrl, message);
+			mytools.sendMessage(message);
 		} catch (IOException e) {
 			System.err.println(this.getClass().getName() + ": erreur\n");
 			e.printStackTrace();
@@ -155,13 +167,14 @@ public class FtpRequest extends Thread {
 				processRETR();
 			} else if (commande.toUpperCase().startsWith("CWD")) {
 				processCWD();
+			} else if (commande.toUpperCase().startsWith("QUIT")) {
+				processQUIT();
 			} else {
 				System.out.println(this.getClass().toString()
 						+ " Erreur, commande non reconnue:" + commande + " "
 						+ parametre);
 
-				Tools.sendMessage(cltSocketCtrl,
-						"500 Syntax error, command unrecognized");
+				mytools.sendMessage("500 Syntax error, command unrecognized");
 			}
 
 		} catch (IOException e1) {
@@ -172,7 +185,7 @@ public class FtpRequest extends Thread {
 		}
 		/*
 		 * (strcmd.startsWith("CWD")) {processCWD(strcmd);} else { if
-		 * (strcmd.startsWith("CDUP")) {processCDUP(strcmd);} else { if
+		 * (strcmd.startsWith("CDUCommandeP")) {processCDUP(strcmd);} else { if
 		 * (strcmd.startsWith("RETR")) {processRETR(strcmd);} else { if
 		 * (strcmd.startsWith("STOR")) {processSTOR(strcmd);} }}}}}}}}}}}
 		 */
@@ -181,13 +194,12 @@ public class FtpRequest extends Thread {
 	// envoie vers le client d'un fichier
 	private void processRETR() throws IOException {
 		String rep = "502";
-		if (this.commande.toUpperCase().startsWith("RETR"))
-				{
-			
-				}
-		Tools.sendMessage(cltSocketCtrl, rep);
-		System.out.println(this.getClass().toString() + " RETR: envoie du fichier"
-				+ parametre );
+		if (this.commande.toUpperCase().startsWith("RETR")) {
+
+		}
+		mytools.sendMessage(rep);
+		System.out.println(this.getClass().toString()
+				+ " RETR: envoie du fichier" + parametre);
 	}
 
 	// recuperation du login utilisateur
@@ -198,7 +210,7 @@ public class FtpRequest extends Thread {
 				&& (parametre.length() > 1)) {
 			this.currentUser = parametre;
 			String Rep = ErrorCode.getMessage("331", "");
-			Tools.sendMessage(this.cltSocketCtrl, Rep);
+			mytools.sendMessage(Rep);
 			System.out.println(this.getClass().toString() + " " + parametre
 					+ "> currentUser:" + this.currentUser);
 			ftpetat = ftpEtat.FS_WAIT_PASS;
@@ -213,61 +225,60 @@ public class FtpRequest extends Thread {
 	private void processPASS() throws IOException {
 
 		HashMap<String, String> usrMap;
-		String rep= ErrorCode.getMessage("430", "");
+		String rep = ErrorCode.getMessage("430", "");
 
 		// Verification des conditions d'entrées
 		if (!this.commande.toUpperCase().startsWith("PASS")
-		|| (currentUser.length() < 1)) {
-			rep= ErrorCode.getMessage("430", "");
-			//gestion du mode anonyme
+				|| (currentUser.length() < 1)) {
+			rep = ErrorCode.getMessage("430", "");
+			// gestion du mode anonyme
 		} else if (currentUser.equals("anonymous")) {
-			if (Tools.isEmail(parametre)==true ){
-			ftpetat=ftpEtat.FS_LOGGED;
-			rep = ErrorCode.getMessage("230", "");
+			if (mytools.isEmail(parametre) == true) {
+				ftpetat = ftpEtat.FS_LOGGED;
+				rep = ErrorCode.getMessage("230", "");
 			}
-		}
-		else {
-		try {
-			// Chargement de la liste des mdp
-			usrMap = loadPasswordList();
+		} else {
+			try {
+				// Chargement de la liste des mdp
+				usrMap = loadPasswordList();
 
-			// verification du login/pwd
-			if (usrMap.containsKey(currentUser)){
-				if (parametre.equals(usrMap.get(currentUser))) {
-					rep = ErrorCode.getMessage("230", "");
-					ftpetat=ftpEtat.FS_LOGGED;
-				} 
-			}
-			}
-		catch (IOException ioe) {
-			System.out
-					.println(this.getClass().toString()
-							+ " erreur: Impossible de charger la listes des utilisateurs,mdp\n");
-			ioe.printStackTrace();
-		}
-		catch (Exception e){
-			System.out
-			.println(this.getClass().toString()
-					+ " erreur: utilisateur absent de la liste des utilisateurs. Ce cas ne devrait pas arriver.( anonymous ou \n");
-			e.printStackTrace();
-			
-			}
-		}
-		
-		
-			//Homedir
-			currentDir=(ftpetat==ftpEtat.FS_LOGGED)?home + File.separator + currentUser:"";
-			Tools.sendMessage(cltSocketCtrl, rep);
-			// log
-			System.out.println(this.getClass().toString() + " user: "
-					+ currentUser + ".status= " + ftpetat +"(0=wait_login, 1=wait_pass, 2=logged)");
-			
-			if (ftpetat!=ftpEtat.FS_LOGGED) {
-				//rien ne va plus, envoi du refus de pass et cloture de la connection.
-				killConnection();
-			}
+				// verification du login/pwd
+				if (usrMap.containsKey(currentUser)) {
+					if (parametre.equals(usrMap.get(currentUser))) {
+						rep = ErrorCode.getMessage("230", "");
+						ftpetat = ftpEtat.FS_LOGGED;
+					}
+				}
+			} catch (IOException ioe) {
+				System.out
+						.println(this.getClass().toString()
+								+ " erreur: Impossible de charger la listes des utilisateurs,mdp\n");
+				ioe.printStackTrace();
+			} catch (Exception e) {
+				System.out
+						.println(this.getClass().toString()
+								+ " erreur: utilisateur absent de la liste des utilisateurs. Ce cas ne devrait pas arriver.( anonymous ou \n");
+				e.printStackTrace();
 
+			}
 		}
+
+		// Homedir
+		currentDir = (ftpetat == ftpEtat.FS_LOGGED) ? home + File.separator
+				+ currentUser : "";
+		mytools.sendMessage(rep);
+		// log
+		System.out.println(this.getClass().toString() + " user: " + currentUser
+				+ ".status= " + ftpetat
+				+ "(0=wait_login, 1=wait_pass, 2=logged)");
+
+		if (ftpetat != ftpEtat.FS_LOGGED) {
+			// rien ne va plus, envoi du refus de pass et cloture de la
+			// connection.
+			killConnection();
+		}
+
+	}
 
 	// Chargement de la liste des users et des mdp...
 	private HashMap<String, String> loadPasswordList() throws IOException {
@@ -292,7 +303,7 @@ public class FtpRequest extends Thread {
 
 		if (commande.equalsIgnoreCase("syst")) {
 			String Rep = ErrorCode.getMessage("215", "");
-			Tools.sendMessage(this.cltSocketCtrl, Rep);
+			mytools.sendMessage(Rep);
 			System.out.println(this.getClass().toString() + ": SYST" + Rep);
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
@@ -307,12 +318,12 @@ public class FtpRequest extends Thread {
 
 			PWD = currentDir.equals("") ? home + File.separator + currentUser
 					: currentDir;
-			message = ErrorCode.getMessage("257", "\"" +PWD + "\" ");
+			message = ErrorCode.getMessage("257", "\"" + PWD + "\" ");
 
-			Tools.sendMessage(cltSocketCtrl, message);
+			mytools.sendMessage(message);
 			System.out.println(this.getClass().toString() + ": user: "
 					+ currentUser + " PWD:" + PWD);
-			
+
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""));
 		}
@@ -332,7 +343,7 @@ public class FtpRequest extends Thread {
 			}
 
 			rep = ErrorCode.getMessage("200", paramCode);
-			Tools.sendMessage(cltSocketCtrl, rep);
+			mytools.sendMessage(rep);
 			System.out.println(this.getClass().toString() + ": TYPE  "
 					+ ftpType);
 		}
@@ -340,26 +351,34 @@ public class FtpRequest extends Thread {
 
 	// presentation des features du serveur
 	private void processFEAT() throws IOException {
-		Tools.sendMessage(cltSocketCtrl, "211- Features");
-		Tools.sendMessage(cltSocketCtrl, "Ben, en fait il n'ya en pas");
-		Tools.sendMessage(cltSocketCtrl, "vraiment pas");
-		Tools.sendMessage(cltSocketCtrl, "211 EndFeature");
+		mytools.sendMessage("211- Features");
+		mytools.sendMessage("Ben, en fait il n'ya en pas");
+		mytools.sendMessage("vraiment pas");
+		mytools.sendMessage("211 EndFeature");
 	}
 
 	private void processPORT() throws IOException {
 		// 227 Entering Passive Mode (192,168,150,90,195,149).
-		String rep = "502", paramCode = "Mode Type inconnu";
+		String rep = "501", paramCode = "Erreur dans le numero du port fourni.";
 		if (commande.equalsIgnoreCase("port")) {
 			if (parametre.matches("([0-9]{1,3},){5}[0-9]{1,3}")) {
-				System.out.println("processPORT"+commande + " " + parametre);
-				//recuperation de l @ et port client
-				String[] atmp =parametre.split(",");
-				cltDataAddr =atmp[0]+"."+atmp[1]+"."+atmp[2]+"."+atmp[3];
-				cltDataPort = Integer.parseInt(atmp[4])*256+Integer.parseInt(atmp[5]);
-				
-				rep = ErrorCode.getMessage("200", "Port accepted on "+ cltDataAddr + ":" + String.valueOf(cltDataPort));
-				Tools.sendMessage(cltSocketCtrl, rep);
+				System.out.println("processPORT" + commande + " " + parametre);
+				// recuperation de l @ et port client
+				String[] atmp = parametre.split(",");
+				cltDataAddr = atmp[0] + "." + atmp[1] + "." + atmp[2] + "."
+						+ atmp[3];
+				cltDataPort = Integer.parseInt(atmp[4]) * 256
+						+ Integer.parseInt(atmp[5]);
+				// Port correct ?
+				if (cltDataPort<65535 && cltDataPort>1023){
+					rep="200";
+
+					paramCode = "Port accepted on "
+							+ cltDataAddr + ":" + String.valueOf(cltDataPort);
+				}
 			}
+				rep = ErrorCode.getMessage(rep, paramCode);
+				mytools.sendMessage(rep);
 		}
 
 	}
@@ -368,14 +387,16 @@ public class FtpRequest extends Thread {
 		// 227 Entering Passive Mode (192,168,150,90,195,149).
 		String rep = "502", paramCode = "";
 		if (commande.equalsIgnoreCase("pasv")) {
-			isPASV=true;
+			isPASV = true;
 			dataSrvSocket = new ServerSocket(0);
-			
+
 			String port_url = getEncPort();
-			String msg ="ProcessPASV: creation de la ServerSocket " +dataSrvSocket.getInetAddress().getHostAddress() +":"+dataSrvSocket.getLocalPort();
+			String msg = "ProcessPASV: creation de la ServerSocket "
+					+ dataSrvSocket.getInetAddress().getHostAddress() + ":"
+					+ dataSrvSocket.getLocalPort();
 			rep = ErrorCode.getMessage("227", port_url);
 
-			Tools.sendMessage(cltSocketCtrl, rep);
+			mytools.sendMessage(rep);
 			System.out.println(msg);
 
 		}
@@ -396,84 +417,101 @@ public class FtpRequest extends Thread {
 	}
 
 	// envoi du message d'erreur sur la socket cliente
-	private void ErrorParametre(String string, String message)
+	private void ErrorParametre(String errorcode, String message)
 			throws IOException {
 
-		ErrorCode.sendErrorMessage(cltSocketCtrl, string, message);
+		ErrorCode.sendErrorMessage(mytools, errorcode, message);
 
 	}
-	
+
 	private void killConnection() {
 		try {
 			KeepRunning = false;
 			currentUser = "Anonymous";
 			System.out.println(this.getClass().toString()
-					+ " Killing the connection");
+					+ " Killing the connection: il reste " + --Server.nbClients
+					+ " utilisateur(s).");
+
+			mytools.CloseStreams();
 			this.cltSocketCtrl.close();
-	
+
 		} catch (Exception e) {
 			System.out.println(this.getClass().toString()
 					+ " erreur: requesting close connection\n");
 			e.printStackTrace();
 		}
-	
+
 	}
 
 	private void processLIST() throws IOException {
-		// 
+		//
 		String rep = "502", paramCode = "Erreur de traitement";
 		if (commande.equalsIgnoreCase("list")) {
-			
-			//amorce de l'envoi
-			Tools.sendMessage(cltSocketCtrl,ErrorCode.getMessage("150", ""));
-			List<String> msg= Tools.getDirectoryListing(currentDir);
+
+			// amorce de l'envoi
+			mytools.sendMessage(ErrorCode.getMessage("150", ""));
+			List<String> msg = mytools.getDirectoryListing(currentDir);
 			// envoi du listing
-			if (cltDataAddr!=null)
-			{
+			if (cltDataAddr != null) {
 				datasocket = new Socket(cltDataAddr, cltDataPort);
-				DataOutputStream DataOutStream = new DataOutputStream(datasocket.getOutputStream()); 
-				
-				for(String strTemp: msg){
+				DataOutputStream DataOutStream = new DataOutputStream(
+						datasocket.getOutputStream());
+
+				for (String strTemp : msg) {
 					DataOutStream.writeBytes(strTemp);
 				}
 				// nice and quiet close
 				DataOutStream.flush();
 				DataOutStream.close();
 			}
-			
-			datasocket.close();
-				
-			
-			Tools.sendMessage(cltSocketCtrl,ErrorCode.getMessage("226", ""));
 
-			String strTemp ="ProcessList: contenu du repertoire local" +msg.toString();
-			System.out.println(strTemp );
+			datasocket.close();
+
+			mytools.sendMessage(ErrorCode.getMessage("226", ""));
+
+			String strTemp = "ProcessList: contenu du repertoire local"
+					+ msg.toString();
+			System.out.println(strTemp);
 
 		}
 
 	}
-	
-	//changement de repertoire
+
+	// changement de repertoire
 	private void processCWD() throws IOException {
 
-		String rep = "502", paramCode = "Dossier inexistant, le dossier actuel reste " +currentDir;
+		String rep = "502", paramCode = "Dossier inexistant, le dossier actuel reste "
+				+ currentDir;
 		String tempdir = null;
-		
+
 		if (commande.equalsIgnoreCase("cwd")) {
 
-		// TODO verification des droits  de changement
-		tempdir= Tools.checkDir(parametre, currentDir);
-		if (tempdir.startsWith("1")){
-			rep="200";
-			currentDir=tempdir.substring(2);
-			paramCode="dossier courant devient "+currentDir;
+			// TODO verification des droits de changement
+			tempdir = mytools.checkDir(parametre, currentDir);
+			if (tempdir.startsWith("1")) {
+				rep = "200";
+				currentDir = tempdir.substring(2);
+				paramCode = "dossier courant devient " + currentDir;
 			}
 		}
-		
-		Tools.sendMessage(cltSocketCtrl,ErrorCode.getMessage(rep, paramCode));
 
-		String strTemp ="ProcessCWD: repertoire local" + currentDir;
-		System.out.println(strTemp );
+		mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+
+		String strTemp = "ProcessCWD: repertoire local" + currentDir;
+		System.out.println(strTemp);
+
+	}
+
+	// changement de repertoire
+	private void processQUIT() throws IOException {
+		String rep = "221", paramCode = "Fin de la connection demandee.";
+
+		if (commande.equalsIgnoreCase("quit")) {
+			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+			killConnection();
+			String strTemp = "ProcessQuit: fin de la connection FTP demandee.";
+			System.out.println(strTemp);
+		}
 
 	}
 }
