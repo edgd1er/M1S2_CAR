@@ -3,11 +3,15 @@ package com.ftp.server;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,7 @@ public class Tools {
 		br = new BufferedReader(isr);
 		os = s.getOutputStream();
 		dos = new DataOutputStream(os);
+		s.setKeepAlive(true);
 
 	}
 	
@@ -48,7 +53,7 @@ public class Tools {
 
 	}
 	
-	
+	// ça dit ce que ça fait et l'inverse aussi ;)
 	public void CloseStreams() {
 		try {
 			System.out.println(" closing input/output streams");
@@ -100,6 +105,7 @@ public class Tools {
 		return message;
 	}
 
+	//retourne 1 si l'element testé est un dossier
 	public String checkDir(String parametre, String _CDir) {
 		// TODO
 		String tempdir=null, res="0 ";
@@ -120,6 +126,52 @@ public class Tools {
 		
 		return res+tempdir;
 		
+	}
+
+	// retourne le chemin demandé s'il existe 
+	public String getNewDirectory(String _CDir, String parametre) {
+		// TODO Auto-generated method stub
+		String tempdir=null;
+		Path mypath=null;
+		
+		if (parametre.startsWith("/"))
+		{
+			tempdir= parametre;
+		}
+		else {
+			//gestion des clients qui envoient les chemins de façon différentes.
+			tempdir = _CDir.endsWith(File.separator)?_CDir :_CDir + File.separator ;
+			tempdir += parametre.startsWith(File.separator)?parametre.substring(2):parametre;
+		}
+		
+		try{
+			mypath = Paths.get(tempdir);
+			Path absPath = mypath.toAbsolutePath().normalize();
+			if (Files.exists(absPath))
+				{
+				tempdir= absPath.toString();
+				}else {tempdir=_CDir;}
+			return tempdir;
+		}
+		catch(IOError ioe) {
+			return (_CDir);
+			}
+		}
+
+	// retourne le dossier parent s'il existe
+	public String getParentDir(String _cDir) {
+		// TODO Auto-generated method stub
+		Path mypath=null, tempPath=null;
+		
+		mypath = Paths.get(_cDir);
+			tempPath=  mypath.getParent();
+			
+			if (tempPath!=null){
+				return tempPath.toAbsolutePath().normalize().toString();
+		}
+			else {
+			return _cDir;
+		}
 	}
 
 }

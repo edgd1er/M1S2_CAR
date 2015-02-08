@@ -236,7 +236,7 @@ public class ftpData extends Thread {
 			System.out.println(messalog);
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
-			paramCode = "Fichier non accessible: " + parametre;
+			paramCode = "Cannot access: " + parametre;
 			ErrorCode.getMessage(rep, paramCode);
 
 			returnstatus = ErrorCode.getMessage(rep, paramCode);

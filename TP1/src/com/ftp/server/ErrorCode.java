@@ -16,15 +16,19 @@ public final class ErrorCode {
 
 		String message="";
 		try {
-			message = _ErrorCode+ " " + ftpErrorMap.get("500");
 			message = _ErrorCode+ " " + ftpErrorMap.get(_ErrorCode);}
 		catch(Exception e ){
+			message = _ErrorCode+ " " + ftpErrorMap.get("501");
+			_paramCode="";
 			System.err.println("ErrorCode: erreur non identifié: "+ _ErrorCode +"\n");			
 			e.printStackTrace();
 		}
+		finally{
+			if (!(_paramCode == null)) {
+				return message.replace("PARAM", _paramCode);
 
-		if (!(_paramCode == null)) {
-			message=message.replace("PARAM", _paramCode);
+		}
+
 		}
 		
 		//System.out.println(message);
@@ -103,7 +107,7 @@ public final class ErrorCode {
 		ftpErrorMap.put("532", "Besoin d'un compte pour charger des fichiers.");
 		ftpErrorMap
 				.put("550",
-						"Requête non exécutée. Fichier indisponible (ex., fichier introuvable, pas d'accès).");
+						"Requête non exécutée. Fichier indisponible (ex., fichier introuvable, pas d'accès).PARAM");
 		ftpErrorMap.put("551", "");
 		ftpErrorMap.put("552", "");
 		ftpErrorMap.put("553",

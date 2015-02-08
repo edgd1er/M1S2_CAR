@@ -267,12 +267,19 @@ public class FtpRequest extends Thread {
 	// Remonte vers le repertoire parent
 	// TODO verif si CDUP possible
 	private void processCDUP() throws IOException {
-		String rep = "500", paramCode = "";
+		String rep = "550", paramCode = "This is the root folder.", tempDir;
 		String messageLog = this.getClass().toString()
 				+ " CDUP: avec currentDir=" + currentDir;
 
 		if (this.commande.toUpperCase().startsWith("CDUP")) {
-
+			
+			tempDir= mytools.getParentDir(currentDir);
+			if (!tempDir.equalsIgnoreCase(currentDir)){
+				currentDir=tempDir;
+				rep="250";
+				paramCode="Directory changed to " + currentDir; 
+			}
+			
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 			System.out.println(messageLog);
 		} else {
@@ -414,13 +421,12 @@ public class FtpRequest extends Thread {
 	private void processSYST() throws IOException {
 		String rep = "500", paramCode = "";
 		String messageLog = this.getClass().toString() + " commande: "
-				+ commande;
+				+ commande+ " ";
 
 		if (commande.equalsIgnoreCase("syst")) {
 			rep = "215";
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-			System.out.println(messageLog + ": SYST"
-					+ ErrorCode.getMessage(rep, paramCode));
+			System.out.println(messageLog + ErrorCode.getMessage(rep, paramCode));
 		} else {
 			ErrorParametre("502", ErrorCode.getMessage("502", ""), messageLog);
 		}
@@ -428,21 +434,19 @@ public class FtpRequest extends Thread {
 
 	// recuperation du chemin du serveur
 	private void processPWD() throws IOException {
-		String rep = "502", paramCode = " Chemin invalide.", messageLog = this
-				.getClass().toString() + " commande: " + commande;
+		String rep = "550", paramCode = " Chemin invalide.", messageLog = this
+				.getClass().toString() + " commande: " + commande +" ";
 
-		String PWD = null;
+		String tempDir = null;
 
 		if (commande.equalsIgnoreCase("pwd")) {
-
-			PWD = currentDir.equals("") ? home + File.separator + currentUser
-					: currentDir;
-			rep = "257";
-			paramCode = "\"" + PWD + "\" cree.";
+	
+			rep="257";
+			paramCode =currentDir; 
+			
 
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-			System.out.println(messageLog + ": SYST"
-					+ ErrorCode.getMessage(rep, paramCode));
+			System.out.println(messageLog + ErrorCode.getMessage(rep, paramCode));
 
 		} else {
 			ErrorParametre(rep, ErrorCode.getMessage(rep, paramCode),
@@ -635,7 +639,7 @@ public class FtpRequest extends Thread {
 
 				//cloture de l envoi
 				rep= myftpData.getReturnstatus();
-				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+				mytools.sendMessage(rep);
 				
 		
 		} else {
@@ -658,7 +662,7 @@ public class FtpRequest extends Thread {
 	// changement de repertoire
 	private void processCWD() throws IOException {
 
-		String rep = "502", paramCode = "Dossier inexistant, le dossier actuel reste "
+		String rep = "550", paramCode = "Dossier inexistant, le dossier actuel reste "
 				+ currentDir, tempdir = null, messageLog = this.getClass()
 				.toString()
 				+ "processCWD"
@@ -666,15 +670,16 @@ public class FtpRequest extends Thread {
 				+ commande
 				+ " "
 				+ parametre;
+		String tempDir=null;
 
 		if (commande.equalsIgnoreCase("cwd")) {
 
 			// TODO verification des droits de changement
-			tempdir = mytools.checkDir(parametre, currentDir);
-			if (tempdir.startsWith("1")) {
-				rep = "200";
-				currentDir = tempdir.substring(2);
-				paramCode = "dossier courant devient " + currentDir;
+			tempDir= mytools.getNewDirectory(currentDir, parametre);
+			if (!tempDir.equalsIgnoreCase(currentDir)){
+				currentDir=tempDir;
+				rep="250";
+				paramCode="Directory changed to " + currentDir; 
 			}
 		}
 
