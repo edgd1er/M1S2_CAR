@@ -1,5 +1,7 @@
 package com.ftp.server;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,10 +9,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class ftpData extends Thread {
@@ -26,6 +31,7 @@ public class ftpData extends Thread {
 	String port_url = null;
 	private boolean KeepRunning = true;
 	private String returnstatus;
+	public boolean isASCII=false;
 
 	// constructeur du mode client -> server
 	public ftpData(boolean _isPASV) throws IOException {
@@ -56,6 +62,7 @@ public class ftpData extends Thread {
 		this.aString = aInfo2Send;
 		this.commande = commande;
 		this.parametre = parametre;
+		this.isASCII =false; //mode par defaut
 	}
 
 	// mode PASV
@@ -72,6 +79,7 @@ public class ftpData extends Thread {
 		this.aString = aInfo2Send;
 		this.commande = commande;
 		this.parametre = parametre;
+		this.isASCII =false; //mode par defaut
 	}
 
 	// separation creation socket serveur ou client selon le mode.
@@ -121,9 +129,11 @@ public class ftpData extends Thread {
 				break;
 			case ("RETR"):
 				retrieveFile();
+			//TODO
+			//retrieveAsciiBinFile();
 				break;
 			case ("STOR"):
-				storeFile();
+				storeAsciiBin();
 				break;
 			default:
 				break;
@@ -153,33 +163,55 @@ public class ftpData extends Thread {
 		return true;
 	}
 
-	private void storeFile() {
+	private void storeAsciiBin(){
 		// TODO Gestion ASCII / BIN
 		String rep, paramCode, messageLog;
 		InputStream in = null;
-
 		File file = null;
-		;
+		//pr le mode ascii -- equivalent filewriter
+		OutputStreamWriter fow =null;
+		// pr le mode bin
 		FileOutputStream fos = null;
-		;
+		
+		Charset UTF8 = Charset.forName("UTF-8");
+		
 		// TODO Gestion des mode ASCII / BIN
-		messageLog = this.getClass().toString() + " StoreFile" + " commande: "
+		messageLog = this.getClass().toString() + " StoreFile (Ascii:"+ isASCII + "), commande: "
 				+ commande + " " + parametre;
 
-		file = new File(parametre);
-
+		
 		try {
-			fos = new FileOutputStream(file);
-
+			
+			file = new File(parametre);
 			in = datasocket.getInputStream();
 
-			byte buf[] = new byte[1024];
-			int nread;
-			while ((nread = in.read(buf)) > 0) {
-				fos.write(buf, 0, nread);
+			//mode ascii
+			if (isASCII){
+				fow = new OutputStreamWriter(new FileOutputStream(file), UTF8);
+				BufferedWriter bwr = new BufferedWriter(fow);
+				InputStreamReader isr = new InputStreamReader(in);
+				BufferedReader brd = new BufferedReader(isr);
+				String readString;
+				while ((readString = brd.readLine())!=null ) {
+					bwr.write(readString);
+					}
+				brd.close();
+				isr.close();
+				fow.close();
+				}	else
+				// mode binaire
+				{ 
+				fos = new FileOutputStream(file);
+				byte buf[] = new byte[1024];
+				int nread;
+				while ((nread = in.read(buf)) > 0) {
+					fos.write(buf, 0, nread);
+					}
+				fos.flush();
+				fos.close();
 			}
-			fos.flush();
-			fos.close();
+			
+			in.close();
 			datasocket.close();
 			if (dataSrvSocket != null) {
 				dataSrvSocket.close();
@@ -205,6 +237,7 @@ public class ftpData extends Thread {
 		System.out.println(messageLog);
 
 	}
+
 
 	// envoi du fichier du serveur vers le client.
 	private void retrieveFile() {

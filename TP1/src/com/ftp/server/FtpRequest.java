@@ -208,6 +208,7 @@ public class FtpRequest extends Thread {
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
 				myftpData.setParametre(currentDir + File.separator+ parametre);
+				myftpData.isASCII = ftpType.equals("A")?true:false;
 				
 				
 				rep="150";
@@ -245,15 +246,16 @@ public class FtpRequest extends Thread {
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
 				myftpData.setParametre(currentDir+ File.separator + parametre);
+				myftpData.isASCII = ftpType.equals("A")?true:false;
 
 				//preparation du client
 				rep="150";
 				paramCode="Opening " + parametre + " en mode data connection.\n";
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 				//Envoi des données vers le client
-				myftpData.run();
+				//myftpData.run();
 				
-				//myftpData.start();
+				myftpData.start();
 				
 				//attente de la fin du transfert (thread super utile :( )
 				while(myftpData.isAlive()){}
@@ -442,8 +444,6 @@ public class FtpRequest extends Thread {
 	private void processPWD() throws IOException {
 		String rep = "550", paramCode = " Chemin invalide.", messageLog = this
 				.getClass().toString() + " commande: " + commande +" ";
-
-		String tempDir = null;
 
 		if (commande.equalsIgnoreCase("pwd")) {
 	
@@ -669,14 +669,13 @@ public class FtpRequest extends Thread {
 	private void processCWD() throws IOException {
 
 		String rep = "550", paramCode = "Dossier inexistant, le dossier actuel reste "
-				+ currentDir, tempdir = null, messageLog = this.getClass()
+				+ currentDir, tempDir = null, messageLog = this.getClass()
 				.toString()
 				+ "processCWD"
 				+ " commande: "
 				+ commande
 				+ " "
 				+ parametre;
-		String tempDir=null;
 
 		if (commande.equalsIgnoreCase("cwd")) {
 
