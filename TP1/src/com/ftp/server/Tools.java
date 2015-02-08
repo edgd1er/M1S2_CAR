@@ -44,6 +44,7 @@ public class Tools {
 			message += "\n";
 		}
 		dos.writeBytes(message);
+		dos.flush();
 
 	}
 	

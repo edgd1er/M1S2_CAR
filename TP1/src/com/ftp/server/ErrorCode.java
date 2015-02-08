@@ -76,7 +76,7 @@ public final class ErrorCode {
 				.put("300",
 						"La commande a été acceptée, mais l'action demandée est en attente de plus amples informations.");
 		ftpErrorMap.put("331",
-				"Utilisateur reconnu. En attente du mot de passe.");
+				"Utilisateur reconnu. En attente du mot de passe.PARAM");
 		ftpErrorMap.put("332", "Besoin d'un compte de connexion.");
 		ftpErrorMap.put("350", "PARAM");
 		ftpErrorMap

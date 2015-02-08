@@ -17,7 +17,7 @@ public class Server {
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;
-		int nbMAxCLients=1;
+		int nbMAxCLients=3;
 		FtpRequest ftpreq=null;
 				 
 		 prepath = "/tmp/homedir";
