@@ -244,20 +244,24 @@ public class FtpRequest extends Thread {
 			
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
-				myftpData.setParametre(parametre);
-				myftpData.run();
-				
+				myftpData.setParametre(currentDir+ File.separator + parametre);
+
+				//preparation du client
 				rep="150";
 				paramCode="Opening " + parametre + " en mode data connection.\n";
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+				//Envoi des données vers le client
+				myftpData.run();
+				
+				//myftpData.start();
+				
+				//attente de la fin du transfert (thread super utile :( )
 				while(myftpData.isAlive()){}
 				rep=myftpData.getReturnstatus();
 				
 			}
 			
-			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-			System.out.println(messageLog);
-
+			mytools.sendMessage(rep);
 
 			System.out.println(messageLog);
 		} else {

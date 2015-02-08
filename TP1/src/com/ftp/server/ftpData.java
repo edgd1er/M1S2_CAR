@@ -185,6 +185,11 @@ public class ftpData extends Thread {
 				dataSrvSocket.close();
 			}
 			KeepRunning = false;
+			rep = "226";
+			paramCode = "File sent: " + parametre;
+			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			
+			
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
 			paramCode = "Fichier non accessible: " + parametre;
