@@ -207,21 +207,23 @@ public class FtpRequest extends Thread {
 			
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
-				myftpData.setParametre(parametre);
-				myftpData.run();
+				myftpData.setParametre(currentDir + File.separator+ parametre);
+				
 				
 				rep="150";
 				paramCode="Opening " + parametre + " en mode data connection.\n";
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+				//mode thread
+				myftpData.start();
+				//mode bloquant
+				//myftpData.run();
+				
 				while(myftpData.isAlive()){}
 				rep=myftpData.getReturnstatus();
 				
 			}
 			
-			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-			System.out.println(messageLog);
-
-
+			mytools.sendMessage(rep);
 			System.out.println(messageLog);
 		} else {
 			ErrorParametre(rep, ErrorCode.getMessage(rep, paramCode),

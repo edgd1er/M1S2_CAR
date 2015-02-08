@@ -233,11 +233,14 @@ public class ftpData extends Thread {
 				dataSrvSocket.close();
 			}
 			KeepRunning = false;
+			rep = "226";
+			paramCode = "File rerieved: " + parametre;
 			System.out.println(messalog);
+			returnstatus = ErrorCode.getMessage(rep, paramCode);
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
 			paramCode = "Cannot access: " + parametre;
-			ErrorCode.getMessage(rep, paramCode);
+			returnstatus= ErrorCode.getMessage(rep, paramCode);
 
 			returnstatus = ErrorCode.getMessage(rep, paramCode);
 		} catch (IOException ioe) {
