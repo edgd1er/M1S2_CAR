@@ -448,7 +448,7 @@ public class FtpRequest extends Thread {
 		if (commande.equalsIgnoreCase("pwd")) {
 	
 			rep="257";
-			paramCode =currentDir; 
+			paramCode =currentDir.length()>0?currentDir:Server.prepath+ File.separator+currentUser; 
 			
 
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
