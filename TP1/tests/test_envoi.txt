@@ -1,0 +1,7 @@
+open 127.0.0.1 2100
+user user
+quote a
+pwd
+cd /tmp/homedir/user/
+put data.txt
+
