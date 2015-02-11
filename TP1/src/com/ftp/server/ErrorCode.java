@@ -98,8 +98,7 @@ public final class ErrorCode {
 		ftpErrorMap
 				.put("500",
 						"Erreur de syntaxe ; commande non reconnue et l'action demandée n'a pu s'effectuer.");
-		ftpErrorMap.put("501",
-				"Erreur de syntaxe dans les paramètres ou les arguments.PARAM");
+		ftpErrorMap.put("501","Erreur de syntaxe dans les paramètres ou les arguments.PARAM");
 		ftpErrorMap.put("502", "Commande non implémentée.");
 		ftpErrorMap.put("503", "Mauvaise séquence de commande");
 		ftpErrorMap.put("504", "Commande non implémentée pour ces paramètres");

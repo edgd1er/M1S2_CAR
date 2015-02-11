@@ -17,19 +17,21 @@ import java.util.List;
 
 public class Tools {
 
+	static Socket mysocket = null;
 	static InputStream is =null;
 	static InputStreamReader isr = null;
 	static BufferedReader br =null;
 	static OutputStream os =null;
 	static DataOutputStream dos=null;
 	
-	Tools(Socket s) throws IOException{
-		is = s.getInputStream();
+	Tools(Socket _s) throws IOException{
+		mysocket= _s;
+		is = _s.getInputStream();
 		isr = new InputStreamReader(is);
 		br = new BufferedReader(isr);
-		os = s.getOutputStream();
+		os = _s.getOutputStream();
 		dos = new DataOutputStream(os);
-		s.setKeepAlive(true);
+		mysocket.setKeepAlive(true);
 
 	}
 	
@@ -56,13 +58,20 @@ public class Tools {
 	// ça dit ce que ça fait et l'inverse aussi ;)
 	public void CloseStreams() {
 		try {
-			System.out.println(" closing input/output streams");
-			dos.writeBytes("226 Fermeture de la connection");
+			
+			if (mysocket!=null){
+				System.out.println(" closing input/output streams");
+			if (mysocket.isConnected()){
+				dos.writeBytes("226 Fermeture de la connection");
+			}
+			dos.flush();
+			os.flush();
 			dos.close();
 			os.close();
 			br.close();
 			isr.close();
 			is.close();
+			}
 			
 		} catch (Exception e) {
 			System.out.println(" erreur: requesting closing streams");

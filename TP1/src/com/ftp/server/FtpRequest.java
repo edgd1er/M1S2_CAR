@@ -68,6 +68,7 @@ public class FtpRequest extends Thread {
 		try {
 			while (KeepRunning) {
 				parseCommande(mytools.receiveMessage());
+				//if (commande.equals("")){KeepRunning=false;} 
 				System.out.println("Commande reçue a traiter :" + commande
 						+ " " + parametre);
 				processRequest();
@@ -141,10 +142,12 @@ public class FtpRequest extends Thread {
 			switch (ftpetat) {
 			case ftpEtat.FS_WAIT_LOGIN:
 				if (commande.toUpperCase().startsWith("USER")) {processUSER();}
+				if (commande.toUpperCase().startsWith("QUIT")) {processQUIT();}
 				break;
 			case ftpEtat.FS_WAIT_PASS:
 				if (commande.toUpperCase().startsWith("USER")) {processUSER();}
 				if (commande.toUpperCase().startsWith("PASS")) {processPASS();}
+				if (commande.toUpperCase().startsWith("QUIT")) {processQUIT();}
 				break;
 			case ftpEtat.FS_LOGGED:
 				if (commande.toUpperCase().startsWith("USER")) {
@@ -177,6 +180,8 @@ public class FtpRequest extends Thread {
 				processRETR();
 			} else if (commande.toUpperCase().startsWith("CDUP")) {
 				processCDUP();
+			} else if (commande.toUpperCase().startsWith("DELE")) {
+					processDELE();
 			} else {
 				String rep ="500",
 				messageSoc="Syntax error, command unrecognized",
@@ -208,21 +213,25 @@ public class FtpRequest extends Thread {
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
 				myftpData.setParametre(currentDir + File.separator+ parametre);
-				myftpData.isASCII = ftpType.equals("A")?true:false;
+				myftpData.setASCII(ftpType.equals("A")?true:false);
+				}
+				else
+				{
+					myftpData = new ftpData(dataSrvSocket,cltDataAddr,cltDataPort,null,commande,parametre);
+				}
 				
 				
 				rep="150";
 				paramCode="Opening " + parametre + " en mode data connection.\n";
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 				//mode thread
-				myftpData.start();
+				//myftpData.start();
 				//mode bloquant
-				//myftpData.run();
+				myftpData.run();
 				
 				while(myftpData.isAlive()){}
 				rep=myftpData.getReturnstatus();
 				
-			}
 			
 			mytools.sendMessage(rep);
 			System.out.println(messageLog);
@@ -246,22 +255,28 @@ public class FtpRequest extends Thread {
 			if (myftpData!=null){
 				myftpData.setCommande(commande);
 				myftpData.setParametre(currentDir+ File.separator + parametre);
-				myftpData.isASCII = ftpType.equals("A")?true:false;
-
+			}
+			else
+			{
+				myftpData = new ftpData(dataSrvSocket,cltDataAddr,cltDataPort,null,commande,parametre);
+			}
+			
+			myftpData.setPASV(isPASV);
+			
+			myftpData.setASCII(ftpType.equals("A")?true:false);
 				//preparation du client
 				rep="150";
 				paramCode="Opening " + parametre + " en mode data connection.\n";
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 				//Envoi des données vers le client
-				//myftpData.run();
+				myftpData.run();
 				
-				myftpData.start();
+				//myftpData.start();
 				
 				//attente de la fin du transfert (thread super utile :( )
 				while(myftpData.isAlive()){}
 				rep=myftpData.getReturnstatus();
 				
-			}
 			
 			mytools.sendMessage(rep);
 
@@ -448,7 +463,8 @@ public class FtpRequest extends Thread {
 		if (commande.equalsIgnoreCase("pwd")) {
 	
 			rep="257";
-			paramCode =currentDir.length()>0?currentDir:Server.prepath+ File.separator+currentUser; 
+			paramCode =currentDir.length()>0?currentDir:Server.prepath+ File.separator+currentUser;
+			currentDir=paramCode;
 			
 
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
@@ -577,8 +593,9 @@ public class FtpRequest extends Thread {
 		try {
 			KeepRunning = false;
 			currentUser = "Anonymous";
+			if (--Server.nbClients<0) { Server.nbClients=0;}
 			System.out.println(this.getClass().toString()
-					+ " Killing the connection: il reste " + --Server.nbClients
+					+ " Killing the connection: il reste "+ Server.nbClients
 					+ " utilisateur(s).");
 
 			mytools.CloseStreams();
@@ -609,6 +626,7 @@ public class FtpRequest extends Thread {
 			//tableau des infos a envoyer
 			List<String> aInfo2Send = new ArrayList<String>();
 			//Liste des fichiers et dossiers
+			currentDir=currentDir.length()>0?currentDir:Server.prepath+File.separator+currentUser;
 			List<String> myDir = mytools.getDirectoryListing(currentDir);
 
 			//Ajout des infos 
@@ -619,21 +637,16 @@ public class FtpRequest extends Thread {
 			// envoi du listing
 			//TODO gerer le mode actif aussi
 				// ici on ne gere que le passif
-			
-				if(isPASV){
-					if (myftpData==null){
+			if (myftpData==null){
 						//creation du thread
 						myftpData = new ftpData(dataSrvSocket,cltDataAddr,cltDataPort,aInfo2Send,commande,parametre);
 					}
-					}
-					else
-				{
-						myftpData = new ftpData(cltDataAddr,cltDataPort,aInfo2Send,commande,parametre);
-				}
+				
 				//parametrage du thread
 				myftpData.setaString(aInfo2Send);
 				myftpData.setCommande(commande);
 				myftpData.setParametre(parametre);
+				myftpData.setPASV(isPASV);
 
 				// amorce de l'envoi
 				rep = "150";
@@ -699,8 +712,43 @@ public class FtpRequest extends Thread {
 		if (commande.equalsIgnoreCase("quit")) {
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 			killConnection();
-			String strTemp = "ProcessQuit: fin de la connection FTP demandee.";
+			String strTemp = "ProcessQuit: fin de la connection FTP.";
 			System.out.println(strTemp);
+		}
+
+	}
+	
+	// Suppression d'un fichier
+	private void processDELE() throws IOException {
+		String rep = "502", paramCode = commande + " unsuccessful for " +parametre, messageLog = this
+				.getClass().toString()
+				+ "processDELE"
+				+ " commande: "
+				+ commande + " "+ parametre;
+		Boolean resDel=false;
+
+		if (commande.equalsIgnoreCase("dele")) {
+			
+			File todel = new File(currentDir + File.separator+ parametre);
+			if (todel.exists()){
+				resDel=todel.delete();
+				if (resDel){rep="250";
+							paramCode=commande + " successful for " +parametre;
+							}
+				else{
+					rep="550";
+					paramCode= "Error, no right to delele file " + parametre + ".";
+				}
+			}
+			else {
+				rep="550";
+				paramCode= "Error, file " + parametre + " does not exist.";
+			}
+			
+			
+			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
+			messageLog+= ": "+ ErrorCode.getMessage(rep, paramCode);
+			System.out.println(messageLog);
 		}
 
 	}
