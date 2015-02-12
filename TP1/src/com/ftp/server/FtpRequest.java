@@ -44,6 +44,7 @@ public class FtpRequest extends Thread {
 	public void run() {
 
 		String rep = "", paramCode = "";
+		int nbCommandeVide=0;
 		try {
 			mytools = new Tools(cltSocketCtrl);
 		} catch (IOException e) {
@@ -72,6 +73,11 @@ public class FtpRequest extends Thread {
 				System.out.println("Commande reçue a traiter :" + commande
 						+ " " + parametre);
 				processRequest();
+				//TODO resoudre ce probleme lors d'un deconnexion brutale du client, le socket serveur reçoit en permance des commandes vides.
+				if (commande.equals("")){nbCommandeVide++;} else {nbCommandeVide=0;}
+				if (nbCommandeVide>=500){
+					KeepRunning=false;
+					System.out.println(this.getClass().toString() + " Commandes vides trop neubreuses (" +nbCommandeVide+"), fermeture de la socket");}
 				commande = "";
 				parametre = "";
 			}
@@ -84,6 +90,7 @@ public class FtpRequest extends Thread {
 
 		}
 		// fin de try
+		Server.nbClients--;
 		System.out.println("Fin de ce Thread.");
 	}
 
@@ -92,7 +99,7 @@ public class FtpRequest extends Thread {
 		String rep = "220";
 		String paramCode = srvSocketCtrl.getInetAddress().toString()
 				+ ". il y a actuellement " + Server.nbClients
-				+ " utilisateur(s) en ligne";
+				+ " utilisateur(s) en ligne. N oubliez pas de passer en mode passif, ce serveur n'a pas les droits root et ne peux ecouter sur le port 20." ;
 
 		System.out.println(this.getClass() + " :client ip: "
 				+ ErrorCode.getMessage(rep, paramCode));
@@ -181,7 +188,10 @@ public class FtpRequest extends Thread {
 			} else if (commande.toUpperCase().startsWith("CDUP")) {
 				processCDUP();
 			} else if (commande.toUpperCase().startsWith("DELE")) {
-					processDELE();
+				processDELE();
+			}else if (commande.equals("")) {
+				String messageLog="Empty Command, keep alive packet ?";
+				System.out.println(messageLog);
 			} else {
 				String rep ="500",
 				messageSoc="Syntax error, command unrecognized",
@@ -347,6 +357,8 @@ public class FtpRequest extends Thread {
 			paramCode = "Commande invalide";
 			ErrorParametre(rep, ErrorCode.getMessage(rep, paramCode),
 					messageLog);
+			//le client rage quitte, fermeture du thread serveur.
+			KeepRunning=false;
 			return;
 		}
 
@@ -359,11 +371,12 @@ public class FtpRequest extends Thread {
 			} else {
 				// mdp pour anonymous invalide
 				rep = "430";
+				KeepRunning=false;
 				paramCode = "mot de passe valide (email).";
 			}
 
 			System.out.println(messageLog
-					+ ErrorCode.getMessage(rep, paramCode));
+					+ " "+ ErrorCode.getMessage(rep, paramCode));
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 
 		} else {
@@ -379,19 +392,20 @@ public class FtpRequest extends Thread {
 					}
 					// mdp incorret
 					else {
+						KeepRunning=false;
 						messageLog += " .mot de passe incorrect.";
 					}
 				}
 				// utilisateur non trouvé
 				else {
 					messageLog += " .utilsateur non trouvé.";
+					KeepRunning=false;
 				}
 
 				// envoi du resultat au client ftp
 				System.out.println(messageLog
 						+ ErrorCode.getMessage(rep, paramCode));
 				mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-				return;
 
 			} catch (IOException ioe) {
 				System.out
@@ -535,6 +549,7 @@ public class FtpRequest extends Thread {
 					rep = "200";
 					paramCode = "Port accepted on " + cltDataAddr + ":"
 							+ String.valueOf(cltDataPort);
+					
 				} else {
 					paramCode += "( " + cltDataPort + ")";
 				}
@@ -593,9 +608,8 @@ public class FtpRequest extends Thread {
 		try {
 			KeepRunning = false;
 			currentUser = "Anonymous";
-			if (--Server.nbClients<0) { Server.nbClients=0;}
 			System.out.println(this.getClass().toString()
-					+ " Killing the connection: il reste "+ Server.nbClients
+					+ " Killing the connection: il reste "+ (Server.nbClients-1)
 					+ " utilisateur(s).");
 
 			mytools.CloseStreams();
@@ -697,12 +711,16 @@ public class FtpRequest extends Thread {
 			if (!tempDir.equalsIgnoreCase(currentDir)){
 				currentDir=tempDir;
 				rep="250";
-				paramCode="Directory changed to " + currentDir; 
+				paramCode="Directory changed to " + currentDir;
+			}
+			else {
+				rep="250";
+				paramCode="Directory not changed:" + currentDir;
 			}
 		}
 
 		mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
-		System.out.println(messageLog + " repertoire local" + currentDir);
+		System.out.println(messageLog + " " + ErrorCode.getMessage(rep, paramCode));
 	}
 
 	// changement de repertoire
