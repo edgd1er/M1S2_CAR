@@ -5,10 +5,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,56 +19,63 @@ import java.util.List;
 
 public class Tools {
 
-	static InputStream is =null;
-	static InputStreamReader isr = null;
+	static Socket mysocket = null;
 	static BufferedReader br =null;
-	static OutputStream os =null;
-	static DataOutputStream dos=null;
 	
-	Tools(Socket s) throws IOException{
-		is = s.getInputStream();
-		isr = new InputStreamReader(is);
-		br = new BufferedReader(isr);
-		os = s.getOutputStream();
-		dos = new DataOutputStream(os);
-		s.setKeepAlive(true);
+	static PrintWriter osw = null;
+	private Charset ASCII  = Charset.forName("ASCII");
+	private Charset UTF8  = Charset.forName("UTF-8");
+	//private Charset cp8850 = Charset.forName("ISO-8850-1");
+	private CharsetEncoder encoder = null; 
+	CharBuffer cBuf;
+	//BinMode
+	static DataOutputStream dos=null;
+	static InputStreamReader isr = null;
+ 
+	
+	Tools(Socket _s) throws IOException{
+		mysocket= _s;
+		//br = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
+		//osw = new PrintWriter(new OutputStreamWriter(mysocket.getOutputStream()),true);
+		encoder = Charset.forName("UTF-8").newEncoder();
+		//mysocket.setKeepAlive(true);
+		//binMode
+		dos = new DataOutputStream(mysocket.getOutputStream());
+		br = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
 
 	}
 	
 	// Read mesasge on socket
 	public String receiveMessage() throws IOException {
-		 //is = s.getInputStream();
-		//isr = new InputStreamReader(is);
-		 br = new BufferedReader(isr);
-		return br.readLine();
+  		return br.readLine();
 	}
 
 	// Write Message on socket
 	public void sendMessage(String message) throws IOException {
-		//os = s.getOutputStream();
-		//dos = new DataOutputStream(os);
-		if (!message.endsWith("\n")) {
-			message += "\n";
-		}
-		dos.writeBytes(message);
+		dos.writeBytes(message + (message.endsWith("\n")?"":"\n"));
 		dos.flush();
-
+		//osw.println(message);
 	}
 	
 	// ça dit ce que ça fait et l'inverse aussi ;)
 	public void CloseStreams() {
 		try {
-			System.out.println(" closing input/output streams");
-			dos.writeBytes("226 Fermeture de la connection");
-			dos.close();
-			os.close();
+			
+			if (mysocket!=null){
+				System.out.println(" closing input/output streams");
+			if (mysocket.isConnected()){
+				sendMessage("226 Fermeture de la connection");
+			}
+			osw.flush();
 			br.close();
-			isr.close();
-			is.close();
+			osw.close();
+			br=null;
+			osw=null;
+			}
 			
 		} catch (Exception e) {
-			System.out.println(" erreur: requesting closing streams");
-			e.printStackTrace();
+			System.out.println(" erreur: Client closed already his sockets.... closing streams properly");
+			//e.printStackTrace();
 		}
 	}
 	//est ce un email
