@@ -439,8 +439,8 @@ public class FtpRequest extends Thread {
 	// Chargement de la liste des users et des mdp...
 	private HashMap<String, String> loadPasswordList() throws IOException {
 
-		// String TableDesMdps = "TP1" + File.separator + "mdp.txt";
-		String TableDesMdps = "mdp.txt";
+		 String TableDesMdps = "TP1" + File.separator + "mdp.txt";
+		//String TableDesMdps = "mdp.txt";
 		HashMap<String, String> usrMap = new HashMap<String, String>();
 
 		InputStream ipss = new FileInputStream(TableDesMdps);
@@ -479,8 +479,6 @@ public class FtpRequest extends Thread {
 			rep="257";
 			paramCode =currentDir.length()>0?currentDir:Server.prepath+ File.separator+currentUser;
 			currentDir=paramCode;
-			
-
 			mytools.sendMessage(ErrorCode.getMessage(rep, paramCode));
 			System.out.println(messageLog + ErrorCode.getMessage(rep, paramCode));
 
