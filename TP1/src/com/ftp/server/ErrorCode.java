@@ -131,7 +131,7 @@ public final class ErrorCode {
 				.put("425", "Impossible d'établir une connexion de données.");
 		ftpErrorMap.put("426", "Connexion fermée ; transfert abandonné.");
 		ftpErrorMap.put("430", "Identifiant ou mot de passe incorrect");
-		ftpErrorMap.put("434", "Hôte demandé indispoible.");
+		ftpErrorMap.put("434", "Hôte demandé indisponible.");
 		ftpErrorMap.put("450", "");
 		ftpErrorMap.put("451", "");
 		ftpErrorMap.put("452", "");

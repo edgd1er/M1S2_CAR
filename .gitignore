@@ -2,6 +2,7 @@
 .classpath
 .project
 .metadata
+
 bin/*
 */bin/*
 *~

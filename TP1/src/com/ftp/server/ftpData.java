@@ -188,6 +188,7 @@ public class ftpData extends Thread {
 			{
 				this.dataSrvSocket = new ServerSocket(0);
 				DataPort = this.dataSrvSocket.getLocalPort();
+				
 				messageLog+= " création";
 				}
 			else {
@@ -248,24 +249,37 @@ public class ftpData extends Thread {
 			} else
 			// mode binaire
 			{
+				byte[] b = new byte[8192];
 				fos = new FileOutputStream(file);
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				BufferedInputStream bis = new BufferedInputStream(in);
-				DataInputStream dis = new DataInputStream(bis);
-				DataOutputStream dos = new DataOutputStream(bos);
 				
-				While (dis.available() != 0)
+				/*
+				 * 
+				 * BufferedOutputStream bos = new BufferedOutputStream(fos);
+				 * DataInputStream dis = new DataInputStream(bis);
+				 * DataOutputStream dos = new DataOutputStream(bos);
+				 */
+				//Transfert via des Buffers
+ 				/*while(()!= 0)
 				{ 
-					dis.readLine()
+					nread =bis.read(b);
+					dos.write(b,0,nread-1);
+				*/
+				
+				while((nread=in.read(b))>0)
+				{
+					fos.write(b, 0, nread-1);
+					
 				}
+			
 				//while ( (nread = in.read(buf)) > 0 ) {
 					// nread obligatoire, sinon ajout de byte qd nread < buffersize
 					//fos.write(buf,0,nread);
 				//}
 				fos.flush();
-				bos.close();
+				//bos.close();
 				fos.close();
-				bos=null;
+				//bos=null;
 				fos=null;
 			}
 
@@ -477,12 +491,15 @@ public class ftpData extends Thread {
 		//dataSrvSocket ectoutant sur tout les ports, il faut utiliser l'@ IP du client fourni par le serveur lors de la connexion d'accroche
 		//thisport_url = dataSrvSocket.getInetAddress().getHostAddress();
 		if (isPASV){
+			thisport_url = DataAddr.replace(".", ",");
+			DataPort = dataSrvSocket.getLocalPort();
 			
 		}
 		else{
 		thisport_url = DataAddr.replace(".", ",");
 		DataPort = dataSrvSocket.getLocalPort();
 		}
+		
 		String p1 = String.valueOf(dataSrvSocket.getLocalPort() / 256);
 		String p2 = String.valueOf(dataSrvSocket.getLocalPort() % 256);
 

@@ -17,15 +17,19 @@ public class Server {
 	 * Le main lance le programme principal qui sera chargé d'écouter sur le port 21
 	 * et de passer la main a un thread FTPRequest qui va gérer les commandes envoyées par le client FTP
 	 * 
-	 * @param args	non utilisé
+	 * @param args	prend le chemin par defaut des fichiers mis a dispo du serveur
 	 */
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;
 		int nbMAxCLients=3;
 		FtpRequest ftpreq=null;
-				 
+				
+		if (args.length>0) {
+			prepath = args[0].endsWith("/")?args[0].substring(0, args[0].length()-1):args[0];
+		} else {
 		 prepath = "/tmp/homedir";
+		}
 		
 		try {
 			serverskt = new ServerSocket(2100);
