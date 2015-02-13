@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,12 +38,17 @@ public class ftpData extends Thread {
 	private int bufferSize=1024;
 	private Charset ASCII  = Charset.forName("ASCII");
 
-	// constructeur du mode client -> server
-	public ftpData(boolean _isPASV) throws IOException {
-		this.isPASV = _isPASV;
+	/*
+	 * constructeur du mode client -> server
+	 * 
+	 * 
+	 * */
+	public ftpData(String clientIp, boolean _isPASV) throws IOException {
+		
 		String messageLog = null;
-
-		messageLog = this.getClass().toString() + " Cons";
+		this.DataAddr =clientIp;
+		
+		messageLog = this.getClass().toString() + " Cons: Debut: "+ _isPASV;
 		// mode PASV, on va recuperer le port de connection du client.
 		setPASV(_isPASV);
 		System.out.println(messageLog);
@@ -83,23 +89,11 @@ public class ftpData extends Thread {
 
 	// separation creation socket serveur ou client selon le mode.
 	public void run() {
-		// mode passive, on se met en attente du client
+
 		try {
-			if (isPASV) {
-				// mode passive, mais pas de socket crée
-				if (datasocket == null) {
-					// dataSrvSocket = new ServerSocket(DataPort);
-					datasocket = dataSrvSocket.accept();
-					port_url = getEncPort();
-					if (port_url == null) {
-						KeepRunning = false;
-					}
-				}
-			} else {
-				if (datasocket == null) {
-					// mode actif
+			//le set pasv a si besoin ouvert la connection vers le client.
+			if (datasocket == null) {
 					datasocket = new Socket(DataAddr, DataPort);
-				}
 			}
 		}
 
@@ -180,6 +174,37 @@ public class ftpData extends Thread {
 		return isPASV;
 	}
 
+	/**
+	 * @param isPASV
+	 *            the isPASV to set
+	 * @throws IOException
+	 */
+	public void setPASV(boolean isPASV) throws IOException {
+		this.isPASV = isPASV;
+		String messageLog = this.getClass().toString() + " Mode PASV="+ isPASV;
+		
+		if (isPASV) {
+			if ((this.dataSrvSocket==null) || (this.dataSrvSocket.isClosed()))
+			{
+				this.dataSrvSocket = new ServerSocket(0);
+				DataPort = this.dataSrvSocket.getLocalPort();
+				messageLog+= " création";
+				}
+			else {
+				 messageLog+= " réutilisation";
+			}
+			port_url = getEncPort();
+			messageLog+= " de la dataServerSocket:" + DataAddr + ":" + DataPort;
+			
+			}else{
+				//gestion du mode actif
+				//TODO ne sera pas faite, puisque ce code ne tournera pas en mode root ( écoute du port 20)
+				this.datasocket = new Socket(DataAddr,DataPort);
+			}
+		
+		System.out.println(messageLog);
+	}
+
 	//send from client to server
 	private void storeAsciiBin() {
 		// TODO Gestion ASCII / BIN
@@ -224,13 +249,24 @@ public class ftpData extends Thread {
 			// mode binaire
 			{
 				fos = new FileOutputStream(file);
-				byte buf[] = new byte[bufferSize];
-				while ( (nread = in.read(buf)) > 0 ) {
-					// nread obligatoire, sinon ajout de byte qd nread < buffersize
-					fos.write(buf,0,nread);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				BufferedInputStream bis = new BufferedInputStream(in);
+				DataInputStream dis = new DataInputStream(bis);
+				DataOutputStream dos = new DataOutputStream(bos);
+				
+				While (dis.available() != 0)
+				{ 
+					dis.readLine()
 				}
+				//while ( (nread = in.read(buf)) > 0 ) {
+					// nread obligatoire, sinon ajout de byte qd nread < buffersize
+					//fos.write(buf,0,nread);
+				//}
 				fos.flush();
+				bos.close();
 				fos.close();
+				bos=null;
+				fos=null;
 			}
 
 			in.close();
@@ -248,7 +284,6 @@ public class ftpData extends Thread {
 			paramCode = "Fichier non accessible: " + parametre;
 			returnstatus = ErrorCode.getMessage(rep, paramCode);
 
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
 		} catch (IOException ioe) {
 			rep = "425";
 			paramCode = "Can't Open data connection";
@@ -435,41 +470,19 @@ public class ftpData extends Thread {
 		}
 	}
 
-	/**
-	 * @param isPASV
-	 *            the isPASV to set
-	 * @throws IOException
-	 */
-	public void setPASV(boolean isPASV) throws IOException {
-		this.isPASV = isPASV;
-		String messageLog = this.getClass().toString() + " Mode PASV="+ isPASV;
-		
-		if (isPASV) {
-			if (this.dataSrvSocket==null)
-			{
-				this.dataSrvSocket = new ServerSocket(0);
-				messageLog+= " création";
-				}
-			else {
-				 messageLog+= " réutilisation";
-			}
-			port_url = getEncPort();
-			messageLog+= " de la dataServerSocket:" + dataSrvSocket.getInetAddress()+ " " + dataSrvSocket.getLocalPort();
-			
-			}else{
-				//gestion du mode actif
-				//TODO ne sera pas faite, puisque ce code ne tournera pas en mode root ( écoute du port 20)
-			}
-		
-		System.out.println(messageLog);
-	}
-
 	// calcul de l'url a partir de l'@ IP et du port
 	private String getEncPort() {
 		String thisport_url = "";
-		thisport_url = dataSrvSocket.getInetAddress().getHostAddress()
-				.replace(".", ",");
 
+		//dataSrvSocket ectoutant sur tout les ports, il faut utiliser l'@ IP du client fourni par le serveur lors de la connexion d'accroche
+		//thisport_url = dataSrvSocket.getInetAddress().getHostAddress();
+		if (isPASV){
+			
+		}
+		else{
+		thisport_url = DataAddr.replace(".", ",");
+		DataPort = dataSrvSocket.getLocalPort();
+		}
 		String p1 = String.valueOf(dataSrvSocket.getLocalPort() / 256);
 		String p2 = String.valueOf(dataSrvSocket.getLocalPort() % 256);
 
@@ -479,7 +492,8 @@ public class ftpData extends Thread {
 
 	public int getDataPort() {
 		// TODO Auto-generated method stub
-		return datasocket.getLocalPort();
+		return DataPort;
+		//return datasocket.getLocalPort();
 	}
 
 	/**
