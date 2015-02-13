@@ -1,11 +1,13 @@
 package com.ftp.server;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.CharBuffer;
@@ -33,28 +35,27 @@ public class Tools {
 	static InputStreamReader isr = null;
  
 	
-	Tools(Socket _s) throws IOException{
+	public Tools(Socket _s) throws IOException{
 		mysocket= _s;
-		//br = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
-		//osw = new PrintWriter(new OutputStreamWriter(mysocket.getOutputStream()),true);
-		encoder = Charset.forName("UTF-8").newEncoder();
+		osw = new PrintWriter(new OutputStreamWriter(mysocket.getOutputStream()),true);
 		//mysocket.setKeepAlive(true);
 		//binMode
-		dos = new DataOutputStream(mysocket.getOutputStream());
+		//dos = new DataOutputStream(mysocket.getOutputStream());
 		br = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
 
 	}
 	
-	// Read mesasge on socket
-	public String receiveMessage() throws IOException {
+	// Read message on socket
+	String receiveMessage() throws IOException {
   		return br.readLine();
 	}
 
 	// Write Message on socket
-	public void sendMessage(String message) throws IOException {
-		dos.writeBytes(message + (message.endsWith("\n")?"":"\n"));
-		dos.flush();
-		//osw.println(message);
+	void sendMessage(String message) throws IOException {
+		//dos.writeBytes(message + (message.endsWith("\n")?"":"\n"));
+		//dos.flush();
+		osw.println(message);
+		osw.flush();
 	}
 	
 	// ça dit ce que ça fait et l'inverse aussi ;)
@@ -78,6 +79,7 @@ public class Tools {
 			//e.printStackTrace();
 		}
 	}
+
 	//est ce un email
 	public Boolean isEmail(String emailaTester){
 		

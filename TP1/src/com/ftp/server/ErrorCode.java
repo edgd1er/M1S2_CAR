@@ -3,6 +3,12 @@ package com.ftp.server;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * Class qui permet de recuperer selon le code erreur, le texte associe et le personnalise.
+ * 
+ * @author user
+ *
+ */
 public final class ErrorCode {
 
 	private static HashMap<String, String> ftpErrorMap;
@@ -11,7 +17,13 @@ public final class ErrorCode {
 		ftpErrorMap = new HashMap<String, String>();
 		populateCode();
 	}
-
+	/**
+	 *   Retourne le message associe a un code erreur et le complete par paramCode.
+	 * 
+	 * @param _ErrorCode	code erreur qui permet de retrouver le message associe.
+	 * @param _paramCode	message qui remplacera le texte "PARAM" dans le texte retourne. 
+	 * @return
+	 */
 	public static String getMessage(String _ErrorCode, String _paramCode) {
 
 		String message="";
@@ -36,12 +48,40 @@ public final class ErrorCode {
 
 	}
 	
-	public static void sendErrorMessage(Tools _mytools,String errorcode,String message) throws IOException{
-		System.out.println("Erreur: " + errorcode + " " + message);
-		_mytools.sendMessage(message);
+	/**
+	 * Envoi du code Erreur, du message sur le canal de controle et sur la console du serveur avec un alerte. 
+	 * 
+	 * @param _mytools		Classe utilitaire pour gerer les IO sur les sockets
+	 * @param errorcode		Code errror fourni
+	 * @param ParamCode		Message a mettre a la place du texte PARAM dans le texte associe au code error.
+	 * @param message		Message qui sera envoyé sur la console serveur.
+	 * @throws IOException
+	 */
+	public static void sendErrorMessage(Tools _mytools,String errorcode,String ParamCode,String message) throws IOException{
+		String tempString=ErrorCode.getMessage(errorcode, ParamCode);
+		System.out.println("!!!!!!Erreur: " + " " + message + tempString);
+		_mytools.sendMessage(tempString);
 	} 
 
+	/**
+	 * Envoi du code retour , du message sur le canal de controle et sur la console du serveur. 
+	 * 
+	 * @param _mytools		Classe utilitaire pour gerer les IO sur les sockets
+	 * @param errorcode		Code errror fourni
+	 * @param ParamCode		Message a mettre a la place du texte PARAM dans le texte associe au code error.
+	 * @param message		Message qui sera envoyé sur la console serveur.
+	 */
+	public static void sendCodeMessage(Tools _mytools,String errorcode,String ParamCode,String message) throws IOException{
+		String tempString=ErrorCode.getMessage(errorcode, ParamCode);
+		System.out.println(message + " " + tempString);
+		_mytools.sendMessage(tempString);
+	} 
 
+	
+	/**
+	 * Construction du dictionnaire ErrorCode, Message.
+	 * 
+	 */
 	private static void populateCode() {
 		ftpErrorMap
 				.put("100",

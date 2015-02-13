@@ -6,14 +6,19 @@ import java.net.Socket;
 
 public class Server {
 
-	/**
-	 * @param args
-	 */
+	
 	static String prepath ;
 	public static int nbClients;
 	
 	
-	
+	/**
+	 * Server FTP en Java
+	 * 
+	 * Le main lance le programme principal qui sera chargé d'écouter sur le port 21
+	 * et de passer la main a un thread FTPRequest qui va gérer les commandes envoyées par le client FTP
+	 * 
+	 * @param args	non utilisé
+	 */
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;
@@ -27,7 +32,8 @@ public class Server {
 			
 			while(keepServingRunning){
 				   Socket cltSocCtrl = serverskt.accept() ;
-				   System.out.println("Server:incoming connection from " + cltSocCtrl.getInetAddress().getHostName());
+				   String clientIP = cltSocCtrl.getLocalAddress().getHostAddress();
+				   System.out.println("Server:incoming connection from " + clientIP );
 				   
 				   if (nbClients>= nbMAxCLients) {
 					   ftpreq = new FtpRequest(serverskt,cltSocCtrl,true);
