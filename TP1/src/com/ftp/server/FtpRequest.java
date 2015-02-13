@@ -193,17 +193,26 @@ public class FtpRequest extends Thread {
 	 */
 	//
 	public void processRequest() {
-		String rep = null, paramCode = null, messageLog = this.getClass()
+		String rep = "500", paramCode = "Syntax error, command unrecognized", messageLog = this.getClass()
 				.toString() + ":ProcessRequest: ";
+		
+		boolean treated=false;
 
 		try {
 			switch (ftpetat) {
 			case ftpEtat.FS_WAIT_LOGIN:
 				if (commande.toUpperCase().startsWith("USER")) {
 					processUSER();
+					treated=true;
 				}
 				if (commande.toUpperCase().startsWith("QUIT")) {
 					processQUIT();
+					treated=true;
+				}
+				if (!treated){
+					rep="503";
+					ErrorCode.sendCodeMessage(mytools, rep, paramCode,
+							messageLog);
 				}
 				break;
 			case ftpEtat.FS_WAIT_PASS:
@@ -256,7 +265,6 @@ public class FtpRequest extends Thread {
 				} else {
 					rep = "500";
 					paramCode = "Syntax error, command unrecognized";
-					messageLog = this.getClass().toString() + " ";
 					ErrorCode.sendCodeMessage(mytools, rep, paramCode,
 							messageLog);
 				}
@@ -361,7 +369,7 @@ public class FtpRequest extends Thread {
 
 			mytools.sendMessage(rep);
 
-			System.out.println(messageLog);
+			System.out.println(messageLog+ "  " + rep);
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
