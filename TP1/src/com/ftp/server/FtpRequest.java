@@ -579,7 +579,6 @@ public class FtpRequest extends Thread {
 					+ File.separator + currentUser;
 			currentDir = paramCode;
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
-
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
