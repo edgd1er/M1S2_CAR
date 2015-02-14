@@ -1,4 +1,4 @@
-package TP1.tests.Junit_ftp_server;
+package Junit_ftp_server;
 
 import static org.junit.Assert.*;
 

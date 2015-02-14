@@ -47,7 +47,7 @@ public class Tools {
 	
 	// Read message on socket
 	String receiveMessage() throws IOException {
-  		return br.readLine();
+		return  br.readLine();
 	}
 
 	// Write Message on socket

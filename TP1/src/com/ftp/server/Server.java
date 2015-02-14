@@ -24,12 +24,17 @@ public class Server {
 		Boolean keepServingRunning =  true;
 		int nbMAxCLients=3;
 		FtpRequest ftpreq=null;
+		String messageLog="Le chemin de partage a été défini par ";
 				
 		if (args.length>0) {
 			prepath = args[0].endsWith("/")?args[0].substring(0, args[0].length()-1):args[0];
+			messageLog+= "un argument au lancement du serveur: " + prepath;
 		} else {
 		 prepath = "/tmp/homedir";
+		 messageLog+= "défaut sans argument au lancement du serveur: " + prepath;
 		}
+		
+		System.out.println(messageLog);
 		
 		try {
 			serverskt = new ServerSocket(2100);
