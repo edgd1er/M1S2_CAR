@@ -1,0 +1,10 @@
+open 127.0.0.1 2100
+quote user anonymous
+quote pass user@asif.com
+pwd
+cd /tmp/homedir/user/
+pwd
+cd /tmp/
+put data.txt
+quit
+
