@@ -13,12 +13,14 @@
 #
 
 datatxt="data.txt"
+datatxtmd5="data.md5"
 databin="baboon_gray.png"
+databinmd5="baboon_gray.md5"
 datatxtori="data.txt.ori"
 databinori="baboon_gray.png.ori"
 tailleasciirecv=20131
 tailleascii=20066
-taillebin=176649
+taillebin=176679
 
 ## Fonctions
 
@@ -68,7 +70,8 @@ restorefile
 # tests fonctionnels
 
 
-echo -e "\n\n#################################################"
+echo -e "\n"
+echo "#################################################"
 echo "##       tests login des utilisateurs          ##"
 echo "#################################################"
 # utilsateur anon accepté mais ne peut pas upload
@@ -144,7 +147,7 @@ scr="features/test_retr_ascii_active.txt"
 txt="Test de la reception d'un fichier ascii: (attendu $tval): "
 testoracle
 oracle=$(grep ^${tailleascii} temp.log | cut -d' ' -f 1)
-oracle2=$(md5sum -c data.md5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
+oracle2=$(md5sum -c $datatxtmd5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
 
 res="ok"
 if [[ "$oracle" = "" ]]; then 
@@ -153,10 +156,60 @@ fi
 res="ok"
 echo -e "test de la taille du fichier:${tailleascii}: $res"
 if [[ "$oracle2" = "" ]]; then 
-	ezq="ko"
+	res="ko"
+	more temp.log
 fi
 	echo -e "test du md5 du fichier:${oracle2}: $res"
 
+echo -e "\n"
+echo "#################################################"
+echo "##           test en mode actif BINAIRE        ##"
+echo "#################################################"
+
+
+### test de ls ##
+#res=""
+#tval=226
+#scr="features/test_active_ls.txt"
+#txt="\nTest de l affichage du contenu d'un repertoire: (attendu $tval): "
+#testoracle
+
+######### mode ascii ############
+###   test de envoi de fichier ##
+res=""
+tval="successful"
+scr="features/test_put_bin_active.txt"
+txt="Test de l envoi d'un fichier binaire: (attendu $tval): "
+testoracle
+oracle=$(grep ^${taillebin} temp.log | cut -d' ' -f 1)
+res="ok\n"
+if [ "$oracle" = "" ]; then 
+	res="echec\n"
+	more temp.log
+fi
+echo -e "test de la taille du fichier:"${oracle}: $res"\n"
+
+
+###   test de reception de fichier ##
+res=""
+tval="successful"
+scr="features/test_retr_bin_active.txt"
+txt="Test de la reception d'un fichier binaire: (attendu $tval): "
+testoracle
+oracle=$(grep ^${taillebin} temp.log | cut -d' ' -f 1)
+oracle2=$(md5sum -c $databinmd5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
+
+res="ok"
+if [[ "$oracle" = "" ]]; then 
+	res="echec"
+	more temp.log
+fi
+res="ok"
+echo -e "test de la taille du fichier:${taillebin}: $res"
+if [[ "$oracle2" = "" ]]; then 
+	ezq="ko"
+fi
+	echo -e "test du md5 du fichier:${oracle2}: $res"
 
 
 echo -e "\n"
@@ -194,7 +247,7 @@ scr="features/test_retr_ascii_passive.txt"
 txt="Test de la reception d'un fichier ascii: (attendu $tval): "
 testoracle
 oracle=$(grep ^${tailleascii} temp.log | cut -d' ' -f 1)
-oracle2=$(md5sum -c data.md5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
+oracle2=$(md5sum -c $datatxtmd5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
 
 res="ok"
 if [[ "$oracle" = "" ]]; then 
@@ -203,6 +256,7 @@ fi
 res="ok"
 echo -e "test de la taille du fichier:${tailleascii}: $res"
 if [[ "$oracle2" = "" ]]; then 
-	ezq="ko"
+	res="ko"
+	more temp.log
 fi
 	echo -e "test du md5 du fichier:${oracle2}: $res"
