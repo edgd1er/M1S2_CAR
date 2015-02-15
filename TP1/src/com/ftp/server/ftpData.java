@@ -23,6 +23,13 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+/**
+ * Class ftpData qui sera mis en thread pour traiter les opérations sur le canal data.
+ * Typiquement ce sont les operations potentiellement grourmandes en temps qui y seront placées (ls, stor, retrieve))
+ * 
+ * @author user
+ *
+ */
 public class ftpData extends Thread {
 
 	private Socket datasocket;

@@ -4,6 +4,17 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+
+
+/**
+ * 
+ * Server FTP en Java
+ * 
+ * Le main lance le programme principal qui sera chargé d'écouter sur le port 21
+ * et de passer la main a un thread FTPRequest qui va gérer les commandes envoyées par le client FTP
+ * 
+ * @param args	prend le chemin par defaut des fichiers mis a dispo du serveur
+ */
 public class Server {
 
 	
@@ -11,14 +22,7 @@ public class Server {
 	public static int nbClients;
 	
 	
-	/**
-	 * Server FTP en Java
-	 * 
-	 * Le main lance le programme principal qui sera chargé d'écouter sur le port 21
-	 * et de passer la main a un thread FTPRequest qui va gérer les commandes envoyées par le client FTP
-	 * 
-	 * @param args	prend le chemin par defaut des fichiers mis a dispo du serveur
-	 */
+	
 	public static void main(String[] args) {
 		ServerSocket serverskt=null;
 		Boolean keepServingRunning =  true;

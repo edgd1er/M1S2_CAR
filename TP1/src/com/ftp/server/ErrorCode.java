@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
+ * 
  * Class qui permet de recuperer selon le code erreur, le texte associe et le
  * personnalise.
  * 
