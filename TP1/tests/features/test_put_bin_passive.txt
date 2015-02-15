@@ -4,7 +4,7 @@ quote pass a
 pwd
 cd /tmp/homedir/user/
 pwd
-pasv
+passive
 ls
 binary
 put baboon_gray.png

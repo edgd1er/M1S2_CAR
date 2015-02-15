@@ -77,7 +77,6 @@ public class ftpData extends Thread {
 
 		// Mode server
 		this.dataSrvSocket = dataServerSocket;
-		this.isPASV = true;
 		// communs
 		this.DataAddr = cltDataAddr;
 		this.DataPort = cltDataPort;
@@ -91,9 +90,20 @@ public class ftpData extends Thread {
 	public void run() {
 
 		try {
-			// le set pasv a si besoin ouvert la connection vers le client.
-			if (datasocket == null) {
-				datasocket = new Socket(DataAddr, DataPort);
+			/*
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}   
+			 */
+		// si PASV alors on attend la connexion client.
+			if (isPASV) {
+				this.datasocket = dataSrvSocket.accept();
+			} else {
+				//sinon on est en mode actif
+				this.datasocket = new Socket(DataAddr, DataPort);
 			}
 		}
 
@@ -161,7 +171,7 @@ public class ftpData extends Thread {
 	 * @return the isPASV
 	 * @throws IOException
 	 */
-	public boolean isPASV() throws IOException {
+	public boolean getPASV() throws IOException {
 
 		if (!isPASV) {
 			if (dataSrvSocket != null) {
@@ -201,6 +211,7 @@ public class ftpData extends Thread {
 			// TODO ne sera pas faite, puisque ce code ne tournera pas en mode
 			// root ( écoute du port 20)
 			this.datasocket = new Socket(DataAddr, DataPort);
+			dataSrvSocket = null;
 		}
 
 		System.out.println(messageLog);
@@ -321,7 +332,7 @@ public class ftpData extends Thread {
 				while ((readString = brd.readLine()) != null) {
 					// readString.replaceAll("\r\n", "\n");
 					sow.write(readString + "\n");
-					ntotalread += readString.length()+1;
+					ntotalread += readString.length() + 1;
 				}
 				brd.close();
 				sow.close();

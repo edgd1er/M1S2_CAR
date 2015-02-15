@@ -1,0 +1,8 @@
+open 127.0.0.1 2100
+quote user user
+quote pass a
+binary
+pasv
+ls
+get baboon_gray.png
+quit

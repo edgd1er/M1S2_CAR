@@ -12,6 +12,8 @@
 #	 Conception d'applications reparties
 #
 
+#set -x
+
 datatxt="data.txt"
 datatxtmd5="data.md5"
 databin="baboon_gray.png"
@@ -207,7 +209,7 @@ fi
 res="ok"
 echo -e "test de la taille du fichier:${taillebin}: $res"
 if [[ "$oracle2" = "" ]]; then 
-	ezq="ko"
+	res="ko"
 fi
 	echo -e "test du md5 du fichier:${oracle2}: $res"
 
@@ -255,6 +257,58 @@ if [[ "$oracle" = "" ]]; then
 fi
 res="ok"
 echo -e "test de la taille du fichier:${tailleascii}: $res"
+if [[ "$oracle2" = "" ]]; then 
+	res="ko"
+	more temp.log
+fi
+	echo -e "test du md5 du fichier:${oracle2}: $res"
+
+
+
+
+echo -e "\n"
+echo "#################################################"
+echo "##           test en mode passif BINAIRE        ##"
+echo "#################################################"
+
+
+### test de ls ##
+#res=""
+#tval=226
+#scr="features/test_passive_ls.txt"
+#txt="\nTest de l affichage du contenu d'un repertoire: (attendu $tval): "
+#testoracle
+
+######### mode binaire ############
+###   test de envoi de fichier ##
+res=""
+tval="successful"
+scr="features/test_put_bin_passive.txt"
+txt="Test de l envoi d'un fichier bin: (attendu $tval): "
+testoracle
+oracle=$(grep ^${taillebin} temp.log | cut -d' ' -f 1)
+res="ok\n"
+if [ "$oracle" = "" ]; then 
+	res="echec\n"
+fi
+echo -e "test de la taille du fichier:"${oracle}: $res"\n"
+
+
+###   test de reception de fichier ##
+res=""
+tval="successful"
+scr="features/test_retr_bin_passive.txt"
+txt="Test de la reception d'un fichier bin: (attendu $tval): "
+testoracle
+oracle=$(grep ^${taillebin} temp.log | cut -d' ' -f 1)
+oracle2=$(md5sum -c $databinmd5 | cut -d':' -f 2 | grep -i "réussi" | wc -l)
+
+res="ok"
+if [[ "$oracle" = "" ]]; then 
+	res="echec"
+fi
+res="ok"
+echo -e "test de la taille du fichier:${taillebin}: $res"
 if [[ "$oracle2" = "" ]]; then 
 	res="ko"
 	more temp.log

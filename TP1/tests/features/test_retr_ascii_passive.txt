@@ -5,7 +5,7 @@ pwd
 cd /tmp/homedir/user/
 pwd
 ascii
-pasv
+passive
 ls
 get data.txt
 quit

@@ -59,6 +59,7 @@ public class FtpRequest extends Thread {
 		cltSocketCtrl = _clskt;
 		srvSocketCtrl = _srvSocket;
 		tooManyClient = _tooMAny;
+		isPASV =false;
 		ftpetat = ftpEtat.FS_WAIT_LOGIN;
 	}
 
@@ -364,8 +365,6 @@ public class FtpRequest extends Thread {
 
 				myftpData.setDataAddr(cltDataAddr);
 				myftpData.setDataPort(cltDataPort);
-				myftpData.setPASV(isPASV);
-
 				myftpData.setASCII(ftpType.equals("A") ? true : false);
 				// preparation du client
 				rep = "150";
@@ -382,10 +381,7 @@ public class FtpRequest extends Thread {
 				while (myftpData.isAlive()) {
 				}
 				rep = myftpData.getReturnstatus();
-
-				mytools.sendMessage(rep);
-
-				System.out.println(messageLog + "  " + rep);
+				ErrorCode.sendCodeMessage(mytools, rep, messageLog);
 			} else {
 				ErrorCode.sendErrorMessage(mytools, "532", paramCode,
 						messageLog);
@@ -706,6 +702,7 @@ public class FtpRequest extends Thread {
 			} else {
 				// echec, on repasse en mode direct et on tue le thread
 				isPASV = false;
+				myftpData.setPASV(isPASV);
 				myftpData.setKeepRunning(false);
 			}
 
@@ -797,7 +794,7 @@ public class FtpRequest extends Thread {
 			myftpData.setaString(aInfo2Send);
 			myftpData.setCommande(commande);
 			myftpData.setParametre(parametre);
-			myftpData.setPASV(isPASV);
+			// myftpData.setPASV(isPASV);
 
 			// amorce de l'envoi
 			rep = "150";
