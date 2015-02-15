@@ -1,4 +1,5 @@
 open 127.0.0.1 2100
-quote user user
+quote user casimir
 quote pass ab
+quit
 

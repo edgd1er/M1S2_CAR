@@ -229,7 +229,9 @@ public class FtpRequest extends Thread {
 				if (commande.toUpperCase().startsWith("QUIT")) {
 					processQUIT();
 				}
-				if (!commande.equals("USER") && (!commande.equals("PASS") && (!commande.equals("QUIT")))) {
+				if (!commande.equals("USER")
+						&& (!commande.equals("PASS") && (!commande
+								.equals("QUIT")))) {
 					rep = "503";
 					ErrorCode.sendCodeMessage(mytools, rep, paramCode,
 							messageLog);
@@ -302,7 +304,7 @@ public class FtpRequest extends Thread {
 
 		if (this.commande.toUpperCase().startsWith("RETR")) {
 
-			if (myftpData == null)  {
+			if (myftpData == null) {
 				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
 						cltDataPort, null, commande, parametre);
 			}
@@ -310,7 +312,7 @@ public class FtpRequest extends Thread {
 			myftpData.setCommande(commande);
 			myftpData.setParametre(currentDir + File.separator + parametre);
 			myftpData.setASCII(ftpType.equals("A") ? true : false);
-			
+
 			rep = "150";
 			paramCode = "Opening " + parametre + " en mode data connection.\n";
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
@@ -385,7 +387,8 @@ public class FtpRequest extends Thread {
 
 				System.out.println(messageLog + "  " + rep);
 			} else {
-				ErrorCode.sendErrorMessage(mytools, "532", paramCode, messageLog);
+				ErrorCode.sendErrorMessage(mytools, "532", paramCode,
+						messageLog);
 			}
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
@@ -539,9 +542,9 @@ public class FtpRequest extends Thread {
 
 		String TableDesMdps = "";
 		// université
-		// TableDesMdps += "TP1" + File.separator + "mdp.txt";
+		TableDesMdps += "TP1" + File.separator + "mdp.txt";
 		// @home
-		TableDesMdps += "mdp.txt";
+		// TableDesMdps += "mdp.txt";
 		HashMap<String, String> usrMap = new HashMap<String, String>();
 
 		InputStream ipss = new FileInputStream(TableDesMdps);
@@ -775,8 +778,11 @@ public class FtpRequest extends Thread {
 			// ici on ne gere que le passif
 			if (myftpData == null) {
 				// creation du thread
-				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
-						cltDataPort, aInfo2Send, commande, parametre);
+				// PASV le thread est deja crée...
+				if (!isPASV) {
+					myftpData = new ftpData(dataSrvSocket, cltDataAddr,
+							cltDataPort, aInfo2Send, commande, parametre);
+				}
 			} else {
 				if (!isPASV) {
 					// on affecte les nouvelles données de ports reçues du
@@ -805,7 +811,7 @@ public class FtpRequest extends Thread {
 
 			// cloture de l envoi
 			rep = myftpData.getReturnstatus();
-			ErrorCode.sendCodeMessage(mytools, rep, "", messageLog);
+			ErrorCode.sendCodeMessage(mytools, rep, messageLog);
 
 		} else {
 			// bah, ce n'est pas list qui a ete recu.

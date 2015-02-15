@@ -320,8 +320,8 @@ public class ftpData extends Thread {
 				String readString = "";
 				while ((readString = brd.readLine()) != null) {
 					// readString.replaceAll("\r\n", "\n");
-					sow.write(readString + "\r\n");
-					ntotalread += readString.length();
+					sow.write(readString + "\n");
+					ntotalread += readString.length()+1;
 				}
 				brd.close();
 				sow.close();
