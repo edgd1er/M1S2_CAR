@@ -1,13 +1,12 @@
 open 127.0.0.1 2100
 quote user user
 quote pass a
-pasv
 pwd
 cd /tmp/homedir/user/
 pwd
-cd /tmp/
-pwd
-passive
+ascii
+pasv
 ls
+get data.txt
 quit
 

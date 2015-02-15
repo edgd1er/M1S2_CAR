@@ -6,5 +6,6 @@ cd /tmp/homedir/user/
 pwd
 cd /tmp/
 pwd
+ls
 quit
 

@@ -1,0 +1,13 @@
+open 127.0.0.1 2100
+quote user user
+quote pass a
+pwd
+cd /tmp/homedir/user/
+pwd
+binary
+pasv
+ls
+get baboon_gray.png
+quit
+
+md5sum -c /media/SEA_VMWARE/ANDROID/WORKING_DIRECTORY/M1S2_CAR/TP1/tests/baboon_gray.md5
