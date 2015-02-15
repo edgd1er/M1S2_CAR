@@ -172,7 +172,7 @@ public class FtpRequest extends Thread {
 			idx = receiveMessage.indexOf(" ");
 			tempcom = receiveMessage.toUpperCase();
 			if (idx != -1) {
-				tempcom = receiveMessage.substring(0, idx);
+				tempcom = receiveMessage.substring(0, idx).toUpperCase();
 				temppar = receiveMessage.substring(idx + 1,
 						receiveMessage.length());
 			}
@@ -181,9 +181,9 @@ public class FtpRequest extends Thread {
 				commande = tempcom;
 				parametre = temppar;
 			} else {
-				parametre = tempcom + " " + temppar;
+				parametre = tempcom.toUpperCase() + " " + temppar;
 				commande = "XXBAD";
-				
+
 			}
 		}
 	}
@@ -213,7 +213,7 @@ public class FtpRequest extends Thread {
 					processQUIT();
 					treated = true;
 				}
-				if (!commande.equals("USER") && (!commande.equals("PASS"))) {
+				if (!commande.equals("USER") && (!commande.equals("QUIT"))) {
 					rep = "503";
 					ErrorCode.sendCodeMessage(mytools, rep, paramCode,
 							messageLog);
@@ -228,6 +228,11 @@ public class FtpRequest extends Thread {
 				}
 				if (commande.toUpperCase().startsWith("QUIT")) {
 					processQUIT();
+				}
+				if (!commande.equals("USER") && (!commande.equals("PASS") && (!commande.equals("QUIT")))) {
+					rep = "503";
+					ErrorCode.sendCodeMessage(mytools, rep, paramCode,
+							messageLog);
 				}
 				break;
 			case ftpEtat.FS_LOGGED:
@@ -297,15 +302,15 @@ public class FtpRequest extends Thread {
 
 		if (this.commande.toUpperCase().startsWith("RETR")) {
 
-			if (myftpData != null) {
-				myftpData.setCommande(commande);
-				myftpData.setParametre(currentDir + File.separator + parametre);
-				myftpData.setASCII(ftpType.equals("A") ? true : false);
-			} else {
+			if (myftpData == null)  {
 				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
 						cltDataPort, null, commande, parametre);
 			}
 
+			myftpData.setCommande(commande);
+			myftpData.setParametre(currentDir + File.separator + parametre);
+			myftpData.setASCII(ftpType.equals("A") ? true : false);
+			
 			rep = "150";
 			paramCode = "Opening " + parametre + " en mode data connection.\n";
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
@@ -343,38 +348,45 @@ public class FtpRequest extends Thread {
 
 		if (this.commande.toUpperCase().startsWith("STOR")) {
 
-			if (myftpData != null) {
-				myftpData.setCommande(commande);
-				myftpData.setParametre(currentDir + File.separator + parametre);
+			if (!currentUser.equalsIgnoreCase("anonymous")) {
+
+				if (myftpData != null) {
+					myftpData.setCommande(commande);
+					myftpData.setParametre(currentDir + File.separator
+							+ parametre);
+				} else {
+					myftpData = new ftpData(dataSrvSocket, cltDataAddr,
+							cltDataPort, null, commande, currentDir
+									+ File.separator + parametre);
+				}
+
+				myftpData.setDataAddr(cltDataAddr);
+				myftpData.setDataPort(cltDataPort);
+				myftpData.setPASV(isPASV);
+
+				myftpData.setASCII(ftpType.equals("A") ? true : false);
+				// preparation du client
+				rep = "150";
+				paramCode = "Opening " + parametre
+						+ " en mode data connection.\n";
+				ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+
+				// Envoi des données vers le client
+				myftpData.run();
+
+				// myftpData.start();
+
+				// attente de la fin du transfert (thread super utile :( )
+				while (myftpData.isAlive()) {
+				}
+				rep = myftpData.getReturnstatus();
+
+				mytools.sendMessage(rep);
+
+				System.out.println(messageLog + "  " + rep);
 			} else {
-				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
-						cltDataPort, null, commande, currentDir
-								+ File.separator + parametre);
+				ErrorCode.sendErrorMessage(mytools, "532", paramCode, messageLog);
 			}
-
-			myftpData.setDataAddr(cltDataAddr);
-			myftpData.setDataPort(cltDataPort);
-			myftpData.setPASV(isPASV);
-
-			myftpData.setASCII(ftpType.equals("A") ? true : false);
-			// preparation du client
-			rep = "150";
-			paramCode = "Opening " + parametre + " en mode data connection.\n";
-			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
-
-			// Envoi des données vers le client
-			myftpData.run();
-
-			// myftpData.start();
-
-			// attente de la fin du transfert (thread super utile :( )
-			while (myftpData.isAlive()) {
-			}
-			rep = myftpData.getReturnstatus();
-
-			mytools.sendMessage(rep);
-
-			System.out.println(messageLog + "  " + rep);
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
@@ -699,10 +711,10 @@ public class FtpRequest extends Thread {
 					+ myftpData.getDataPort();
 
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
-
 	}
 
 	/**
@@ -766,10 +778,13 @@ public class FtpRequest extends Thread {
 				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
 						cltDataPort, aInfo2Send, commande, parametre);
 			} else {
-				// on affecte les nouvelles données de ports reçues du client.
-				myftpData.setDataAddr(cltDataAddr);
-				myftpData.setDataPort(cltDataPort);
-				// myftpData.reconnect();
+				if (!isPASV) {
+					// on affecte les nouvelles données de ports reçues du
+					// client.
+					myftpData.setDataAddr(cltDataAddr);
+					myftpData.setDataPort(cltDataPort);
+					// myftpData.reconnect();
+				}
 			}
 
 			// parametrage du thread

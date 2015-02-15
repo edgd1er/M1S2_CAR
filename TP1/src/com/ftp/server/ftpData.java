@@ -4,17 +4,19 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -35,20 +37,18 @@ public class ftpData extends Thread {
 	private boolean KeepRunning = true;
 	private String returnstatus;
 	private boolean isASCII = false;
-	private int bufferSize=1024;
-	private Charset ASCII  = Charset.forName("ASCII");
+	private int bufferSize = 1024;
+	private Charset ASCII = Charset.forName("ASCII");
 
 	/*
 	 * constructeur du mode client -> server
-	 * 
-	 * 
-	 * */
+	 */
 	public ftpData(String clientIp, boolean _isPASV) throws IOException {
-		
+
 		String messageLog = null;
-		this.DataAddr =clientIp;
-		
-		messageLog = this.getClass().toString() + " Cons: Debut: "+ _isPASV;
+		this.DataAddr = clientIp;
+
+		messageLog = this.getClass().toString() + " Cons: Debut: " + _isPASV;
 		// mode PASV, on va recuperer le port de connection du client.
 		setPASV(_isPASV);
 		System.out.println(messageLog);
@@ -91,9 +91,9 @@ public class ftpData extends Thread {
 	public void run() {
 
 		try {
-			//le set pasv a si besoin ouvert la connection vers le client.
+			// le set pasv a si besoin ouvert la connection vers le client.
 			if (datasocket == null) {
-					datasocket = new Socket(DataAddr, DataPort);
+				datasocket = new Socket(DataAddr, DataPort);
 			}
 		}
 
@@ -121,9 +121,9 @@ public class ftpData extends Thread {
 				sendList();
 				break;
 			case ("RETR"):
-				//retrieveFile();
+				// retrieveFile();
 				// TODO
-				 retrieveAsciiBin();
+				retrieveAsciiBin();
 				break;
 			case ("STOR"):
 				storeAsciiBin();
@@ -162,7 +162,7 @@ public class ftpData extends Thread {
 	 * @throws IOException
 	 */
 	public boolean isPASV() throws IOException {
-	
+
 		if (!isPASV) {
 			if (dataSrvSocket != null) {
 				if (dataSrvSocket.isBound()) {
@@ -181,38 +181,38 @@ public class ftpData extends Thread {
 	 */
 	public void setPASV(boolean isPASV) throws IOException {
 		this.isPASV = isPASV;
-		String messageLog = this.getClass().toString() + " Mode PASV="+ isPASV;
-		
+		String messageLog = this.getClass().toString() + " Mode PASV=" + isPASV;
+
 		if (isPASV) {
-			if ((this.dataSrvSocket==null) || (this.dataSrvSocket.isClosed()))
-			{
+			if ((this.dataSrvSocket == null) || (this.dataSrvSocket.isClosed())) {
 				this.dataSrvSocket = new ServerSocket(0);
 				DataPort = this.dataSrvSocket.getLocalPort();
-				
-				messageLog+= " création";
-				}
-			else {
-				 messageLog+= " réutilisation";
+
+				messageLog += " création";
+			} else {
+				messageLog += " réutilisation";
 			}
 			port_url = getEncPort();
-			messageLog+= " de la dataServerSocket:" + DataAddr + ":" + DataPort;
-			
-			}else{
-				//gestion du mode actif
-				//TODO ne sera pas faite, puisque ce code ne tournera pas en mode root ( écoute du port 20)
-				this.datasocket = new Socket(DataAddr,DataPort);
-			}
-		
+			messageLog += " de la dataServerSocket:" + DataAddr + ":"
+					+ DataPort;
+
+		} else {
+			// gestion du mode actif
+			// TODO ne sera pas faite, puisque ce code ne tournera pas en mode
+			// root ( écoute du port 20)
+			this.datasocket = new Socket(DataAddr, DataPort);
+		}
+
 		System.out.println(messageLog);
 	}
 
-	//send from client to server
+	// send from client to server
 	private void storeAsciiBin() {
 		// TODO Gestion ASCII / BIN
 		String rep, paramCode, messageLog, line;
 		InputStream in = null;
 		File file = null;
-		int nread=0;
+		int nread = 0, ntotalRead = 0;
 		// pr le mode ascii -- equivalent filewriter
 		OutputStreamWriter fow = null;
 		// pr le mode bin
@@ -229,58 +229,42 @@ public class ftpData extends Thread {
 
 			// mode ascii
 			if (isASCII) {
-				char[] aChar=new char[bufferSize];
-				
-				//fow = new OutputStreamWriter(new FileOutputStream(file), ASCII);
-				//InputStreamReader isr = new InputStreamReader(in,ASCII);
-				fow = new OutputStreamWriter(new FileOutputStream(file));
+				// char[] aChar = new char[bufferSize];
+				// fow = new OutputStreamWriter(new FileOutputStream(file),
+				// ASCII);
+				// InputStreamReader isr = new InputStreamReader(in,ASCII);
+				FileWriter fwr = new FileWriter(file);
+				PrintWriter pwr = new PrintWriter(fwr);
+				// fow = new OutputStreamWriter(fos);
 				InputStreamReader isr = new InputStreamReader(in);
 				BufferedReader br = new BufferedReader(isr);
-				while((line=br.readLine())!=null){
-					fow.write(line);
+				while ((line = br.readLine()) != null) {
+					pwr.write(line + "\r\n");
+					ntotalRead += line.length() + 2;
 				}
-				/*while ((nread=isr.read(aChar))>0){
-					fow.write(aChar, 0, nread);
-				}*/
-				
-				//brd.close();
 				isr.close();
-				fow.close();
+				pwr.close();
 			} else
 			// mode binaire
 			{
 				byte[] b = new byte[8192];
 				fos = new FileOutputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(in);
-				
-				/*
-				 * 
-				 * BufferedOutputStream bos = new BufferedOutputStream(fos);
-				 * DataInputStream dis = new DataInputStream(bis);
-				 * DataOutputStream dos = new DataOutputStream(bos);
-				 */
-				//Transfert via des Buffers
- 				/*while(()!= 0)
-				{ 
-					nread =bis.read(b);
-					dos.write(b,0,nread-1);
-				*/
-				
-				while((nread=in.read(b))>0)
-				{
-					fos.write(b, 0, nread-1);
-					
+
+				while ((nread = in.read(b)) > 0) {
+					fos.write(b, 0, nread);
+					ntotalRead += nread;
 				}
-			
-				//while ( (nread = in.read(buf)) > 0 ) {
-					// nread obligatoire, sinon ajout de byte qd nread < buffersize
-					//fos.write(buf,0,nread);
-				//}
+
+				// while ( (nread = in.read(buf)) > 0 ) {
+				// nread obligatoire, sinon ajout de byte qd nread < buffersize
+				// fos.write(buf,0,nread);
+				// }
 				fos.flush();
-				//bos.close();
+				// bos.close();
 				fos.close();
-				//bos=null;
-				fos=null;
+				// bos=null;
+				fos = null;
 			}
 
 			in.close();
@@ -290,7 +274,8 @@ public class ftpData extends Thread {
 			}
 			KeepRunning = false;
 			rep = "226";
-			paramCode = "File sent: " + parametre;
+			paramCode = "File sent: " + parametre + " " + ntotalRead
+					+ " bytes sent.";
 			returnstatus = ErrorCode.getMessage(rep, paramCode);
 
 		} catch (FileNotFoundException fnf) {
@@ -310,73 +295,11 @@ public class ftpData extends Thread {
 	}
 
 	// envoi du fichier du serveur vers le client.
-	private void retrieveFile() {
-		String rep, paramCode, messageLog;
-		File file;
-		FileInputStream fis;
-		// TODO Gestion des mode ASCII / BIN
-		messageLog = this.getClass().toString() + " retrieveFile"
-				+ " commande: " + commande + " " + parametre;
-
-		file = new File(parametre);
-
-		try {
-			fis = new FileInputStream(file);
-
-			OutputStream outstream = datasocket.getOutputStream();
-
-			byte buf[] = new byte[bufferSize];
-			int nread;
-			while ((nread = fis.read(buf)) > 0) {
-				outstream.write(buf, 0, nread);
-			}
-			if (outstream != null) {
-				outstream.flush();
-				outstream.close();
-			}
-			if (datasocket != null)
-				datasocket.close();
-
-			if (dataSrvSocket != null) {
-				dataSrvSocket.close();
-			}
-			KeepRunning = false;
-			rep = "226";
-			paramCode = "File rerieved: " + parametre;
-			System.out.println(messageLog);
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
-		} catch (FileNotFoundException fnf) {
-			rep = "550";
-			paramCode = "Cannot access: " + parametre;
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
-
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
-		} catch (IOException ioe) {
-			rep = "425";
-			paramCode = "Can't Open data connection";
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
-		}
-		System.out.println(messageLog);
-	}
-
-	// envoi du fichier du serveur vers le client.
 	private void retrieveAsciiBin() {
-		//Gestion ASCII / BIN
+		// Gestion ASCII / BIN
 		String rep, paramCode, messageLog;
-		
-		OutputStream out=null;
-		
-		//sortie sur la socket
-		//lecture du fichier
-		FileInputStream fis =null;
-		// pr le mode ascii -- equivalent filewriter
-		InputStreamReader isr=null;
-		BufferedReader brd = null;
-		OutputStreamWriter sow=null;
-		int nread=0,nwrite=0,ntotalread=0,ntotalwrite=0;
-
-		// pr le mode bin
-		DataOutputStream dos=null;
+		int nread = 0, nwrite = 0, ntotalread = 0, ntotalwrite = 0;
+		OutputStream out = null;
 
 		// TODO Gestion des mode ASCII / BIN
 		messageLog = this.getClass().toString() + " StoreFile (Ascii:"
@@ -384,55 +307,55 @@ public class ftpData extends Thread {
 
 		try {
 
-			fis = new FileInputStream(parametre);
-			
 			out = datasocket.getOutputStream();
 
 			// mode ascii
 			if (isASCII) {
 				// preparation des I/O
-				isr = new InputStreamReader(fis,ASCII);
-				brd = new BufferedReader(isr);
-				sow = new OutputStreamWriter(out, ASCII);
+				FileReader frd = new FileReader(parametre);
+				BufferedReader brd = new BufferedReader(frd);
+				OutputStreamWriter sow = new OutputStreamWriter(out);
 				BufferedWriter bwr = new BufferedWriter(sow);
-				
-				String readString;
-				while ((readString = brd.readLine()) != null) {
-					//bwr.write(readString);
-					sow.write(readString);
-					ntotalread+=readString.length();
-				}
 
-				sow.flush();
-				sow.close();
-				isr.close();
+				String readString = "";
+				while ((readString = brd.readLine()) != null) {
+					// readString.replaceAll("\r\n", "\n");
+					sow.write(readString + "\r\n");
+					ntotalread += readString.length();
+				}
 				brd.close();
+				sow.close();
+				frd.close();
+				bwr.close();
+
 			} else
 			// mode binaire
 			{
-				
-				BufferedInputStream bis = new BufferedInputStream(fis, bufferSize);
-				dos = new DataOutputStream(out);
-				BufferedOutputStream bdos =new BufferedOutputStream(dos);
-				
+				FileInputStream fis = new FileInputStream(parametre);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+				DataOutputStream dos = new DataOutputStream(out);
+				BufferedOutputStream bdos = new BufferedOutputStream(dos);
+
 				byte buf[] = new byte[bufferSize];
-				while((nread=bis.read(buf))>0)
-				{
-					ntotalread+=nread;
-					dos.write(buf,0,nread-1);
+				while ((nread = bis.read(buf)) > 0) {
+					ntotalread += nread;
+					bdos.write(buf, 0, nread);
 				}
+				bdos.close();
 				dos.flush();
 				dos.close();
 				bis.close();
 			}
-			
+
 			datasocket.close();
 			if (dataSrvSocket != null) {
 				dataSrvSocket.close();
 			}
 			KeepRunning = false;
 			rep = "226";
-			paramCode = "File sent: " + parametre + " written " + String.valueOf(ntotalread) + (isASCII?" Char":" bytes") ;
+			paramCode = "File sent: " + parametre + " written "
+					+ String.valueOf(ntotalread)
+					+ (isASCII ? " Char" : " bytes");
 			returnstatus = ErrorCode.getMessage(rep, paramCode);
 
 		} catch (FileNotFoundException fnf) {
@@ -451,7 +374,7 @@ public class ftpData extends Thread {
 		System.out.println(messageLog);
 
 	}
-	
+
 	public void sendList() {
 		// TODO Auto-generated method stub
 		String messalog = this.getClass().toString() + " sendList"
@@ -488,18 +411,18 @@ public class ftpData extends Thread {
 	private String getEncPort() {
 		String thisport_url = "";
 
-		//dataSrvSocket ectoutant sur tout les ports, il faut utiliser l'@ IP du client fourni par le serveur lors de la connexion d'accroche
-		//thisport_url = dataSrvSocket.getInetAddress().getHostAddress();
-		if (isPASV){
+		// dataSrvSocket ectoutant sur tout les ports, il faut utiliser l'@ IP
+		// du client fourni par le serveur lors de la connexion d'accroche
+		// thisport_url = dataSrvSocket.getInetAddress().getHostAddress();
+		if (isPASV) {
 			thisport_url = DataAddr.replace(".", ",");
 			DataPort = dataSrvSocket.getLocalPort();
-			
+
+		} else {
+			thisport_url = DataAddr.replace(".", ",");
+			DataPort = dataSrvSocket.getLocalPort();
 		}
-		else{
-		thisport_url = DataAddr.replace(".", ",");
-		DataPort = dataSrvSocket.getLocalPort();
-		}
-		
+
 		String p1 = String.valueOf(dataSrvSocket.getLocalPort() / 256);
 		String p2 = String.valueOf(dataSrvSocket.getLocalPort() % 256);
 
@@ -510,7 +433,7 @@ public class ftpData extends Thread {
 	public int getDataPort() {
 		// TODO Auto-generated method stub
 		return DataPort;
-		//return datasocket.getLocalPort();
+		// return datasocket.getLocalPort();
 	}
 
 	/**
@@ -656,7 +579,8 @@ public class ftpData extends Thread {
 	}
 
 	/**
-	 * @param isASCII the isASCII to set
+	 * @param isASCII
+	 *            the isASCII to set
 	 */
 	public void setASCII(boolean isASCII) {
 		this.isASCII = isASCII;

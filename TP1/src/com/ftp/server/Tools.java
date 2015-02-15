@@ -1,6 +1,5 @@
 package com.ftp.server;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -65,7 +64,7 @@ public class Tools {
 			if (mysocket!=null){
 				System.out.println(" closing input/output streams");
 			if (mysocket.isConnected()){
-				sendMessage("226 Fermeture de la connection");
+				sendMessage(ErrorCode.getMessage("221", ""));
 			}
 			osw.flush();
 			br.close();
