@@ -20,17 +20,18 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.List;
 
+import com.ftp.tools.ErrorCode;
+
 /**
- * Class ftpData qui sera mis en thread pour traiter les opérations sur le canal data.
- * Typiquement ce sont les operations potentiellement grourmandes en temps qui y seront placées (ls, stor, retrieve))
+ * ftpData: this thread will handle transfer on the data channel.
+ * Potential long time running command: ls, stor, retrieve
  * 
- * @author user
+ * @author emeline Salomon & françois Dubiez
  *
  */
-public class ftpData extends Thread {
+public class FtpData extends Thread {
 
 	private Socket datasocket;
 	private String DataAddr;
@@ -44,13 +45,13 @@ public class ftpData extends Thread {
 	private boolean KeepRunning = true;
 	private String returnstatus;
 	private boolean isASCII = false;
-	private int bufferSize = 1024;
-	private Charset ASCII = Charset.forName("ASCII");
-
-	/*
+	private int bufferSize = 8192;
+	
+	/**
+	 * 
 	 * constructeur du mode client -> server
 	 */
-	public ftpData(String clientIp, boolean _isPASV) throws IOException {
+	public FtpData(String clientIp, boolean _isPASV) throws IOException {
 
 		String messageLog = null;
 		this.DataAddr = clientIp;
@@ -58,12 +59,13 @@ public class ftpData extends Thread {
 		messageLog = this.getClass().toString() + " Cons: Debut: " + _isPASV;
 		// mode PASV, on va recuperer le port de connection du client.
 		setPASV(_isPASV);
-		System.out.println(messageLog);
+
+		if (Server.debugMode){System.out.println(messageLog);}
 
 	}
 
 	// mode Direct
-	public ftpData(String cltDataAddr, Integer cltDataPort,
+	public FtpData(String cltDataAddr, Integer cltDataPort,
 			List<String> aInfo2Send, String commande, String parametre) {
 
 		this.dataSrvSocket = null;
@@ -78,7 +80,7 @@ public class ftpData extends Thread {
 	}
 
 	// mode PASV
-	public ftpData(ServerSocket dataServerSocket, String cltDataAddr,
+	public FtpData(ServerSocket dataServerSocket, String cltDataAddr,
 			Integer cltDataPort, List<String> aInfo2Send, String commande,
 			String parametre) {
 
@@ -117,7 +119,7 @@ public class ftpData extends Thread {
 		catch (UnknownHostException uhe) {
 			String messalog = this.getClass().toString() + " Run"
 					+ " commande: " + commande + " " + parametre;
-			System.out.println(messalog);
+			System.err.println(messalog);
 			KeepRunning = false;
 			uhe.printStackTrace();
 		}
@@ -125,7 +127,7 @@ public class ftpData extends Thread {
 		catch (IOException ioe) {
 			String messalog = this.getClass().toString() + " Run"
 					+ " commande: " + commande + " " + parametre;
-			System.out.println(messalog);
+			System.err.println(messalog);
 			KeepRunning = false;
 			ioe.printStackTrace();
 
@@ -161,7 +163,7 @@ public class ftpData extends Thread {
 				+ dataSrvSocket.getInetAddress().getHostAddress() + ":"
 				+ dataSrvSocket.getLocalPort() + " PORT " + port_url;
 
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 
 		// attente du client sur le canal data
 		// recuperation de la socket.
@@ -170,7 +172,7 @@ public class ftpData extends Thread {
 		messageLog += " ftpData :  constructeur:  le client s'est connecte: "
 				+ datasocket.getLocalPort() + " / " + datasocket.getPort();
 
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 		return true;
 	}
 
@@ -215,28 +217,19 @@ public class ftpData extends Thread {
 
 		} else {
 			// gestion du mode actif
-			// TODO ne sera pas faite, puisque ce code ne tournera pas en mode
-			// root ( écoute du port 20)
 			this.datasocket = new Socket(DataAddr, DataPort);
 			dataSrvSocket = null;
 		}
 
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 	}
 
 	// send from client to server
 	private void storeAsciiBin() {
-		// TODO Gestion ASCII / BIN
 		String rep, paramCode, messageLog, line;
 		InputStream in = null;
 		File file = null;
 		int nread = 0, ntotalRead = 0;
-		// pr le mode ascii -- equivalent filewriter
-		OutputStreamWriter fow = null;
-		// pr le mode bin
-		FileOutputStream fos = null;
-
-		// TODO Gestion des mode ASCII / BIN
 		messageLog = this.getClass().toString() + " StoreFile (Ascii:"
 				+ isASCII + "), commande: " + commande + " " + parametre;
 
@@ -247,13 +240,8 @@ public class ftpData extends Thread {
 
 			// mode ascii
 			if (isASCII) {
-				// char[] aChar = new char[bufferSize];
-				// fow = new OutputStreamWriter(new FileOutputStream(file),
-				// ASCII);
-				// InputStreamReader isr = new InputStreamReader(in,ASCII);
 				FileWriter fwr = new FileWriter(file);
 				PrintWriter pwr = new PrintWriter(fwr);
-				// fow = new OutputStreamWriter(fos);
 				InputStreamReader isr = new InputStreamReader(in);
 				BufferedReader br = new BufferedReader(isr);
 				while ((line = br.readLine()) != null) {
@@ -266,22 +254,15 @@ public class ftpData extends Thread {
 			// mode binaire
 			{
 				byte[] b = new byte[8192];
-				fos = new FileOutputStream(file);
+				FileOutputStream fos = new FileOutputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(in);
 
-				while ((nread = in.read(b)) > 0) {
+				while ((nread = bis.read(b)) > 0) {
 					fos.write(b, 0, nread);
 					ntotalRead += nread;
 				}
-
-				// while ( (nread = in.read(buf)) > 0 ) {
-				// nread obligatoire, sinon ajout de byte qd nread < buffersize
-				// fos.write(buf,0,nread);
-				// }
-				fos.flush();
-				// bos.close();
+				bis.close();
 				fos.close();
-				// bos=null;
 				fos = null;
 			}
 
@@ -308,7 +289,7 @@ public class ftpData extends Thread {
 			messageLog += " " + returnstatus;
 		}
 
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 
 	}
 
@@ -316,7 +297,7 @@ public class ftpData extends Thread {
 	private void retrieveAsciiBin() {
 		// Gestion ASCII / BIN
 		String rep, paramCode, messageLog;
-		int nread = 0, nwrite = 0, ntotalread = 0, ntotalwrite = 0;
+		int nread = 0, ntotalread = 0;
 		OutputStream out = null;
 
 		// TODO Gestion des mode ASCII / BIN
@@ -337,7 +318,6 @@ public class ftpData extends Thread {
 
 				String readString = "";
 				while ((readString = brd.readLine()) != null) {
-					// readString.replaceAll("\r\n", "\n");
 					sow.write(readString + "\n");
 					ntotalread += readString.length() + 1;
 				}
@@ -389,15 +369,15 @@ public class ftpData extends Thread {
 			messageLog += " " + returnstatus;
 		}
 
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 
 	}
 
 	public void sendList() {
 		// TODO Auto-generated method stub
-		String messalog = this.getClass().toString() + " sendList"
+		String messageLog = this.getClass().toString() + " sendList"
 				+ " commande: " + commande + " " + parametre;
-		System.out.println(messalog);
+		if (Server.debugMode){System.out.println(messageLog);}
 
 		try {
 			// ouverture du canal DATA en sortie.
@@ -416,9 +396,9 @@ public class ftpData extends Thread {
 		}
 		// aie, ça n'a pas marché
 		catch (IOException ioe) {
-			messalog = this.getClass().toString() + " sendList Error"
+			messageLog = this.getClass().toString() + " sendList Error"
 					+ " commande: " + commande + " " + parametre;
-			System.out.println(messalog);
+			System.err.println(messageLog);
 			ioe.printStackTrace();
 			returnstatus = "400 Ereur durant l'operation.";
 

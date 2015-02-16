@@ -13,20 +13,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ftp.tools.ErrorCode;
+import com.ftp.tools.Tools;
+
 /**
  * 
- * Classe principale lancée par la classe server, qui prend la main ensuite pour
- * gerer la communication sur le FTP-Control channel. La plupart des commandes
- * FTP sont implementees.
+ * Main class to handle the control channel. this thread is launched by the
+ * server thread. Most of the FTP commands are implemented.
  * 
  * 
- * @author user
+ * @author Emeline Salomon & François Dubiez
  * 
  */
 public class FtpRequest extends Thread {
 
 	private Socket cltSocketCtrl;
-	private ServerSocket srvSocketCtrl;
+	// private ServerSocket srvSocketCtrl;
 	private ServerSocket dataSrvSocket;
 	private String cltDataAddr;
 	private Integer cltDataPort;
@@ -41,30 +43,27 @@ public class FtpRequest extends Thread {
 	boolean tooManyClient = false;
 	boolean isPASV = false;
 	Tools mytools = null;
-	private ftpData myftpData;
+	private FtpData myftpData;
 
 	/**
 	 * Constructeur du thread FTPRequest Ce thread recoit les commandes via le
 	 * canal de controle, traites les operations sauf list, prepare et retrieve
 	 * pour lequel un autre thread sera lancé pour traiter ces commandes.
 	 * 
-	 * @param _srvSocket
-	 *            ServerSocket correspond a la socket serveur.
 	 * @param _clskt
-	 *            socket correspond a socket de connexion vers le client.
+	 *            Client socket to handle connection with client.
 	 * @param _tooMAny
-	 *            Limite max de client a accepter.
+	 *            Maximum number of clients to acccept.
 	 */
-	public FtpRequest(ServerSocket _srvSocket, Socket _clskt, boolean _tooMAny) {
+	public FtpRequest(Socket _clskt, boolean _tooMAny) {
 		cltSocketCtrl = _clskt;
-		srvSocketCtrl = _srvSocket;
 		tooManyClient = _tooMAny;
-		isPASV =false;
-		ftpetat = ftpEtat.FS_WAIT_LOGIN;
+		isPASV = false;
+		ftpetat = FtpEtat.FS_WAIT_LOGIN;
 	}
 
 	/**
-	 * Lancement du thread FtpData
+	 * thread FtpData start
 	 * 
 	 */
 	public void run() {
@@ -77,7 +76,7 @@ public class FtpRequest extends Thread {
 		try {
 			mytools = new Tools(cltSocketCtrl);
 		} catch (IOException e) {
-			System.out
+			System.err
 					.println("ohoh, seems like the client has disconnected ....");
 			KeepRunning = false;
 		}
@@ -90,7 +89,6 @@ public class FtpRequest extends Thread {
 				killConnection();
 			} catch (Exception e) {
 				// Rien A Faire: cloture de la connection de tt façon.
-				e.printStackTrace();
 			}
 		} else {
 			msgAccueil();
@@ -99,8 +97,10 @@ public class FtpRequest extends Thread {
 		try {
 			while (KeepRunning) {
 				parseCommande(mytools.receiveMessage());
-				System.out.println("Received command to process:" + commande
-						+ " " + parametre);
+				if (Server.debugMode) {
+					System.out.println("Received command to process:"
+							+ commande + " " + parametre);
+				}
 				processRequest();
 				// TODO resoudre ce probleme lors d'un deconnexion brutale du
 				// client, le socket serveur reçoit en permance des commandes
@@ -129,12 +129,11 @@ public class FtpRequest extends Thread {
 		}
 		// fin de try
 		Server.nbClients--;
-		System.out.println("Thread End.");
+		System.out.println("Thread End.("+String.valueOf(Server.nbClients)+" clients remaining)");
 	}
 
 	/**
-	 * Suite a la connexion du client, le serveur envoie le message d'accueil
-	 * sur le canal de control.
+	 * welcome message to be send on the control channel
 	 * 
 	 */
 	public void msgAccueil() {
@@ -153,12 +152,13 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Cette fonction permet la reconnaissance des commandes et définit la
-	 * partie commande de la partie parametre.
+	 * is receiveMessage a valid ftp command ? this function will know.
+	 * 
 	 * http://www.iana.org/assignments/ftp
 	 * -commands-extensions/ftp-commands-extensions.xhtml
 	 * 
 	 * @param receiveMessage
+	 *            string to test.
 	 */
 	private void parseCommande(String receiveMessage) {
 		int idx = -1;
@@ -190,29 +190,26 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Gestion des commandes autorises via un Pattern ETAT. Dans l'etat 1, USER
-	 * et QUIT sont permis. Dans l'etat 2, USER, QUIT et PASS sont permis Dans
-	 * l'etat 3, toutes les commandes sont permises.
+	 * Process the FTP request according to actual state.(State Pattern)
 	 * 
-	 * ecoute les commandes envoyés et lance le process adéquat
+	 * State 1, USER & QUIT allowed. State 2, USER, QUIT & PASS allowed. State
+	 * 3, All commands allowed.
+	 *
+	 * internal var used: commande, parametre.
 	 */
-	//
+
 	public void processRequest() {
 		String rep = "500", paramCode = "Syntax error, command unrecognized", messageLog = this
 				.getClass().toString() + ":ProcessRequest: ";
 
-		boolean treated = false;
-
 		try {
 			switch (ftpetat) {
-			case ftpEtat.FS_WAIT_LOGIN:
+			case FtpEtat.FS_WAIT_LOGIN:
 				if (commande.toUpperCase().startsWith("USER")) {
 					processUSER();
-					treated = true;
 				}
 				if (commande.toUpperCase().startsWith("QUIT")) {
 					processQUIT();
-					treated = true;
 				}
 				if (!commande.equals("USER") && (!commande.equals("QUIT"))) {
 					rep = "503";
@@ -220,7 +217,7 @@ public class FtpRequest extends Thread {
 							messageLog);
 				}
 				break;
-			case ftpEtat.FS_WAIT_PASS:
+			case FtpEtat.FS_WAIT_PASS:
 				if (commande.toUpperCase().startsWith("USER")) {
 					processUSER();
 				}
@@ -238,7 +235,7 @@ public class FtpRequest extends Thread {
 							messageLog);
 				}
 				break;
-			case ftpEtat.FS_LOGGED:
+			case FtpEtat.FS_LOGGED:
 				if (commande.toUpperCase().startsWith("USER")) {
 					processUSER();
 				} else if (commande.toUpperCase().startsWith("PASS")) {
@@ -285,15 +282,15 @@ public class FtpRequest extends Thread {
 
 		} catch (IOException e1) {
 			KeepRunning = false;
-			System.out.println(this.getClass().toString() + " erreur\n");
+			System.err.println(this.getClass().toString() + " erreur\n");
 			e1.printStackTrace();
 			killConnection();
 		}
 	}
 
 	/**
-	 * Suite a la reception de la commande RETR, la methode prepare le thread
-	 * FtpData et le lance.
+	 * RETR, this function is setting up the FtpData thread and will start it.
+	 * The FTP client asked to receive a file
 	 * 
 	 * @throws IOException
 	 */
@@ -306,7 +303,7 @@ public class FtpRequest extends Thread {
 		if (this.commande.toUpperCase().startsWith("RETR")) {
 
 			if (myftpData == null) {
-				myftpData = new ftpData(dataSrvSocket, cltDataAddr,
+				myftpData = new FtpData(dataSrvSocket, cltDataAddr,
 						cltDataPort, null, commande, parametre);
 			}
 
@@ -318,26 +315,24 @@ public class FtpRequest extends Thread {
 			paramCode = "Opening " + parametre + " en mode data connection.\n";
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
 			// mode thread
-			// myftpData.start();
+			myftpData.start();
 			// mode bloquant
-			myftpData.run();
+			// myftpData.run();
 
 			while (myftpData.isAlive()) {
 			}
 			rep = myftpData.getReturnstatus();
 
 			mytools.sendMessage(rep);
-			System.out.println(messageLog);
+			if (Server.debugMode){System.out.println(messageLog);}
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
 	}
 
-	// reception d'un fichier et stockage local (sur le serveur)
-	// TODO A faire
 	/**
-	 * Suite a la reception de la commande STOR, la methode prepare le thread
-	 * FtpData et le lance.
+	 * STOR, this function is setting up the FtpData thread and will start it.
+	 * The FTP client asked to send a file
 	 * 
 	 * @throws IOException
 	 * 
@@ -358,7 +353,7 @@ public class FtpRequest extends Thread {
 					myftpData.setParametre(currentDir + File.separator
 							+ parametre);
 				} else {
-					myftpData = new ftpData(dataSrvSocket, cltDataAddr,
+					myftpData = new FtpData(dataSrvSocket, cltDataAddr,
 							cltDataPort, null, commande, currentDir
 									+ File.separator + parametre);
 				}
@@ -373,9 +368,10 @@ public class FtpRequest extends Thread {
 				ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
 
 				// Envoi des données vers le client
-				myftpData.run();
-
-				// myftpData.start();
+				// mode sequence
+				// myftpData.run();
+				// mode thread
+				myftpData.start();
 
 				// attente de la fin du transfert (thread super utile :( )
 				while (myftpData.isAlive()) {
@@ -392,7 +388,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Remonte vers le repertoire parent
+	 * CDUP, change current directory to its parent, if possible.
 	 * 
 	 * @throws IOException
 	 */
@@ -418,7 +414,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Recuperation du login utilisateur passe en parametre de la commande USER
+	 * define the current user with the parameter received in the USER command.
 	 * 
 	 * @throws IOException
 	 */
@@ -431,7 +427,7 @@ public class FtpRequest extends Thread {
 				&& (parametre.length() > 1)) {
 			this.currentUser = parametre;
 			rep = "331";
-			ftpetat = ftpEtat.FS_WAIT_PASS;
+			ftpetat = FtpEtat.FS_WAIT_PASS;
 			ErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
 		} else {
 			ErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
@@ -439,7 +435,8 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * verification du mot de passe envoye par le client.
+	 * Check the password with the internal password list. USER will be in state
+	 * 3 if aknowledged, disconnected otherwise.
 	 * 
 	 * @throws IOException
 	 */
@@ -466,7 +463,7 @@ public class FtpRequest extends Thread {
 		// gestion du mode anonyme
 		if (currentUser.equals("anonymous")) {
 			if (mytools.isEmail(parametre) == true) {
-				ftpetat = ftpEtat.FS_LOGGED;
+				ftpetat = FtpEtat.FS_LOGGED;
 				rep = "230";
 				paramCode = "valid password.";
 			} else {
@@ -485,7 +482,7 @@ public class FtpRequest extends Thread {
 				if (usrMap.containsKey(currentUser)) {
 					if (parametre.equals(usrMap.get(currentUser))) {
 						rep = "230";
-						ftpetat = ftpEtat.FS_LOGGED;
+						ftpetat = FtpEtat.FS_LOGGED;
 					}
 					// mdp incorret
 					else {
@@ -516,13 +513,13 @@ public class FtpRequest extends Thread {
 		}
 
 		// Homedir
-		currentDir = (ftpetat == ftpEtat.FS_LOGGED) ? home + File.separator
+		currentDir = (ftpetat == FtpEtat.FS_LOGGED) ? home + File.separator
 				+ currentUser : "";
 		messageLog += " status= " + ftpetat
 				+ "(0=wait_login, 1=wait_pass, 2=logged)";
-		System.out.println(messageLog);
+		if (Server.debugMode){System.out.println(messageLog);}
 
-		if (ftpetat != ftpEtat.FS_LOGGED) {
+		if (ftpetat != FtpEtat.FS_LOGGED) {
 			// rien ne va plus, envoi du refus de pass et cloture de la
 			// connection. (rfc959)
 			killConnection();
@@ -530,7 +527,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Chargement de la liste des users et des mdp...
+	 * users and password list loading.
 	 * 
 	 */
 
@@ -552,11 +549,13 @@ public class FtpRequest extends Thread {
 			usrMap.put(aligne[0], aligne[1]);
 		}
 		brr.close();
+		ipsrr.close();
+		ipss.close();
 		return usrMap;
 	}
 
 	/**
-	 * Envoie des informations techniques du serveur.
+	 * Sends system information to client.
 	 * 
 	 * @throws IOException
 	 */
@@ -576,7 +575,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * retourne le chemin courant défini sur le serveur, au client
+	 * Print working directory as per FTP RFC595
 	 * 
 	 * @throws IOException
 	 */
@@ -596,7 +595,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * definition du type de fichier a transferer (ascii ou binaire)
+	 * Define type of file to transfer (ascii or binary)
 	 * 
 	 * @throws IOException
 	 */
@@ -626,8 +625,8 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Le serveur FTP envoie au client les "features" qu'il suppporte afin que
-	 * le client s'y adapte.
+	 * FTP server sends its extra features like UTF-8, ... so the client can use
+	 * them
 	 * 
 	 */
 	private void processFEAT() throws IOException {
@@ -638,9 +637,9 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Le client informe le serveur par cette commande quels ports sont en
-	 * ecoute du coté client. Le serveur devra s'y connecter pour mettre en
-	 * place le canal Data.
+	 * Client tells the server which of his port is in listening mode. Server
+	 * will then connect the DATA Channel to the client according to the
+	 * information received.
 	 * 
 	 * @throws IOException
 	 */
@@ -677,8 +676,10 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * passage en mode passive ( ie, le serveur ouvre un port, en informe le
-	 * client et attend la connection.
+	 * PASSIVE mode: the client behind a router or a firewall is not reachable
+	 * for the server. So the other way around is proposed. the server will open
+	 * a listening socket and inform the client through the answer. The client
+	 * will be able to open a data channel to transfer data.
 	 * 
 	 * @throws IOException
 	 */
@@ -693,7 +694,7 @@ public class FtpRequest extends Thread {
 		if (commande.equalsIgnoreCase("pasv")) {
 			isPASV = true;
 			// lancement du thread
-			myftpData = new ftpData(cltSocketCtrl.getLocalAddress()
+			myftpData = new FtpData(cltSocketCtrl.getLocalAddress()
 					.getHostAddress(), true);
 
 			port_url = myftpData.getPort_url();
@@ -718,31 +719,8 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Cloture des sockets ouvertes.
-	 * 
-	 */
-	private void killConnection() {
-		try {
-			KeepRunning = false;
-			currentUser = "Anonymous";
-			System.out.println(this.getClass().toString()
-					+ " Killing the connection: remaining "
-					+ (Server.nbClients - 1) + " connected user(s).");
-
-			mytools.CloseStreams();
-			this.cltSocketCtrl.close();
-
-		} catch (Exception e) {
-			System.out.println(this.getClass().toString()
-					+ " error: requesting connection closure \n");
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Envoi la liste des dossiers et fichiers du repertoire courant. vers le
-	 * client ftp selon le mode (actif / passif défini
+	 * Sends the directory content of the current directory to the ftp client
+	 * according to the chosen mode.
 	 * 
 	 * @throws IOException
 	 */
@@ -777,7 +755,7 @@ public class FtpRequest extends Thread {
 				// creation du thread
 				// PASV le thread est deja crée...
 				if (!isPASV) {
-					myftpData = new ftpData(dataSrvSocket, cltDataAddr,
+					myftpData = new FtpData(dataSrvSocket, cltDataAddr,
 							cltDataPort, aInfo2Send, commande, parametre);
 				}
 			} else {
@@ -817,7 +795,7 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * changement de repertoire currentDir selon le parametre reçu.
+	 * Change Working Directory as per RFC959.
 	 * 
 	 * 
 	 * @throws IOException
@@ -851,7 +829,7 @@ public class FtpRequest extends Thread {
 
 	/**
 	 * 
-	 * Reception de la commande pour terminer la connexion.
+	 * FTP command to close the connection.
 	 * 
 	 * 
 	 * @throws IOException
@@ -867,8 +845,30 @@ public class FtpRequest extends Thread {
 	}
 
 	/**
-	 * Le client FTP a demandé la suppression d'un fichier sur le serveur
-	 * execution de la demande et retour selon le résultat.
+	 * Sockets closure by request.
+	 * 
+	 */
+	private void killConnection() {
+		try {
+			KeepRunning = false;
+			currentUser = "Anonymous";
+			if (Server.debugMode){System.out.println(this.getClass().toString()
+					+ " Killing the connection: remaining "
+					+ (Server.nbClients - 1) + " connected user(s).");}
+	
+			mytools.CloseStreams();
+			this.cltSocketCtrl.close();
+	
+		} catch (Exception e) {
+			System.err.println(this.getClass().toString()
+					+ " error: requesting connection closure \n");
+			e.printStackTrace();
+		}
+	
+	}
+
+	/**
+	 * FTP client requested the removal of a file or directory.
 	 * 
 	 * @throws IOException
 	 */
@@ -878,7 +878,11 @@ public class FtpRequest extends Thread {
 				+ "processDELE" + " commande: " + commande + " " + parametre;
 		Boolean resDel = false;
 
-		if (commande.equalsIgnoreCase("dele")) {
+		if (currentUser.equalsIgnoreCase("anonymous")) {
+			rep = "450";
+			paramCode = currentUser
+					+ " cannot delete or upload file. Please use an account.";
+		} else if (commande.equalsIgnoreCase("dele")) {
 
 			File todel = new File(currentDir + File.separator + parametre);
 			if (todel.exists()) {

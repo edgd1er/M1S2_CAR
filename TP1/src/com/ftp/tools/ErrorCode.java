@@ -1,12 +1,14 @@
-package com.ftp.server;
+package com.ftp.tools;
 
 import java.io.IOException;
 import java.util.HashMap;
 
+import com.ftp.server.Server;
+
 /**
  * 
- * Class qui permet de recuperer selon le code erreur, le texte associe et le
- * personnalise.
+ * Tool class to send an error code and its associated text to ftp client,
+ * sysout or syserr if needed.
  * 
  * @author user
  *
@@ -21,15 +23,16 @@ public final class ErrorCode {
 	}
 
 	/**
-	 * Retourne le message associe a un code erreur et le complete par
-	 * paramCode.
+	 * Return a complete message given an errorcode, a texte to replace PARAM by
+	 * paramCode content in the stored message.
+	 * 
 	 * 
 	 * @param _ErrorCode
-	 *            code erreur qui permet de retrouver le message associe.
+	 *            Ftp ErrorCode to process.
 	 * @param _paramCode
-	 *            message qui remplacera le texte "PARAM" dans le texte
-	 *            retourne.
-	 * @return
+	 *            string to replace "PARAM" in the message.
+	 * 
+	 * @return a complete string errorCode + text.
 	 */
 	public static String getMessage(String _ErrorCode, String _paramCode) {
 
@@ -48,74 +51,104 @@ public final class ErrorCode {
 						_paramCode) : message;
 
 			}
-
 		}
-
-		// System.out.println(message);
 		return message;
 
 	}
 
+	/**
+	 * Send on the control channel a string containing the errorcode and its
+	 * associated text message, message is send to system error output.
+	 * 
+	 * @param _mytools
+	 *            Tools class to handle IO on sockets
+	 * @param rep
+	 *            String containing ftp errorcode and an associated text
+	 * @param ParamCode
+	 *            piece of string to complete the send message. the PARAM text
+	 *            will be replaced by ParamCode
+	 * @param message
+	 *            printed message on sysout.
+	 *
+	 * @throws IOException
+	 */
 	public static void sendErrorMessage(Tools _mytools, String rep,
 			String messageLog) throws IOException {
-		System.out.println("!!!!!!Erreur: " + " " + messageLog + " " + rep );
+		System.err.println("!!!!!!Erreur: " + " " + messageLog + " " + rep);
 		_mytools.sendMessage(rep);
-		
+
 	}
 
 	/**
-	 * Envoi du code Erreur, du message sur le canal de controle et sur la
-	 * console du serveur avec un alerte.
+	 * Send on the control channel the errorcode, its associated text message,
+	 * eventually completed by paramCode, message is send to system error
+	 * output.
 	 * 
 	 * @param _mytools
-	 *            Classe utilitaire pour gerer les IO sur les sockets
+	 *            Tools class to handle IO on sockets
 	 * @param errorcode
-	 *            Code errror fourni
+	 *            errorcode according to ftp rfc
 	 * @param ParamCode
-	 *            Message a mettre a la place du texte PARAM dans le texte
-	 *            associe au code error.
+	 *            piece of string to complete the send message. the PARAM text
+	 *            will be replaced by ParamCode
 	 * @param message
-	 *            Message qui sera envoyé sur la console serveur.
-	 * @throws IOException
+	 *            printed message on sysout.
 	 */
 	public static void sendErrorMessage(Tools _mytools, String errorcode,
 			String ParamCode, String message) throws IOException {
 		String tempString = ErrorCode.getMessage(errorcode, ParamCode);
-		System.out.println("!!!!!!Erreur: " + " " + message + tempString);
+		System.err.println("!!!!!!Erreur: " + " " + message + tempString);
 		_mytools.sendMessage(tempString);
 	}
 
 	/**
-	 * Envoi du code retour , du message sur le canal de controle et sur la
-	 * console du serveur.
+	 * Send on the control channel the errorcode, its associated text message,
+	 * eventually completed by paramCode, message is send to system out.
 	 * 
 	 * @param _mytools
-	 *            Classe utilitaire pour gerer les IO sur les sockets
+	 *            Tools class to handle IO on sockets
 	 * @param errorcode
-	 *            Code errror fourni
+	 *            errorcode according to ftp rfc
 	 * @param ParamCode
-	 *            Message a mettre a la place du texte PARAM dans le texte
-	 *            associe au code error.
+	 *            piece of string to complete the send message. the PARAM text
+	 *            will be replaced by ParamCode
 	 * @param message
-	 *            Message qui sera envoyé sur la console serveur.
+	 *            printed message on sysout.
 	 */
 	public static void sendCodeMessage(Tools _mytools, String errorcode,
 			String ParamCode, String message) throws IOException {
 		String tempString = ErrorCode.getMessage(errorcode, ParamCode);
-		System.out.println(message + " " + tempString);
+		if (Server.debugMode) {
+			System.out.println(message + " " + tempString);
+		}
 		_mytools.sendMessage(tempString);
 	}
 
+	/**
+	 * Sends on the control channel, the rep as a complete message sends
+	 * messageLog to the standard output
+	 * 
+	 * @param _mytools
+	 *            Tools handle
+	 * @param rep
+	 *            Complete message to send
+	 * @param messageLog
+	 *            message to write to sysout.
+	 * @throws IOException
+	 */
 	public static void sendCodeMessage(Tools _mytools, String rep,
 			String messageLog) throws IOException {
-		System.out.println("!!!!!!Erreur: " + " " + messageLog + " " + rep );
+		if (Server.debugMode) {
+			System.out.println(messageLog + " " + rep);
+		}
 		_mytools.sendMessage(rep);
-		
+
 	}
 
 	/**
-	 * Construction du dictionnaire ErrorCode, Message.
+	 * ErrorCode, Message dictionary.
 	 * 
+	 * Populate will fill ftpErrorMap.
 	 */
 	private static void populateCode() {
 		ftpErrorMap
@@ -171,7 +204,7 @@ public final class ErrorCode {
 		ftpErrorMap.put("426", "Connection closed; transfer aborted.");
 		ftpErrorMap.put("430", "Invalid username or password");
 		ftpErrorMap.put("434", "Requested host unavailable.");
-		ftpErrorMap.put("450", "Requested file action not taken.");
+		ftpErrorMap.put("450", "Requested file action not taken.PARAM");
 		ftpErrorMap.put("451",
 				"Requested action aborted. Local error in processing.");
 		ftpErrorMap
