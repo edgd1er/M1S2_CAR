@@ -3,8 +3,10 @@ package com.ftp.tools;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -14,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ftp.server.Server;
@@ -34,6 +37,7 @@ public class Tools {
 	static DataOutputStream dos = null;
 	static InputStreamReader isr = null;
 	CharBuffer cBuf;
+	public ErrorCode myErrorCode= null;
 
 	/**
 	 * 
@@ -44,6 +48,7 @@ public class Tools {
 	 */
 	public Tools(Socket _s) throws IOException {
 		mysocket = _s;
+		myErrorCode = new ErrorCode();
 		osw = new PrintWriter(
 				new OutputStreamWriter(mysocket.getOutputStream()), true);
 		br = new BufferedReader(
@@ -73,6 +78,36 @@ public class Tools {
 	}
 
 	/**
+	 * users and password list loading.
+	 * 
+	 */
+
+	public HashMap<String, String> loadPasswordList() throws IOException {
+
+		String TableDesMdps = "";
+		// université
+		TableDesMdps += "TP1" + File.separator + "mdp.txt";
+		// @home
+		// TableDesMdps += "mdp.txt";
+		HashMap<String, String> usrMap = new HashMap<String, String>();
+
+		InputStream ipss = new FileInputStream(TableDesMdps);
+		InputStreamReader ipsrr = new InputStreamReader(ipss);
+		BufferedReader brr = new BufferedReader(ipsrr);
+		String ligne;
+		while ((ligne = brr.readLine()) != null) {
+			String[] aligne = ligne.split(":");
+			usrMap.put(aligne[0], aligne[1]);
+		}
+		brr.close();
+		ipsrr.close();
+		ipss.close();
+		return usrMap;
+	}
+	
+	
+	
+	/**
 	 * Close the streams and buffer, seems obvious neh ? It says what it does
 	 * and contrary also
 	 */
@@ -82,7 +117,7 @@ public class Tools {
 			if (mysocket != null) {
 				if (Server.debugMode){System.out.println(" closing input/output streams");}
 				if (mysocket.isConnected()) {
-					sendMessage(ErrorCode.getMessage("221", ""));
+					sendMessage(myErrorCode.getMessage("221", ""));
 				}
 				osw.flush();
 				br.close();
