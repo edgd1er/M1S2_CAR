@@ -40,6 +40,7 @@ public class FtpRequest extends Thread {
 	Tools mytools = null;
 	ErrorCode myErrorCode =null;
 	private FtpData myftpData;
+	String TableDesMdps="mdp.txt";
 
 	/**
 	 * Constructeur du thread FTPRequest Ce thread recoit les commandes via le
@@ -58,6 +59,7 @@ public class FtpRequest extends Thread {
 		isPASV = false;
 		ftpetat = FtpEtat.FS_WAIT_LOGIN;
 		myErrorCode = new ErrorCode();
+		
 
 		try {
 			mytools = new Tools(cltSocketCtrl);
@@ -476,7 +478,7 @@ public class FtpRequest extends Thread {
 		} else {
 			try {
 				// Chargement de la liste des mdp
-				usrMap = mytools.loadPasswordList();
+				usrMap = mytools.loadPasswordList(this.getClass().getClassLoader().getResourceAsStream(TableDesMdps));
 
 				// verification du login/pwd
 				if (usrMap.containsKey(currentUser)) {
@@ -786,7 +788,7 @@ public class FtpRequest extends Thread {
 				rep = "250";
 				paramCode = "Directory changed to " + currentDir;
 			} else {
-				rep = "250";
+				rep = "450";
 				paramCode = "Directory not changed:" + currentDir;
 			}
 		}
@@ -808,29 +810,6 @@ public class FtpRequest extends Thread {
 			myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
 			killConnection();
 		}
-	}
-
-	/**
-	 * Sockets closure by request.
-	 * 
-	 */
-	private void killConnection() {
-		try {
-			KeepRunning = false;
-			currentUser = "Anonymous";
-			if (Server.debugMode){System.out.println(this.getClass().toString()
-					+ " Killing the connection: remaining "
-					+ (Server.nbClients - 1) + " connected user(s).");}
-	
-			mytools.CloseStreams();
-			this.cltSocketCtrl.close();
-	
-		} catch (Exception e) {
-			System.err.println(this.getClass().toString()
-					+ " error: requesting connection closure \n");
-			e.printStackTrace();
-		}
-	
 	}
 
 	/**
@@ -865,7 +844,31 @@ public class FtpRequest extends Thread {
 				rep = "550";
 				paramCode = "Error, file " + parametre + " does not exist.";
 			}
-			myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+			
 		}
+		myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+	}
+
+	/**
+	 * Sockets closure by request.
+	 * 
+	 */
+	private void killConnection() {
+		try {
+			KeepRunning = false;
+			currentUser = "Anonymous";
+			if (Server.debugMode){System.out.println(this.getClass().toString()
+					+ " Killing the connection: remaining "
+					+ (Server.nbClients - 1) + " connected user(s).");}
+	
+			mytools.CloseStreams();
+			this.cltSocketCtrl.close();
+	
+		} catch (Exception e) {
+			System.err.println(this.getClass().toString()
+					+ " error: requesting connection closure \n");
+			e.printStackTrace();
+		}
+	
 	}
 }
