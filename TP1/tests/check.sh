@@ -83,6 +83,13 @@ scr="features/test_anon_put.txt"
 txt="Test de refus d envoi de fichier pour un anonyme: (attendu $tval): "
 testoracle
 
+# utilsateur anon accepté mais ne peut pas supprimer un fichier
+res=""
+tval=450
+scr="features/test_anon_del.txt"
+txt="Test de refus de suppression de fichier pour un anonyme: (attendu $tval): "
+testoracle
+
 # test user inconnu avec mdp
 res=""
 tval=430

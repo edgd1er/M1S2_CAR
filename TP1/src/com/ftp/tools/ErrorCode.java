@@ -19,6 +19,7 @@ public class ErrorCode {
 	ErrorCode myErrorCode = null;
 
 	public ErrorCode(){
+		@SuppressWarnings("unused")
 		HashMap<String, String> ftpErrorMap = new HashMap<String, String>();
 		populateCode();
 	}
@@ -98,7 +99,7 @@ public class ErrorCode {
 	 */
 	public void sendErrorMessage(Tools _mytools, String errorcode,
 			String ParamCode, String message) throws IOException {
-		String tempString = myErrorCode.getMessage(errorcode, ParamCode);
+		String tempString = getMessage(errorcode, ParamCode);
 		System.err.println("!!!!!!Erreur: " + " " + message + tempString);
 		_mytools.sendMessage(tempString);
 	}

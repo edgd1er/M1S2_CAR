@@ -3,7 +3,6 @@ package com.ftp.tools;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,16 +81,9 @@ public class Tools {
 	 * 
 	 */
 
-	public HashMap<String, String> loadPasswordList() throws IOException {
+	public HashMap<String, String> loadPasswordList(InputStream ipss) throws IOException {
 
-		String TableDesMdps = "";
-		// université
-		TableDesMdps += "TP1" + File.separator + "mdp.txt";
-		// @home
-		// TableDesMdps += "mdp.txt";
 		HashMap<String, String> usrMap = new HashMap<String, String>();
-
-		InputStream ipss = new FileInputStream(TableDesMdps);
 		InputStreamReader ipsrr = new InputStreamReader(ipss);
 		BufferedReader brr = new BufferedReader(ipsrr);
 		String ligne;

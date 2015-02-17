@@ -50,7 +50,7 @@ public class FtpData extends Thread {
 	
 	/**
 	 * 
-	 * constructeur du mode client -> server
+	 * ftpData Thread Constructor client -> server , the most simple
 	 */
 	public FtpData(String clientIp, boolean _isPASV) throws IOException {
 
@@ -66,7 +66,15 @@ public class FtpData extends Thread {
 
 	}
 
-	// mode Direct
+	/**
+	 * ftpData Thread Constructor Active mode
+	 *  
+	 * @param cltDataAddr	Data Channel IP Address
+	 * @param cltDataPort	Data Channel Port
+	 * @param aInfo2Send	List of String to send, most of the time with the list command
+	 * @param commande		Command to process
+	 * @param parametre		its associated parameters.
+	 */
 	public FtpData(String cltDataAddr, Integer cltDataPort,
 			List<String> aInfo2Send, String commande, String parametre) {
 
@@ -79,9 +87,18 @@ public class FtpData extends Thread {
 		this.commande = commande;
 		this.parametre = parametre;
 		this.isASCII = false; // mode par defaut
+		myErrorCode= new ErrorCode();
 	}
 
-	// mode PASV
+	/**
+	 * ftpData Thread Constructor Passive mode
+	 *  
+	 * @param cltDataAddr	Data Channel IP Address
+	 * @param cltDataPort	Data Channel Port
+	 * @param aInfo2Send	List of String to send, most of the time with the list command
+	 * @param commande		Command to process
+	 * @param parametre		its associated parameters.
+	 */
 	public FtpData(ServerSocket dataServerSocket, String cltDataAddr,
 			Integer cltDataPort, List<String> aInfo2Send, String commande,
 			String parametre) {
@@ -95,20 +112,16 @@ public class FtpData extends Thread {
 		this.commande = commande;
 		this.parametre = parametre;
 		this.isASCII = false; // mode par defaut
+		myErrorCode= new ErrorCode();
 	}
 
-	// separation creation socket serveur ou client selon le mode.
+	/**
+	 * FtpData Thread Start. Active or passive mode according to the settings 
+	 * 
+	 */
 	public void run() {
 
 		try {
-			/*
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}   
-			 */
 		// si PASV alors on attend la connexion client.
 			if (isPASV) {
 				this.datasocket = dataSrvSocket.accept();
@@ -142,8 +155,6 @@ public class FtpData extends Thread {
 				sendList();
 				break;
 			case ("RETR"):
-				// retrieveFile();
-				// TODO
 				retrieveAsciiBin();
 				break;
 			case ("STOR"):
@@ -157,6 +168,12 @@ public class FtpData extends Thread {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean getPort() throws IOException {
 		String messageLog = "";
 		port_url = getEncPort();
@@ -179,6 +196,8 @@ public class FtpData extends Thread {
 	}
 
 	/**
+	 * Tells if the thread is in pasv mode or not.
+	 * 
 	 * @return the isPASV
 	 * @throws IOException
 	 */
@@ -196,6 +215,9 @@ public class FtpData extends Thread {
 	}
 
 	/**
+	 * 
+	 * Set the passive or active mode.
+	 * 
 	 * @param isPASV
 	 *            the isPASV to set
 	 * @throws IOException
@@ -226,7 +248,12 @@ public class FtpData extends Thread {
 		if (Server.debugMode){System.out.println(messageLog);}
 	}
 
-	// send from client to server
+
+	/**
+	 *	send from client to server 
+	 * 	File to send is content of parametre.
+	 * 
+	 */
 	private void storeAsciiBin() {
 		String rep, paramCode, messageLog, line;
 		InputStream in = null;
@@ -295,7 +322,11 @@ public class FtpData extends Thread {
 
 	}
 
-	// envoi du fichier du serveur vers le client.
+	/**
+	 *	send from server to client 
+	 * 	File to send is content of parametre.
+	 * 
+	 */
 	private void retrieveAsciiBin() {
 		// Gestion ASCII / BIN
 		String rep, paramCode, messageLog;
@@ -375,8 +406,11 @@ public class FtpData extends Thread {
 
 	}
 
+	/**
+	 * send the content of aString array to the client.
+	 * 
+	 */
 	public void sendList() {
-		// TODO Auto-generated method stub
 		String messageLog = this.getClass().toString() + " sendList"
 				+ " commande: " + commande + " " + parametre;
 		if (Server.debugMode){System.out.println(messageLog);}
@@ -407,13 +441,28 @@ public class FtpData extends Thread {
 		}
 	}
 
+	/**
+	 * 
+	 * Determine the result for the port command
+	 * where w,x,y,z is the ip address separated by comma
+	 * a = port /256
+	 * b= port % 256
+	 * 
+	 * w,x,y,z,a,b
+	 * 
+	 * @return	then encoded url 
+	 */
 	// calcul de l'url a partir de l'@ IP et du port
 	private String getEncPort() {
 		String thisport_url = "";
 
-		// dataSrvSocket ectoutant sur tout les ports, il faut utiliser l'@ IP
+		// dataSrvSocket ecoutant sur tout les ports, il faut utiliser l'@ IP
 		// du client fourni par le serveur lors de la connexion d'accroche
 		// thisport_url = dataSrvSocket.getInetAddress().getHostAddress();
+		thisport_url = DataAddr.replace(".", ",");
+		DataPort = dataSrvSocket.getLocalPort();
+
+		/*
 		if (isPASV) {
 			thisport_url = DataAddr.replace(".", ",");
 			DataPort = dataSrvSocket.getLocalPort();
@@ -422,9 +471,9 @@ public class FtpData extends Thread {
 			thisport_url = DataAddr.replace(".", ",");
 			DataPort = dataSrvSocket.getLocalPort();
 		}
-
-		String p1 = String.valueOf(dataSrvSocket.getLocalPort() / 256);
-		String p2 = String.valueOf(dataSrvSocket.getLocalPort() % 256);
+		 */
+		String p1 = String.valueOf(DataPort / 256);
+		String p2 = String.valueOf(DataPort % 256);
 
 		port_url = thisport_url + "," + p1 + "," + p2;
 		return port_url;
