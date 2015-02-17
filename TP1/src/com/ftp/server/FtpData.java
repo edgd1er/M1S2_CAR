@@ -46,6 +46,7 @@ public class FtpData extends Thread {
 	private String returnstatus;
 	private boolean isASCII = false;
 	private int bufferSize = 8192;
+	private ErrorCode myErrorCode = null;
 	
 	/**
 	 * 
@@ -55,6 +56,7 @@ public class FtpData extends Thread {
 
 		String messageLog = null;
 		this.DataAddr = clientIp;
+		myErrorCode= new ErrorCode();
 
 		messageLog = this.getClass().toString() + " Cons: Debut: " + _isPASV;
 		// mode PASV, on va recuperer le port de connection du client.
@@ -275,17 +277,17 @@ public class FtpData extends Thread {
 			rep = "226";
 			paramCode = "File sent: " + parametre + " " + ntotalRead
 					+ " bytes sent.";
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
 			paramCode = "Fichier non accessible: " + parametre;
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 
 		} catch (IOException ioe) {
 			rep = "425";
 			paramCode = "Can't Open data connection";
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 			messageLog += " " + returnstatus;
 		}
 
@@ -354,18 +356,18 @@ public class FtpData extends Thread {
 			paramCode = "File sent: " + parametre + " written "
 					+ String.valueOf(ntotalread)
 					+ (isASCII ? " Char" : " bytes");
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
 			paramCode = "Fichier non accessible: " + parametre;
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 		} catch (IOException ioe) {
 			rep = "425";
 			paramCode = "Can't Open data connection";
-			returnstatus = ErrorCode.getMessage(rep, paramCode);
+			returnstatus = myErrorCode.getMessage(rep, paramCode);
 			messageLog += " " + returnstatus;
 		}
 
@@ -391,7 +393,7 @@ public class FtpData extends Thread {
 			DataOutStream.flush();
 			DataOutStream.close();
 			datasocket.close();
-			returnstatus = ErrorCode.getMessage("226", "");
+			returnstatus = myErrorCode.getMessage("226", "");
 
 		}
 		// aie, ça n'a pas marché
