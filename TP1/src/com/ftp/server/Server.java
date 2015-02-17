@@ -41,12 +41,13 @@ public class Server {
 				prepath = args[0].endsWith("/") ? args[0].substring(0,
 						args[0].length() - 1) : args[0];
 				messageLog += " an argument at runtime: " + prepath;
-			} else {
-				messageLog += "default without argument at runtime: " + prepath;
 			}
-			if (args.length > 1) {
-				Server.debugMode = args[1].equals("1") ? true : false;
-			}
+		} else {
+			messageLog += "default without argument at runtime: " + prepath;
+		}
+
+		if (args.length > 1) {
+			Server.debugMode = args[1].equals("1") ? true : false;
 		}
 
 		System.out.println(messageLog);
@@ -74,7 +75,7 @@ public class Server {
 				System.out.println("Server:started thread FTPRequest for "
 						+ cltSocCtrl.getInetAddress().getHostName());
 			}
-			//server is stopping
+			// server is stopping
 			serverskt.close();
 		} catch (IOException e) {
 			System.err.println(Thread.currentThread().getClass().getName()

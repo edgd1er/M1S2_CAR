@@ -69,6 +69,10 @@ echo -e "$txt $res"
 #verification des fichiers de tests
 restorefile
 
+#creation du repertoire de partage
+mkdir -p /tmp/homedir/anonymous
+mkdir -p /tmp/homedir/user
+
 # tests fonctionnels
 
 

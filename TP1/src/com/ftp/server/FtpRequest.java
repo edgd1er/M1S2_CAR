@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -534,13 +536,11 @@ public class FtpRequest extends Thread {
 	private HashMap<String, String> loadPasswordList() throws IOException {
 
 		String TableDesMdps = "";
-		// université
-		TableDesMdps += "TP1" + File.separator + "mdp.txt";
-		// @home
-		// TableDesMdps += "mdp.txt";
+		TableDesMdps = "mdp.txt";
+		 //URL[] toto = ((URLClassLoader) (Thread.currentThread().getContextClassLoader())).getURLs();
 		HashMap<String, String> usrMap = new HashMap<String, String>();
-
-		InputStream ipss = new FileInputStream(TableDesMdps);
+		
+		InputStream ipss = this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
 		InputStreamReader ipsrr = new InputStreamReader(ipss);
 		BufferedReader brr = new BufferedReader(ipsrr);
 		String ligne;

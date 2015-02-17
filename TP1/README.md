@@ -14,6 +14,10 @@ Conception application repartie
 
 1/0 => debugMode: affichage verbeux du traitement.
 
+Ne pas oublier de placer avec le jar un fichier mdp.txt contenant la liste des utilisateurs avec leurs mot de passe sous le forme
+user1:password1
+user2:password2
+
 *** 1/ Introduction
 
 
@@ -225,6 +229,68 @@ public class FtpRequest extends Thread {...
 		System.out.println("Thread End.("+String.valueOf(Server.nbClients)+" clients remaining)");
 	}
 
+**** 5 / Tests Fonctionnels
+
+#################################################
+##       tests login des utilisateurs          ##
+#################################################
+Test de refus d envoi de fichier pour un anonyme: (attendu 532):  OK
+Test de refus login inconnu / pass: (attendu 430):  OK
+Test de refus login connu / pass incorrect: (attendu 430):  OK
+Test d acceptation login connu / pass correct: (attendu 230):  OK
+Test de changement de repertoire: (attendu 250):  OK
+
+
+#################################################
+##           test en mode actif ASCII          ##
+#################################################
+
+Test de l affichage du contenu d'un repertoire: (attendu 226):  OK
+Test de l envoi d'un fichier ascii: (attendu successful):  OK
+test de la taille du fichier:20131: ok
+
+
+Test de la reception d'un fichier ascii: (attendu successful):  OK
+test de la taille du fichier:20066: ok
+test du md5 du fichier:1: ok
+
+
+#################################################
+##           test en mode actif BINAIRE        ##
+#################################################
+Test de l envoi d'un fichier binaire: (attendu successful):  OK
+test de la taille du fichier:176679: ok
+
+
+Test de la reception d'un fichier binaire: (attendu successful):  OK
+test de la taille du fichier:176679: ok
+test du md5 du fichier:1: ok
+
+
+#################################################
+##           test en mode passif ASCII        ##
+#################################################
+
+Test de l affichage du contenu d'un repertoire: (attendu 226):  OK
+Test de l envoi d'un fichier ascii: (attendu successful):  OK
+test de la taille du fichier:20131: ok
+
+
+Test de la reception d'un fichier ascii: (attendu successful):  OK
+test de la taille du fichier:20066: ok
+test du md5 du fichier:1: ok
+
+
+#################################################
+##           test en mode passif BINAIRE        ##
+#################################################
+Test de l envoi d'un fichier bin: (attendu successful):  OK
+test de la taille du fichier:176679: ok
+
+
+Test de la reception d'un fichier bin: (attendu successful):  OK
+test de la taille du fichier:176679: ok
+test du md5 du fichier:1: ok
 
 
 ******************************************************
