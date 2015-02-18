@@ -1,11 +1,14 @@
 package com.ftp.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -122,9 +125,6 @@ public class FtpRequest extends Thread {
 					.println("ohoh, seems like the client has disconnected ....");
 			KeepRunning = false;
 		}
-
-		pwdInputStream = this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
-		
 	}
 
 	/**
@@ -504,7 +504,7 @@ public class FtpRequest extends Thread {
 		// early return mode
 		HashMap<String, String> usrMap;
 		String rep = "430", paramCode = "";
-		String messageLog = this.getClass().toString() + " USER: " + parametre
+		String messageLog = this.getClass().toString() + " USER: " + currentUser
 				+ " PASS: " + parametre;
 
 		// Verification des conditions d'entrées
@@ -535,7 +535,26 @@ public class FtpRequest extends Thread {
 		} else {
 			try {
 				// Chargement de la liste des mdp
-				//ClassLoader test = this.getClass().getClassLoader();
+				String myPath ;
+				ClassLoader test = this.getClass().getClassLoader();
+				if (debugMode) {
+					 Enumeration<URL> e = test.getResources("");
+				        while (e.hasMoreElements())
+				        {
+				            System.err.println("ClassLoader Resource: " + e.nextElement());
+				        }
+				        System.err.println("Class Resource: " + this.getClass().getResource("/"));
+						myPath = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+						System.err.println("CodeSource location:" + myPath);
+				}
+		
+				myPath = new File(".").getAbsolutePath().replaceAll(".$", "");
+				if (debugMode) {System.err.println("New File(.) location:" + myPath);}
+				
+				//pwdInputStream = this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
+				pwdInputStream = new FileInputStream(myPath +TableDesMdps);
+				//this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()
+				if (pwdInputStream  ==null){ throw new Exception("Cannot open password file (not found ?)");} 
 				usrMap = mytools.loadPasswordList(pwdInputStream);
 				pwdInputStream.close();;
 
@@ -565,7 +584,7 @@ public class FtpRequest extends Thread {
 						+ " error: Cannot load the users list.\n");
 				ioe.printStackTrace();
 			} catch (Exception e) {
-				System.out
+				System.err
 						.println(messageLog
 								+ " error: user is not in the users lists. You should log as anonymous.\n");
 				e.printStackTrace();

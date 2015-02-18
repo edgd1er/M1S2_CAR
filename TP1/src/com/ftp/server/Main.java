@@ -27,6 +27,7 @@ if (args.length > 0) {
 
 if (args.length > 1) {
 	debugMode = args[1].equals("1") ? true : false;
+	if (debugMode) {messageLog +=" in debugMode (ie verbose)";}
 }
 System.out.println(messageLog);
 

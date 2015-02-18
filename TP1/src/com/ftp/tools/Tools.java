@@ -46,14 +46,12 @@ public class Tools {
 	 */
 	public Tools(Socket _s,boolean _debugMode) throws IOException {
 		mysocket = _s;
+		debugMode= _debugMode;
 		myErrorCode = new ErrorCode(debugMode);
 		osw = new PrintWriter(
 				new OutputStreamWriter(mysocket.getOutputStream()), true);
 		br = new BufferedReader(
 				new InputStreamReader(mysocket.getInputStream()));
-		@SuppressWarnings("unused")
-		boolean debugMode= _debugMode;
-			
 	}
 
 	/**
@@ -75,7 +73,7 @@ public class Tools {
 		// dos.flush();
 		osw.println(message);
 		osw.flush();
-	}
+		}
 
 	/**
 	 * users and password list loading.
@@ -85,16 +83,22 @@ public class Tools {
 	public HashMap<String, String> loadPasswordList(InputStream ipss) throws IOException {
 
 		HashMap<String, String> usrMap = new HashMap<String, String>();
+		/*usrMap.put("user","a");
+		usrMap.put("pollux","b");
+		*/
+		
 		InputStreamReader ipsrr = new InputStreamReader(ipss);
 		BufferedReader brr = new BufferedReader(ipsrr);
 		String ligne;
 		while ((ligne = brr.readLine()) != null) {
 			String[] aligne = ligne.split(":");
 			usrMap.put(aligne[0], aligne[1]);
+	        if (debugMode){System.out.println(ligne);}
 		}
 		brr.close();
 		ipsrr.close();
 		ipss.close();
+		
 		return usrMap;
 	}
 	

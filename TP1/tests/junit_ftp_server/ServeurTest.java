@@ -20,7 +20,7 @@ Server myServeur = new Server();
 myServeur.initialization(serverPort,"/tmp/homedir",true);
 assertNotNull(myServeur.getServeurSocket());
 myServeur.start();
-FtpClient myClient = new FtpClient(serverPort);
+FtpClient ftpclient =new FtpClient(serverPort);
 assertNotNull(myServeur.getSocket());
 assertEquals(myServeur.getServeurSocket().getLocalPort(), serverPort);
 }
