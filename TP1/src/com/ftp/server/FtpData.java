@@ -47,22 +47,24 @@ public class FtpData extends Thread {
 	private boolean isASCII = false;
 	private int bufferSize = 8192;
 	private ErrorCode myErrorCode = null;
+	private boolean debugMode=false;
 	
 	/**
 	 * 
 	 * ftpData Thread Constructor client -> server , the most simple
 	 */
-	public FtpData(String clientIp, boolean _isPASV) throws IOException {
+	public FtpData(String clientIp, boolean _isPASV, boolean _debugMode) throws IOException {
 
 		String messageLog = null;
 		this.DataAddr = clientIp;
-		myErrorCode= new ErrorCode();
+		debugMode= _debugMode;
+		myErrorCode= new ErrorCode(debugMode);
 
 		messageLog = this.getClass().toString() + " Cons: Debut: " + _isPASV;
 		// mode PASV, on va recuperer le port de connection du client.
 		setPASV(_isPASV);
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (this. debugMode){System.out.println(messageLog);}
 
 	}
 
@@ -87,7 +89,7 @@ public class FtpData extends Thread {
 		this.commande = commande;
 		this.parametre = parametre;
 		this.isASCII = false; // mode par defaut
-		myErrorCode= new ErrorCode();
+		myErrorCode= new ErrorCode(debugMode);
 	}
 
 	/**
@@ -112,7 +114,7 @@ public class FtpData extends Thread {
 		this.commande = commande;
 		this.parametre = parametre;
 		this.isASCII = false; // mode par defaut
-		myErrorCode= new ErrorCode();
+		myErrorCode= new ErrorCode(debugMode);
 	}
 
 	/**
@@ -182,7 +184,7 @@ public class FtpData extends Thread {
 				+ dataSrvSocket.getInetAddress().getHostAddress() + ":"
 				+ dataSrvSocket.getLocalPort() + " PORT " + port_url;
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 
 		// attente du client sur le canal data
 		// recuperation de la socket.
@@ -191,7 +193,7 @@ public class FtpData extends Thread {
 		messageLog += " ftpData :  constructeur:  le client s'est connecte: "
 				+ datasocket.getLocalPort() + " / " + datasocket.getPort();
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 		return true;
 	}
 
@@ -245,7 +247,7 @@ public class FtpData extends Thread {
 			dataSrvSocket = null;
 		}
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 	}
 
 
@@ -305,11 +307,13 @@ public class FtpData extends Thread {
 			paramCode = "File sent: " + parametre + " " + ntotalRead
 					+ " bytes sent.";
 			returnstatus = myErrorCode.getMessage(rep, paramCode);
+			messageLog += " " + returnstatus;
 
 		} catch (FileNotFoundException fnf) {
 			rep = "550";
 			paramCode = "Fichier non accessible: " + parametre;
 			returnstatus = myErrorCode.getMessage(rep, paramCode);
+			messageLog += " " + returnstatus;
 
 		} catch (IOException ioe) {
 			rep = "425";
@@ -318,7 +322,7 @@ public class FtpData extends Thread {
 			messageLog += " " + returnstatus;
 		}
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 
 	}
 
@@ -402,7 +406,7 @@ public class FtpData extends Thread {
 			messageLog += " " + returnstatus;
 		}
 
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 
 	}
 
@@ -413,7 +417,7 @@ public class FtpData extends Thread {
 	public void sendList() {
 		String messageLog = this.getClass().toString() + " sendList"
 				+ " commande: " + commande + " " + parametre;
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 
 		try {
 			// ouverture du canal DATA en sortie.

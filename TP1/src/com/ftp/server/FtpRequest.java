@@ -2,6 +2,7 @@ package com.ftp.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
@@ -22,26 +23,79 @@ import com.ftp.tools.Tools;
  */
 public class FtpRequest extends Thread {
 
+	/**
+	 * client Socket 
+	 */
 	private Socket cltSocketCtrl;
-	// private ServerSocket srvSocketCtrl;
+	/**
+	 * private ServerSocket srvSocketCtrl;
+	 */
 	private ServerSocket dataSrvSocket;
+	/**
+	 * client IP Addr & Port
+	 */
 	private String cltDataAddr;
 	private Integer cltDataPort;
+
 	private String currentUser = "";
-	private String home = Server.prepath;
+	private String usersRootFolder = "";
 	private String currentDir = "";
-	private Integer ftpetat;;
+	private Integer ftpetat;
+	/**
+	 * Keep the thread running or not 
+	 */
+	private boolean KeepRunning = true;
+	/**
+	 * File Type Ascii=A or binary=I
+	 */
+	private String ftpType = "";
+	/**
+	 * # of clients reached ?
+	 */
+	boolean tooManyClient = false;
+	/**
+	 * Passive or active mode
+	 */
+	boolean isPASV = false;
+	/**
+	 * tools class for IO operations (files, sockets).
+	 */
+	Tools mytools = null;
+	/**
+	 * Class to retrieve message associated with an FTP errorCode
+	 */
+	ErrorCode myErrorCode =null;
+	/**
+	 * Thread for listing directory, sending or receiving data. 
+	 */
+	private FtpData myftpData;
+	/**
+	 * File where credentials are stored
+	 */
+	String TableDesMdps="mdp.txt";
+	/**
+	 * Answer Code to FTP command
+	 */
+	String rep=null;
+	/**
+	 * Text to replace in the response texte (PARAM =>"paramCode")
+	 */
+	String paramCode=null;
+	/**
+	 * Command and parameter received by server
+	 */
 	private String commande = "";
 	private String parametre = "";
-	private boolean KeepRunning = true;
-	private String ftpType = "";
-	boolean tooManyClient = false;
-	boolean isPASV = false;
-	Tools mytools = null;
-	ErrorCode myErrorCode =null;
-	private FtpData myftpData;
-	String TableDesMdps="mdp.txt";
-
+	/**
+	 * verbose mode
+	 */
+	boolean debugMode=false;
+	/**
+	 * InputStream for password File
+	 * 
+	 */
+	InputStream pwdInputStream;
+	
 	/**
 	 * Constructeur du thread FTPRequest Ce thread recoit les commandes via le
 	 * canal de controle, traites les operations sauf list, prepare et retrieve
@@ -53,22 +107,24 @@ public class FtpRequest extends Thread {
 	 *            Maximum number of clients to acccept.
 	 * @throws IOException 
 	 */
-	public FtpRequest(Socket _clskt, boolean _tooMAny) {
+	public FtpRequest(Socket _clskt,String usersRootFolder, boolean _debugMode) {
 		cltSocketCtrl = _clskt;
-		tooManyClient = _tooMAny;
 		isPASV = false;
 		ftpetat = FtpEtat.FS_WAIT_LOGIN;
-		myErrorCode = new ErrorCode();
-		
+		debugMode= _debugMode;
+		myErrorCode = new ErrorCode(debugMode);
 
 		try {
-			mytools = new Tools(cltSocketCtrl);
+			mytools = new Tools(cltSocketCtrl,debugMode);
+			
 		} catch (IOException e) {
 			System.err
 					.println("ohoh, seems like the client has disconnected ....");
 			KeepRunning = false;
 		}
 
+		pwdInputStream = this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
+		
 	}
 
 	/**
@@ -77,8 +133,9 @@ public class FtpRequest extends Thread {
 	 */
 	public void run() {
 
-		String rep = "", paramCode = "", messageLog = "";
+		String messageLog = "";
 		int nbCommandeVide = 0;
+
 
 		messageLog = this.getClass().toString();
 
@@ -99,7 +156,7 @@ public class FtpRequest extends Thread {
 		try {
 			while (KeepRunning) {
 				parseCommande(mytools.receiveMessage());
-				if (Server.debugMode) {
+				if (debugMode) {
 					System.out.println("Received command to process:"
 							+ commande + " " + parametre);
 				}
@@ -130,8 +187,8 @@ public class FtpRequest extends Thread {
 
 		}
 		// fin de try
-		Server.nbClients--;
-		System.out.println("Thread End.("+String.valueOf(Server.nbClients)+" clients remaining)");
+
+		System.out.println("Thread End.("+String.valueOf(this.getThreadGroup().activeGroupCount())+" clients remaining)");
 	}
 
 	/**
@@ -142,7 +199,7 @@ public class FtpRequest extends Thread {
 
 		String rep = "220", messageLog = this.getClass() + " :client ip: ";
 		String paramCode = cltSocketCtrl.getLocalAddress().getHostAddress()
-				+ ". At, the moment " + Server.nbClients + " are connected.";
+				+ ".";
 
 		try {
 			myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
@@ -326,7 +383,7 @@ public class FtpRequest extends Thread {
 			rep = myftpData.getReturnstatus();
 
 			mytools.sendMessage(rep);
-			if (Server.debugMode){System.out.println(messageLog);}
+			if (debugMode){System.out.println(messageLog);}
 		} else {
 			myErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
@@ -371,15 +428,15 @@ public class FtpRequest extends Thread {
 
 				// Envoi des données vers le client
 				// mode sequence
-				// myftpData.run();
+				 myftpData.run();
 				// mode thread
-				myftpData.start();
+				//myftpData.start();
 
 				// attente de la fin du transfert (thread super utile :( )
 				while (myftpData.isAlive()) {
 				}
 				rep = myftpData.getReturnstatus();
-				ErrorCode.sendCodeMessage(mytools, rep, messageLog);
+				myErrorCode.sendCodeMessage(mytools, rep, messageLog);
 			} else {
 				myErrorCode.sendErrorMessage(mytools, "532", paramCode,
 						messageLog);
@@ -478,7 +535,9 @@ public class FtpRequest extends Thread {
 		} else {
 			try {
 				// Chargement de la liste des mdp
-				usrMap = mytools.loadPasswordList(this.getClass().getClassLoader().getResourceAsStream(TableDesMdps));
+				//ClassLoader test = this.getClass().getClassLoader();
+				usrMap = mytools.loadPasswordList(pwdInputStream);
+				pwdInputStream.close();;
 
 				// verification du login/pwd
 				if (usrMap.containsKey(currentUser)) {
@@ -515,11 +574,11 @@ public class FtpRequest extends Thread {
 		}
 
 		// Homedir
-		currentDir = (ftpetat == FtpEtat.FS_LOGGED) ? home + File.separator
+		currentDir = (ftpetat == FtpEtat.FS_LOGGED) ? usersRootFolder + File.separator
 				+ currentUser : "";
 		messageLog += " status= " + ftpetat
 				+ "(0=wait_login, 1=wait_pass, 2=logged)";
-		if (Server.debugMode){System.out.println(messageLog);}
+		if (debugMode){System.out.println(messageLog);}
 
 		if (ftpetat != FtpEtat.FS_LOGGED) {
 			// rien ne va plus, envoi du refus de pass et cloture de la
@@ -559,7 +618,7 @@ public class FtpRequest extends Thread {
 
 		if (commande.equalsIgnoreCase("pwd")) {
 			rep = "257";
-			paramCode = currentDir.length() > 0 ? currentDir : Server.prepath
+			paramCode = currentDir.length() > 0 ? currentDir : usersRootFolder
 					+ File.separator + currentUser;
 			currentDir = paramCode;
 			myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
@@ -669,7 +728,7 @@ public class FtpRequest extends Thread {
 			isPASV = true;
 			// lancement du thread
 			myftpData = new FtpData(cltSocketCtrl.getLocalAddress()
-					.getHostAddress(), true);
+					.getHostAddress(), isPASV, debugMode);
 
 			port_url = myftpData.getPort_url();
 			if (port_url != null) {
@@ -712,7 +771,7 @@ public class FtpRequest extends Thread {
 			// prepatation des données a envoyer
 
 			// Liste des fichiers et dossiers
-			currentDir = currentDir.length() > 0 ? currentDir : Server.prepath
+			currentDir = currentDir.length() > 0 ? currentDir : usersRootFolder
 					+ File.separator + currentUser;
 			// tableau des infos a envoyer
 			List<String> aInfo2Send = mytools.getDirectoryListing(currentDir);
@@ -754,7 +813,7 @@ public class FtpRequest extends Thread {
 
 			// cloture de l envoi
 			rep = myftpData.getReturnstatus();
-			ErrorCode.sendCodeMessage(mytools, rep, messageLog);
+			myErrorCode.sendCodeMessage(mytools, rep, messageLog);
 
 		} else {
 			// bah, ce n'est pas list qui a ete recu.
@@ -857,9 +916,8 @@ public class FtpRequest extends Thread {
 		try {
 			KeepRunning = false;
 			currentUser = "Anonymous";
-			if (Server.debugMode){System.out.println(this.getClass().toString()
-					+ " Killing the connection: remaining "
-					+ (Server.nbClients - 1) + " connected user(s).");}
+			if (debugMode){System.out.println(this.getClass().toString()
+					+ " Killing the connection");}
 	
 			mytools.CloseStreams();
 			this.cltSocketCtrl.close();
@@ -870,5 +928,19 @@ public class FtpRequest extends Thread {
 			e.printStackTrace();
 		}
 	
+	}
+
+	public void setCommande(String string) {
+		this.commande=string;
+		
+	}
+
+	public Object getRep() {
+		return rep;
+	}
+
+	public Object getParamCode() {
+		// TODO Auto-generated method stub
+		return paramCode;
 	}
 }

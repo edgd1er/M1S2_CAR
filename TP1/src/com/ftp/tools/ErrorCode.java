@@ -3,8 +3,6 @@ package com.ftp.tools;
 import java.io.IOException;
 import java.util.HashMap;
 
-import com.ftp.server.Server;
-
 /**
  * 
  * Tool class to send an error code and its associated text to ftp client,
@@ -15,15 +13,15 @@ import com.ftp.server.Server;
  */
 public class ErrorCode {
 
-	HashMap<String, String> ftpErrorMap=null;
-	ErrorCode myErrorCode = null;
+	public HashMap<String, String> ftpErrorMap ;
+	boolean debugMode = false;
 
-	public ErrorCode(){
-		@SuppressWarnings("unused")
-		HashMap<String, String> ftpErrorMap = new HashMap<String, String>();
+
+	public ErrorCode(boolean _debugMode) {
+		ftpErrorMap = new HashMap<String, String>();
+		debugMode = _debugMode;
 		populateCode();
 	}
-
 
 	/**
 	 * Return a complete message given an errorcode, a texte to replace PARAM by
@@ -75,7 +73,7 @@ public class ErrorCode {
 	 *
 	 * @throws IOException
 	 */
-	public static void sendErrorMessage(Tools _mytools, String rep,
+	public void sendErrorMessage(Tools _mytools, String rep,
 			String messageLog) throws IOException {
 		System.err.println("!!!!!!Erreur: " + " " + messageLog + " " + rep);
 		_mytools.sendMessage(rep);
@@ -121,7 +119,7 @@ public class ErrorCode {
 	public void sendCodeMessage(Tools _mytools, String errorcode,
 			String ParamCode, String message) throws IOException {
 		String tempString = getMessage(errorcode, ParamCode);
-		if (Server.debugMode) {
+		if (debugMode) {
 			System.out.println(message + " " + tempString);
 		}
 		_mytools.sendMessage(tempString);
@@ -139,9 +137,9 @@ public class ErrorCode {
 	 *            message to write to sysout.
 	 * @throws IOException
 	 */
-	public static void sendCodeMessage(Tools _mytools, String rep,
+	public void sendCodeMessage(Tools _mytools, String rep,
 			String messageLog) throws IOException {
-		if (Server.debugMode) {
+		if (debugMode) {
 			System.out.println(messageLog + " " + rep);
 		}
 		_mytools.sendMessage(rep);
@@ -154,7 +152,7 @@ public class ErrorCode {
 	 * Populate will fill ftpErrorMap.
 	 */
 	private void populateCode() {
-		ftpErrorMap = new HashMap<String,String>();
+		
 		ftpErrorMap
 				.put("100",
 						"The requested action is being initiated, expect another reply before proceeding with a new command..");

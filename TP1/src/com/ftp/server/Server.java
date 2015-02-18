@@ -3,6 +3,7 @@ package com.ftp.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * 
@@ -16,64 +17,70 @@ import java.net.Socket;
  *            1- homedir for users 2- debugmode: 0/1
  * 
  */
-public class Server {
+public class Server extends Thread {
 
-	static String prepath;
-	public static int nbClients;
-	public static boolean debugMode;
+	String prepath;
+	int nbClients;
+	boolean debugMode;
+	ServerSocket serverskt;
+	Boolean keepServingRunning;
+	int serverPort;
+	FtpRequest ftpreq;
+	private Socket cltSocCtrl;
+	private String clientIP;
+	ConcurrentLinkedQueue<FtpRequest> ftpReqList;
 
-	public static void main(String[] args) {
-		ServerSocket serverskt = null;
-		Boolean keepServingRunning = true;
-		int nbMAxCLients = 3, serverPort = 2100;
-		FtpRequest ftpreq = null;
+	public void initialization(int _serverPort, String _homedir,
+			boolean _debugMode) {
+
 		debugMode = false;
+		serverPort = -1;
+		debugMode = _debugMode;
+		keepServingRunning = true;
+
 		prepath = "/tmp/homedir";
+
+		if (_serverPort < 1024 || serverPort > 65535) {
+			String messageLog = "\n Ouch, the port given is not in a valid range ( 1024-65535)!!! Exit\n";
+			System.err.println(messageLog);
+			return;
+		}
+
+		serverPort = _serverPort;
+
+		try {
+			serverskt = new ServerSocket(serverPort);
+		} catch (IOException e) {
+			System.err.print("!!!!!Error, cannot open ServerSocket on port "
+					+ serverPort + " !!!!!!!!!!!!");
+			e.printStackTrace();
+		}
+	}
+
+	public void run() {
 
 		String messageLog = "\nStarting FTP Server on port "
 				+ String.valueOf(serverPort)
-				+ "\nMaximum number of clients accepted: "
-				+ String.valueOf(nbMAxCLients)
-				+ "\nServer homedir has been set by ";
-
-		if (args.length > 0) {
-			if (args[0].startsWith("/")) {
-				prepath = args[0].endsWith("/") ? args[0].substring(0,
-						args[0].length() - 1) : args[0];
-				messageLog += " an argument at runtime: " + prepath;
-			}
-		} else {
-			messageLog += "default without argument at runtime: " + prepath;
-		}
-
-		if (args.length > 1) {
-			Server.debugMode = args[1].equals("1") ? true : false;
-		}
+				+ "\nServer homedir has been set to " + prepath;
 
 		System.out.println(messageLog);
 
 		try {
-			serverskt = new ServerSocket(serverPort);
 
 			while (keepServingRunning) {
-				Socket cltSocCtrl = serverskt.accept();
-				String clientIP = cltSocCtrl.getLocalAddress().getHostAddress();
+				cltSocCtrl = serverskt.accept();
+				clientIP = cltSocCtrl.getLocalAddress().getHostAddress();
 				System.out.println("Server:incoming connection from "
 						+ clientIP);
 
-				if (nbClients >= nbMAxCLients) {
-					ftpreq = new FtpRequest(cltSocCtrl, true);
-				} else {
-					ftpreq = new FtpRequest(cltSocCtrl, false);
-				}
+				ftpreq = new FtpRequest(cltSocCtrl, prepath,debugMode);
 
 				if (ftpreq != null) {
 					ftpreq.start();
-					nbClients++;
 				}
 
 				System.out.println("Server:started thread FTPRequest for "
-						+ cltSocCtrl.getInetAddress().getHostName());
+						+ cltSocCtrl.getInetAddress().getHostName() + ".");
 			}
 			// server is stopping
 			serverskt.close();
@@ -90,6 +97,25 @@ public class Server {
 			}
 		}
 
+	}
+
+
+	/**
+	 * Return the serveur socket mainly for test purpose.
+	 * 
+	 * @return serverSocket
+	 */
+	public ServerSocket getServeurSocket() {
+		return serverskt;
+	}
+
+	/**
+	 * Return accepted socket from client
+	 * 
+	 * @return socket
+	 */
+	public Socket getSocket() {
+		return cltSocCtrl;
 	}
 
 }

@@ -70,6 +70,8 @@ echo -e "$txt $res"
 restorefile
 
 #creation du repertoire de partage
+rm -fr /tmp/homedir/*
+
 mkdir -p /tmp/homedir/anonymous
 mkdir -p /tmp/homedir/user
 

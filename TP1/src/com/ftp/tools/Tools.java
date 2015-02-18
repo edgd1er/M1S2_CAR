@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.ftp.server.Server;
-
 /**
  * 
  * support class - send/receive messages on control channel - close sockets and
@@ -37,6 +35,7 @@ public class Tools {
 	static InputStreamReader isr = null;
 	CharBuffer cBuf;
 	public ErrorCode myErrorCode= null;
+	boolean debugMode;
 
 	/**
 	 * 
@@ -45,14 +44,16 @@ public class Tools {
 	 *            socket used for control channel
 	 * @throws IOException
 	 */
-	public Tools(Socket _s) throws IOException {
+	public Tools(Socket _s,boolean _debugMode) throws IOException {
 		mysocket = _s;
-		myErrorCode = new ErrorCode();
+		myErrorCode = new ErrorCode(debugMode);
 		osw = new PrintWriter(
 				new OutputStreamWriter(mysocket.getOutputStream()), true);
 		br = new BufferedReader(
 				new InputStreamReader(mysocket.getInputStream()));
-
+		@SuppressWarnings("unused")
+		boolean debugMode= _debugMode;
+			
 	}
 
 	/**
@@ -107,7 +108,7 @@ public class Tools {
 		try {
 
 			if (mysocket != null) {
-				if (Server.debugMode){System.out.println(" closing input/output streams");}
+				if (debugMode){System.out.println(this.getClass().toString()+ " closing input/output streams");}
 				if (mysocket.isConnected()) {
 					sendMessage(myErrorCode.getMessage("221", ""));
 				}
