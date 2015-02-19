@@ -19,12 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 
- * support class - send/receive messages on control channel - close sockets and
- * buffers - detection of folder/file - path changing/validity check
- * 
- * @author user
- *
+ * support class - send/receive messages on control channel - close sockets and buffers - detection of folder/file - path changing/validity check
+ * @author  user
  */
 public class Tools {
 
@@ -34,6 +30,10 @@ public class Tools {
 	static DataOutputStream dos = null;
 	static InputStreamReader isr = null;
 	CharBuffer cBuf;
+	/**
+	 * @uml.property  name="myErrorCode"
+	 * @uml.associationEnd  
+	 */
 	public ErrorCode myErrorCode= null;
 	boolean debugMode;
 

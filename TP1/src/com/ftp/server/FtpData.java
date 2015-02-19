@@ -25,11 +25,8 @@ import java.util.List;
 import com.ftp.tools.ErrorCode;
 
 /**
- * ftpData: this thread will handle transfer on the data channel.
- * Potential long time running command: ls, stor, retrieve
- * 
- * @author emeline Salomon & françois Dubiez
- *
+ * ftpData: this thread will handle transfer on the data channel. Potential long time running command: ls, stor, retrieve
+ * @author  emeline Salomon & françois Dubiez
  */
 public class FtpData extends Thread {
 
@@ -46,6 +43,10 @@ public class FtpData extends Thread {
 	private String returnstatus;
 	private boolean isASCII = false;
 	private int bufferSize = 8192;
+	/**
+	 * @uml.property  name="myErrorCode"
+	 * @uml.associationEnd  
+	 */
 	private ErrorCode myErrorCode = null;
 	private boolean debugMode=false;
 	
@@ -217,12 +218,10 @@ public class FtpData extends Thread {
 	}
 
 	/**
-	 * 
 	 * Set the passive or active mode.
-	 * 
-	 * @param isPASV
-	 *            the isPASV to set
+	 * @param isPASV  the isPASV to set
 	 * @throws IOException
+	 * @uml.property  name="isPASV"
 	 */
 	public void setPASV(boolean isPASV) throws IOException {
 		this.isPASV = isPASV;
@@ -483,6 +482,10 @@ public class FtpData extends Thread {
 		return port_url;
 	}
 
+	/**
+	 * @return
+	 * @uml.property  name="dataPort"
+	 */
 	public int getDataPort() {
 		// TODO Auto-generated method stub
 		return DataPort;
@@ -490,150 +493,160 @@ public class FtpData extends Thread {
 	}
 
 	/**
-	 * @return the datasocket
+	 * @return  the datasocket
+	 * @uml.property  name="datasocket"
 	 */
 	public Socket getDatasocket() {
 		return datasocket;
 	}
 
 	/**
-	 * @param datasocket
-	 *            the datasocket to set
+	 * @param datasocket  the datasocket to set
+	 * @uml.property  name="datasocket"
 	 */
 	public void setDatasocket(Socket datasocket) {
 		this.datasocket = datasocket;
 	}
 
 	/**
-	 * @return the dataAddr
+	 * @return  the dataAddr
+	 * @uml.property  name="dataAddr"
 	 */
 	public String getDataAddr() {
 		return DataAddr;
 	}
 
 	/**
-	 * @param dataAddr
-	 *            the dataAddr to set
+	 * @param dataAddr  the dataAddr to set
+	 * @uml.property  name="dataAddr"
 	 */
 	public void setDataAddr(String dataAddr) {
 		DataAddr = dataAddr;
 	}
 
 	/**
-	 * @return the aString
+	 * @return  the aString
+	 * @uml.property  name="aString"
 	 */
 	public List<String> getaString() {
 		return aString;
 	}
 
 	/**
-	 * @param aString
-	 *            the aString to set
+	 * @param aString  the aString to set
+	 * @uml.property  name="aString"
 	 */
 	public void setaString(List<String> aString) {
 		this.aString = aString;
 	}
 
 	/**
-	 * @return the commande
+	 * @return  the commande
+	 * @uml.property  name="commande"
 	 */
 	public String getCommande() {
 		return commande;
 	}
 
 	/**
-	 * @param commande
-	 *            the commande to set
+	 * @param commande  the commande to set
+	 * @uml.property  name="commande"
 	 */
 	public void setCommande(String commande) {
 		this.commande = commande;
 	}
 
 	/**
-	 * @return the parametre
+	 * @return  the parametre
+	 * @uml.property  name="parametre"
 	 */
 	public String getParametre() {
 		return parametre;
 	}
 
 	/**
-	 * @param parametre
-	 *            the parametre to set
+	 * @param parametre  the parametre to set
+	 * @uml.property  name="parametre"
 	 */
 	public void setParametre(String parametre) {
 		this.parametre = parametre;
 	}
 
 	/**
-	 * @return the dataSrvSocket
+	 * @return  the dataSrvSocket
+	 * @uml.property  name="dataSrvSocket"
 	 */
 	public ServerSocket getDataSrvSocket() {
 		return dataSrvSocket;
 	}
 
 	/**
-	 * @param dataSrvSocket
-	 *            the dataSrvSocket to set
+	 * @param dataSrvSocket  the dataSrvSocket to set
+	 * @uml.property  name="dataSrvSocket"
 	 */
 	public void setDataSrvSocket(ServerSocket dataSrvSocket) {
 		this.dataSrvSocket = dataSrvSocket;
 	}
 
 	/**
-	 * @return the port_url
+	 * @return  the port_url
+	 * @uml.property  name="port_url"
 	 */
 	public String getPort_url() {
 		return port_url;
 	}
 
 	/**
-	 * @param port_url
-	 *            the port_url to set
+	 * @param port_url  the port_url to set
+	 * @uml.property  name="port_url"
 	 */
 	public void setPort_url(String port_url) {
 		this.port_url = port_url;
 	}
 
 	/**
-	 * @param dataPort
-	 *            the dataPort to set
+	 * @param dataPort  the dataPort to set
+	 * @uml.property  name="dataPort"
 	 */
 	public void setDataPort(Integer dataPort) {
 		DataPort = dataPort;
 	}
 
 	/**
-	 * @return the keepRunning
+	 * @return  the keepRunning
+	 * @uml.property  name="keepRunning"
 	 */
 	public boolean isKeepRunning() {
 		return KeepRunning;
 	}
 
 	/**
-	 * @param keepRunning
-	 *            the keepRunning to set
+	 * @param keepRunning  the keepRunning to set
+	 * @uml.property  name="keepRunning"
 	 */
 	public void setKeepRunning(boolean keepRunning) {
 		KeepRunning = keepRunning;
 	}
 
 	/**
-	 * @return the returnstatus
+	 * @return  the returnstatus
+	 * @uml.property  name="returnstatus"
 	 */
 	public String getReturnstatus() {
 		return returnstatus;
 	}
 
 	/**
-	 * @return the isASCII
+	 * @return  the isASCII
+	 * @uml.property  name="isASCII"
 	 */
 	public boolean isASCII() {
 		return isASCII;
 	}
 
 	/**
-	 * @param isASCII
-	 *            the isASCII to set
+	 * @param isASCII  the isASCII to set
+	 * @uml.property  name="isASCII"
 	 */
 	public void setASCII(boolean isASCII) {
 		this.isASCII = isASCII;

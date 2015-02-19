@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" xmlns:options="options.xmi" name="server" size="1297,1855" id="com.ftp.server" metadata="uml2-1.0" initialized="true" zoom="0.75" tag="1000" key="32303037303533312D31303030204D3153325F4341522F64756269657A">
+  <children xsi:type="editmodel:ClassEditModel" name="FtpEtat" location="149,82" size="150,93" id="com.ftp.server/FtpEtat" runTimeClassModel="fS_WAIT_LOGIN,fS_LOGGED,fS_WAIT_PASS">
+    <children xsi:type="editmodel:CompartmentEditModel" size="127,54">
+      <children xsi:type="editmodel:AttributeEditModel" name="fS_LOGGED" id="com.ftp.server/FtpEtat#fS_LOGGED"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="fS_WAIT_LOGIN" id="com.ftp.server/FtpEtat#fS_WAIT_LOGIN"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="fS_WAIT_PASS" id="com.ftp.server/FtpEtat#fS_WAIT_PASS"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.2/@sourceConnections.1 //@children.4/@sourceConnections.0 //@children.3/@sourceConnections.0" name="FtpRequest" location="554,613" size="213,265" id="com.ftp.server/FtpRequest" runTimeClassModel="msgAccueil(),tableDesMdps,debugMode,run(),FtpRequest(Ljava.net.Socket;Ljava.lang.String;Z),pwdInputStream,commande,processRequest(),isPASV,tooManyClient,rep,paramCode">
+    <children xsi:type="editmodel:CompartmentEditModel" size="190,144">
+      <children xsi:type="editmodel:AttributeEditModel" name="commande" id="com.ftp.server/FtpRequest#commande"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="debugMode" id="com.ftp.server/FtpRequest#debugMode"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="isPASV" id="com.ftp.server/FtpRequest#isPASV"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="paramCode" id="com.ftp.server/FtpRequest#paramCode"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="pwdInputStream" id="com.ftp.server/FtpRequest#pwdInputStream"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="rep" id="com.ftp.server/FtpRequest#rep"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="tableDesMdps" id="com.ftp.server/FtpRequest#tableDesMdps"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="tooManyClient" id="com.ftp.server/FtpRequest#tooManyClient"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="123,72">
+      <children xsi:type="editmodel:MethodEditModel" name="FtpRequest" id="com.ftp.server/FtpRequest#FtpRequest(Ljava.net.Socket;Ljava.lang.String;Z)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="msgAccueil" id="com.ftp.server/FtpRequest#msgAccueil()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="processRequest" id="com.ftp.server/FtpRequest#processRequest()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="run" id="com.ftp.server/FtpRequest#run()"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.tools/Tools@mytools+com.ftp.server/FtpRequest@" source="//@children.1" target="//@children.6" targetEnd="//@children.1/@sourceConnections.0/@children.2" label="//@children.1/@sourceConnections.0/@children.0" sourceEnd="//@children.1/@sourceConnections.0/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="213,10" id="com.ftp.tools/Tools@mytools+com.ftp.server/FtpRequest@|com.ftp.server/FtpRequest#" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="mytools" location="10,368" id="com.ftp.tools/Tools@mytools+com.ftp.server/FtpRequest@|com.ftp.tools/Tools#mytools" multiplicityLabel="//@children.1/@sourceConnections.0/@children.2/@children.1" roleLabel="//@children.1/@sourceConnections.0/@children.2/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" ~ mytools" location="1035,457" size="62,13" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="1" location="1014,457" size="7,13" anchorKind="LastPart"/>
+      </children>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.server/FtpRequest@ftpreq+com.ftp.server/Server@" source="//@children.1" target="//@children.3" targetEnd="//@children.1/@sourceConnections.1/@children.2" label="//@children.1/@sourceConnections.1/@children.0" sourceEnd="//@children.1/@sourceConnections.1/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="ftpreq" location="0,131" id="com.ftp.server/FtpRequest@ftpreq+com.ftp.server/Server@|com.ftp.server/FtpRequest#ftpreq" attachSource="true" multiplicityLabel="//@children.1/@sourceConnections.1/@children.1/@children.1" roleLabel="//@children.1/@sourceConnections.1/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" ~ ftpreq" location="495,724" size="51,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="524,751" size="22,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="323,123" id="com.ftp.server/FtpRequest@ftpreq+com.ftp.server/Server@|com.ftp.server/Server#"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/FtpRequest-Standard::Call->com.ftp.server/FtpData*com.ftp.server/FtpRequest-Standard::Instantiate->com.ftp.server/FtpData*com.ftp.server/FtpRequest-Soyatec::Import->com.ftp.server/FtpData" source="//@children.1" target="//@children.2" targetEnd="//@children.1/@sourceConnections.2/@children.2" label="//@children.1/@sourceConnections.2/@children.0" sourceEnd="//@children.1/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="10,0" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="208,376"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/FtpRequest-Standard::Call->com.ftp.tools/Tools*com.ftp.server/FtpRequest-Standard::Instantiate->com.ftp.tools/Tools*com.ftp.server/FtpRequest-Soyatec::Import->com.ftp.tools/Tools" source="//@children.1" target="//@children.6" targetEnd="//@children.1/@sourceConnections.3/@children.2" label="//@children.1/@sourceConnections.3/@children.0" sourceEnd="//@children.1/@sourceConnections.3/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="208,0" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,353"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/FtpRequest-Standard::Call->com.ftp.tools/ErrorCode*com.ftp.server/FtpRequest-Standard::Instantiate->com.ftp.tools/ErrorCode*com.ftp.server/FtpRequest-Soyatec::Import->com.ftp.tools/ErrorCode" source="//@children.1" target="//@children.4" targetEnd="//@children.1/@sourceConnections.4/@children.2" label="//@children.1/@sourceConnections.4/@children.0" sourceEnd="//@children.1/@sourceConnections.4/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="131,0" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="37,206"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.1/@sourceConnections.2" name="FtpData" location="314,82" size="208,391" id="com.ftp.server/FtpData" runTimeClassModel="dataAddr,FtpData(Ljava.net.ServerSocket;Ljava.lang.String;Ljava.lang.Integer;Ljava.util.List;Ljava.lang.String;Ljava.lang.String;),dataSrvSocket,datasocket,parametre,sendList(),FtpData(Ljava.lang.String;Ljava.lang.Integer;Ljava.util.List;Ljava.lang.String;Ljava.lang.String;),run(),FtpData(Ljava.lang.String;ZZ),isASCII,dataPort,aString,returnstatus,getPort(),commande,getPASV(),keepRunning,isPASV,port_url">
+    <children xsi:type="editmodel:CompartmentEditModel" size="185,216">
+      <children xsi:type="editmodel:AttributeEditModel" name="aString" id="com.ftp.server/FtpData#aString"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="commande" id="com.ftp.server/FtpData#commande"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="dataAddr" id="com.ftp.server/FtpData#dataAddr"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="dataPort" id="com.ftp.server/FtpData#dataPort"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="dataSrvSocket" id="com.ftp.server/FtpData#dataSrvSocket"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="datasocket" id="com.ftp.server/FtpData#datasocket"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="isASCII" id="com.ftp.server/FtpData#isASCII"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="isPASV" id="com.ftp.server/FtpData#isPASV"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="keepRunning" id="com.ftp.server/FtpData#keepRunning"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="parametre" id="com.ftp.server/FtpData#parametre"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="port_url" id="com.ftp.server/FtpData#port_url"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="returnstatus" id="com.ftp.server/FtpData#returnstatus"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="79,126">
+      <children xsi:type="editmodel:MethodEditModel" name="FtpData" id="com.ftp.server/FtpData#FtpData(Ljava.lang.String;ZZ)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="FtpData" id="com.ftp.server/FtpData#FtpData(Ljava.lang.String;Ljava.lang.Integer;Ljava.util.List;Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="FtpData" id="com.ftp.server/FtpData#FtpData(Ljava.net.ServerSocket;Ljava.lang.String;Ljava.lang.Integer;Ljava.util.List;Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getPASV" id="com.ftp.server/FtpData#getPASV()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getPort" id="com.ftp.server/FtpData#getPort()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="run" id="com.ftp.server/FtpData#run()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendList" id="com.ftp.server/FtpData#sendList()"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpData@" source="//@children.2" target="//@children.4" targetEnd="//@children.2/@sourceConnections.0/@children.2" label="//@children.2/@sourceConnections.0/@children.0" sourceEnd="//@children.2/@sourceConnections.0/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="208,103" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpData@|com.ftp.server/FtpData#" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="myErrorCode" location="0,103" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpData@|com.ftp.tools/ErrorCode#myErrorCode" multiplicityLabel="//@children.2/@sourceConnections.0/@children.2/@children.1" roleLabel="//@children.2/@sourceConnections.0/@children.2/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" - myErrorCode" location="550,164" size="87,13" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="1" location="630,191" size="7,13" anchorKind="LastPart"/>
+      </children>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.server/FtpData@myftpData+com.ftp.server/FtpRequest@" source="//@children.2" target="//@children.1" targetEnd="//@children.2/@sourceConnections.1/@children.2" label="//@children.2/@sourceConnections.1/@children.0" sourceEnd="//@children.2/@sourceConnections.1/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="myftpData" location="198,391" id="com.ftp.server/FtpData@myftpData+com.ftp.server/FtpRequest@|com.ftp.server/FtpData#myftpData" attachSource="true" multiplicityLabel="//@children.2/@sourceConnections.1/@children.1/@children.1" roleLabel="//@children.2/@sourceConnections.1/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" - myftpData" location="435,479" size="70,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="519,479" size="22,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,10" id="com.ftp.server/FtpData@myftpData+com.ftp.server/FtpRequest@|com.ftp.server/FtpRequest#"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/FtpData-Standard::Call->com.ftp.tools/ErrorCode*com.ftp.server/FtpData-Standard::Instantiate->com.ftp.tools/ErrorCode*com.ftp.server/FtpData-Soyatec::Import->com.ftp.tools/ErrorCode" source="//@children.2" target="//@children.4" targetEnd="//@children.2/@sourceConnections.2/@children.2" label="//@children.2/@sourceConnections.2/@children.0" sourceEnd="//@children.2/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="208,83" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,73"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.1/@sourceConnections.1 //@children.5/@sourceConnections.0" name="Server" location="90,621" size="323,247" id="com.ftp.server/Server" runTimeClassModel="prepath,ftpReqList,keepServingRunning,debugMode,nbClients,run(),serverPort,getServeurSocket(),serverskt,getSocket(),initialization(ILjava.lang.String;Z)">
+    <children xsi:type="editmodel:CompartmentEditModel" size="300,126">
+      <children xsi:type="editmodel:AttributeEditModel" name="debugMode" id="com.ftp.server/Server#debugMode"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="ftpReqList" id="com.ftp.server/Server#ftpReqList"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="keepServingRunning" id="com.ftp.server/Server#keepServingRunning"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="nbClients" id="com.ftp.server/Server#nbClients"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="prepath" id="com.ftp.server/Server#prepath"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="serverPort" id="com.ftp.server/Server#serverPort"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="serverskt" id="com.ftp.server/Server#serverskt"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="132,72">
+      <children xsi:type="editmodel:MethodEditModel" name="getServeurSocket" id="com.ftp.server/Server#getServeurSocket()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getSocket" id="com.ftp.server/Server#getSocket()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="initialization" id="com.ftp.server/Server#initialization(ILjava.lang.String;Z)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="run" id="com.ftp.server/Server#run()"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/Server-Standard::Call->com.ftp.server/FtpRequest*com.ftp.server/Server-Standard::Instantiate->com.ftp.server/FtpRequest*com.ftp.server/Server-Soyatec::Import->com.ftp.server/FtpRequest" source="//@children.3" target="//@children.1" targetEnd="//@children.3/@sourceConnections.0/@children.2" label="//@children.3/@sourceConnections.0/@children.0" sourceEnd="//@children.3/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="323,103" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,101"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.2/@sourceConnections.0 //@children.2/@sourceConnections.2 //@children.1/@sourceConnections.4 //@children.6/@sourceConnections.0" name="ErrorCode" location="644,82" size="259,206" id="com.ftp.tools/ErrorCode" runTimeClassModel="debugMode,ErrorCode(Z),sendErrorMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;Ljava.lang.String;),getMessage(Ljava.lang.String;Ljava.lang.String;),sendCodeMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;Ljava.lang.String;),sendCodeMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;),sendErrorMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;),ftpError">
+    <children xsi:type="editmodel:CompartmentEditModel" size="236,36">
+      <children xsi:type="editmodel:AttributeEditModel" name="debugMode" id="com.ftp.tools/ErrorCode#debugMode"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="ftpError" id="com.ftp.tools/ErrorCode#ftpError"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="139,108">
+      <children xsi:type="editmodel:MethodEditModel" name="ErrorCode" id="com.ftp.tools/ErrorCode#ErrorCode(Z)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getMessage" id="com.ftp.tools/ErrorCode#getMessage(Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendCodeMessage" id="com.ftp.tools/ErrorCode#sendCodeMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendCodeMessage" id="com.ftp.tools/ErrorCode#sendCodeMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendErrorMessage" id="com.ftp.tools/ErrorCode#sendErrorMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendErrorMessage" id="com.ftp.tools/ErrorCode#sendErrorMessage(Lcom.ftp.tools.Tools;Ljava.lang.String;Ljava.lang.String;Ljava.lang.String;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpRequest@" source="//@children.4" target="//@children.1" targetEnd="//@children.4/@sourceConnections.0/@children.2" label="//@children.4/@sourceConnections.0/@children.0" sourceEnd="//@children.4/@sourceConnections.0/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="myErrorCode" location="61,206" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpRequest@|com.ftp.tools/ErrorCode#myErrorCode" attachSource="true" multiplicityLabel="//@children.4/@sourceConnections.0/@children.1/@children.1" roleLabel="//@children.4/@sourceConnections.0/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" ~ myErrorCode" location="711,295" size="92,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="1" location="690,295" size="7,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="151,0" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.server/FtpRequest@|com.ftp.server/FtpRequest#"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.tools/Tools@" source="//@children.4" target="//@children.6" targetEnd="//@children.4/@sourceConnections.1/@children.2" label="//@children.4/@sourceConnections.1/@children.0" sourceEnd="//@children.4/@sourceConnections.1/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="myErrorCode" location="259,103" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.tools/Tools@|com.ftp.tools/ErrorCode#myErrorCode" attachSource="true" multiplicityLabel="//@children.4/@sourceConnections.1/@children.1/@children.1" roleLabel="//@children.4/@sourceConnections.1/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" + myErrorCode" location="909,164" size="92,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="1" location="909,191" size="7,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,102" id="com.ftp.tools/ErrorCode@myErrorCode+com.ftp.tools/Tools@|com.ftp.tools/Tools#"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.tools/ErrorCode-Standard::Call->com.ftp.tools/Tools*com.ftp.tools/ErrorCode-Soyatec::Import->com.ftp.tools/Tools" source="//@children.4" target="//@children.6" targetEnd="//@children.4/@sourceConnections.2/@children.2" label="//@children.4/@sourceConnections.2/@children.0" sourceEnd="//@children.4/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Call, Import»" size="80,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="259,133" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,106"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" name="Main" location="194,449" size="82,67" id="com.ftp.server/Main" runTimeClassModel="main([Ljava.lang.String;)">
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="59,18">
+      <children xsi:type="editmodel:MethodEditModel" name="main" id="com.ftp.server/Main#main([Ljava.lang.String;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.server/Main-Standard::Call->com.ftp.server/Server*com.ftp.server/Main-Standard::Instantiate->com.ftp.server/Server*com.ftp.server/Main-Soyatec::Import->com.ftp.server/Server" source="//@children.5" target="//@children.3" targetEnd="//@children.5/@sourceConnections.0/@children.2" label="//@children.5/@sourceConnections.0/@children.0" sourceEnd="//@children.5/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="40,67" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="144,0"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.4/@sourceConnections.1 //@children.4/@sourceConnections.2 //@children.1/@sourceConnections.0 //@children.1/@sourceConnections.3" name="Tools" location="1018,83" size="177,368" id="com.ftp.tools/Tools" runTimeClassModel="loadPasswordList(Ljava.io.InputStream;),debugMode,checkDir(Ljava.lang.String;Ljava.lang.String;),cBuf,getDirectoryListing(Ljava.lang.String;),osw,isr,Tools(Ljava.net.Socket;Z),sendMessage(Ljava.lang.String;),isEmail(Ljava.lang.String;),br,dos,receiveMessage(),getParentDir(Ljava.lang.String;),getNewDirectory(Ljava.lang.String;Ljava.lang.String;),mysocket,CloseStreams()">
+    <children xsi:type="editmodel:CompartmentEditModel" size="154,126">
+      <children xsi:type="editmodel:AttributeEditModel" name="br" id="com.ftp.tools/Tools#br"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="cBuf" id="com.ftp.tools/Tools#cBuf"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="debugMode" id="com.ftp.tools/Tools#debugMode"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="dos" id="com.ftp.tools/Tools#dos"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="isr" id="com.ftp.tools/Tools#isr"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="mysocket" id="com.ftp.tools/Tools#mysocket"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="osw" id="com.ftp.tools/Tools#osw"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="137,180">
+      <children xsi:type="editmodel:MethodEditModel" name="CloseStreams" id="com.ftp.tools/Tools#CloseStreams()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="Tools" id="com.ftp.tools/Tools#Tools(Ljava.net.Socket;Z)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="checkDir" id="com.ftp.tools/Tools#checkDir(Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getDirectoryListing" id="com.ftp.tools/Tools#getDirectoryListing(Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getNewDirectory" id="com.ftp.tools/Tools#getNewDirectory(Ljava.lang.String;Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getParentDir" id="com.ftp.tools/Tools#getParentDir(Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="isEmail" id="com.ftp.tools/Tools#isEmail(Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="loadPasswordList" id="com.ftp.tools/Tools#loadPasswordList(Ljava.io.InputStream;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="receiveMessage" id="com.ftp.tools/Tools#receiveMessage()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="sendMessage" id="com.ftp.tools/Tools#sendMessage(Ljava.lang.String;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="0,0"/>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="com.ftp.tools/Tools-Standard::Call->com.ftp.tools/ErrorCode*com.ftp.tools/Tools-Standard::Instantiate->com.ftp.tools/ErrorCode*com.ftp.tools/Tools-Soyatec::Import->com.ftp.tools/ErrorCode" source="//@children.6" target="//@children.4" targetEnd="//@children.6/@sourceConnections.0/@children.2" label="//@children.6/@sourceConnections.0/@children.0" sourceEnd="//@children.6/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate, Call, Import»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,82" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="259,73"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <diagramOptions xsi:type="options:ClassDiagramOptions" level="-1" showScope="All" properties="wireOptions=7;Product=eUML2"/>
+  <boardSetting snapToGeometry="true" gridEnabled="true" gridSpacing="15,15" gridOrigin="0,0" rulerUnit="pixel" gridVisibility="false">
+    <leftRuler/>
+    <topRuler/>
+  </boardSetting>
+  <classDiagramPreferences xsi:type="editmodel:UMLClassDiagramPreference" showPopupBars="true" showConnectionHandles="true" attributeSorter="Natural" methodSorter="Natural" showClassStereotype="true" showPackageStereotype="true" showDependencyStereotype="true" showInterfaceStereotype="true" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+</editmodel:ClassDiagramEditModel>

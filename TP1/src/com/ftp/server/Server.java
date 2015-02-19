@@ -6,16 +6,8 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * 
- * FTP Server FTP in Java
- * 
- * main start listening on port 2100 (21 unavailable, not in root mode).
- * whenever a client is connecting, the server starts a FtpRequest thread and
- * continue to listen for following clients.
- * 
- * @param args
- *            1- homedir for users 2- debugmode: 0/1
- * 
+ * FTP Server FTP in Java main start listening on port 2100 (21 unavailable, not in root mode). whenever a client is connecting, the server starts a FtpRequest thread and continue to listen for following clients.
+ * @param args  1- homedir for users 2- debugmode: 0/1
  */
 public class Server extends Thread {
 
@@ -25,6 +17,10 @@ public class Server extends Thread {
 	ServerSocket serverskt;
 	Boolean keepServingRunning;
 	int serverPort;
+	/**
+	 * @uml.property  name="ftpreq"
+	 * @uml.associationEnd  
+	 */
 	FtpRequest ftpreq;
 	private Socket cltSocCtrl;
 	private String clientIP;
@@ -57,10 +53,18 @@ public class Server extends Thread {
 		}
 	}
 
+	/**
+	 * @return
+	 * @uml.property  name="keepServingRunning"
+	 */
 	public Boolean getKeepServingRunning() {
 		return keepServingRunning;
 	}
 
+	/**
+	 * @param keepServingRunning
+	 * @uml.property  name="keepServingRunning"
+	 */
 	public void setKeepServingRunning(Boolean keepServingRunning) {
 		this.keepServingRunning = keepServingRunning;
 	}
@@ -81,7 +85,7 @@ public class Server extends Thread {
 				System.out.println("Server:incoming connection from "
 						+ clientIP);
 
-				ftpreq = new FtpRequest(cltSocCtrl, prepath,debugMode);
+				ftpreq = new FtpRequest(cltSocCtrl, prepath, debugMode);
 
 				if (ftpreq != null) {
 					ftpreq.start();
@@ -106,7 +110,6 @@ public class Server extends Thread {
 		}
 
 	}
-
 
 	/**
 	 * Return the serveur socket mainly for test purpose.

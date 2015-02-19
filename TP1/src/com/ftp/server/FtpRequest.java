@@ -16,13 +16,8 @@ import com.ftp.tools.ErrorCode;
 import com.ftp.tools.Tools;
 
 /**
- * 
- * Main class to handle the control channel. this thread is launched by the
- * server thread. Most of the FTP commands are implemented.
- * 
- * 
- * @author Emeline Salomon & François Dubiez
- * 
+ * Main class to handle the control channel. this thread is launched by the server thread. Most of the FTP commands are implemented.
+ * @author  Emeline Salomon & François Dubiez
  */
 public class FtpRequest extends Thread {
 
@@ -62,14 +57,20 @@ public class FtpRequest extends Thread {
 	boolean isPASV = false;
 	/**
 	 * tools class for IO operations (files, sockets).
+	 * @uml.property  name="mytools"
+	 * @uml.associationEnd  
 	 */
 	Tools mytools = null;
 	/**
 	 * Class to retrieve message associated with an FTP errorCode
+	 * @uml.property  name="myErrorCode"
+	 * @uml.associationEnd  
 	 */
 	ErrorCode myErrorCode =null;
 	/**
-	 * Thread for listing directory, sending or receiving data. 
+	 * Thread for listing directory, sending or receiving data.
+	 * @uml.property  name="myftpData"
+	 * @uml.associationEnd  
 	 */
 	private FtpData myftpData;
 	/**
@@ -949,15 +950,27 @@ public class FtpRequest extends Thread {
 	
 	}
 
+	/**
+	 * @param string
+	 * @uml.property  name="commande"
+	 */
 	public void setCommande(String string) {
 		this.commande=string;
 		
 	}
 
+	/**
+	 * @return
+	 * @uml.property  name="rep"
+	 */
 	public Object getRep() {
 		return rep;
 	}
 
+	/**
+	 * @return
+	 * @uml.property  name="paramCode"
+	 */
 	public Object getParamCode() {
 		// TODO Auto-generated method stub
 		return paramCode;
