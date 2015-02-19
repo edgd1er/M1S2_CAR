@@ -47,9 +47,6 @@ Packages:
 
 
 
-Design patterns:
-	Etat
-
 
 
 Catch:
