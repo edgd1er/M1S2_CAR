@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" xmlns:options="options.xmi" name="tools" size="1296,1064" id="com.ftp.tools" metadata="uml2-1.0" initialized="true" scrolledY="52" tag="1000" key="32303037303533312D31303030204D3153325F4341522F64756269657A">
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" xmlns:options="options.xmi" name="tools" size="1296,1064" id="com.ftp.tools" metadata="uml2-1.0" initialized="true" scrolledY="228" tag="1000" key="32303037303533312D31303030204D3153325F4341522F64756269657A">
   <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.3/@sourceConnections.0" name="Server" location="364,784" size="323,260" id="com.ftp.server/Server">
     <children xsi:type="editmodel:CompartmentEditModel" size="300,126">
       <children xsi:type="editmodel:AttributeEditModel" name="debugMode" id="com.ftp.server/Server#debugMode"/>

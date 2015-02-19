@@ -58,8 +58,6 @@ Packages:
 		Tools
 
 
-Design patterns:
-	Etat
 
 
 Catch:
