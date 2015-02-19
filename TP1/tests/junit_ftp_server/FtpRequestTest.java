@@ -12,6 +12,7 @@ public class FtpRequestTest {
 	public FtpClient ftpClient;
 	static int serverPort=2101;
 	static String homedir="/tmp/homedir";
+	static boolean debugMode =true;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -29,7 +30,7 @@ public class FtpRequestTest {
 	@Before
 	public void setUp() throws Exception {
 		ftpServer = new Server();
-		ftpServer.initialization(serverPort,homedir,false);
+		ftpServer.initialization(serverPort,homedir,debugMode);
 		ftpServer.start();
 		this.ftpClient = new FtpClient(serverPort);
 		System.out.println("Connected");
