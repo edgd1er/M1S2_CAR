@@ -8,7 +8,7 @@ import com.ftp.client.FtpClient;
 import com.ftp.server.Server;
 
 public class FtpRequestTest {
-	public Server ftpServer;
+	public static Server ftpServer;
 	public FtpClient ftpClient;
 	static int serverPort=2101;
 	static String homedir="/tmp/homedir";
@@ -16,7 +16,9 @@ public class FtpRequestTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-
+		ftpServer = new Server();
+		ftpServer.initialization(serverPort,homedir,debugMode);
+		ftpServer.start();
 	}
 
 	/*
@@ -29,17 +31,15 @@ public class FtpRequestTest {
 
 	@Before
 	public void setUp() throws Exception {
-		ftpServer = new Server();
-		ftpServer.initialization(serverPort,homedir,debugMode);
-		ftpServer.start();
 		this.ftpClient = new FtpClient(serverPort);
 		System.out.println("Connected");
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		this.ftpClient.send("quit");
 		this.ftpClient.close();
-		this.ftpServer.setKeepServingRunning(false);
+		//FtpRequestTest.ftpServer.setKeepServingRunning(false);
 	}
 	
 		

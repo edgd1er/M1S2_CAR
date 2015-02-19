@@ -11,19 +11,19 @@ public class FtprequestPassTest extends FtpRequestTest {
 	String cmd,ret, exp;
 	
 	ret= this.ftpClient.receive().substring(0,3);
-	exp="220";
-	
+	exp="220";	
 	assertEquals(ret, exp);
+	
 	cmd="USER user";
+	exp="331";
 	this.ftpClient.send(cmd);
 	ret= this.ftpClient.receive().substring(0,3);
-	exp="331";
 	assertEquals(ret, exp);
 
 	cmd="PASS a";
+	exp="230";
 	this.ftpClient.send(cmd);
 	ret= this.ftpClient.receive().substring(0,3);
-	exp="230";
 	assertEquals(ret, exp);
 	
 	cmd="quit";
@@ -37,18 +37,20 @@ public class FtprequestPassTest extends FtpRequestTest {
 		ret= this.ftpClient.receive().substring(0,3);
 		exp="220";
 		assertEquals(ret, exp);
+		
 		cmd="USER user";
+		exp="331";
 		this.ftpClient.send(cmd);
 		ret= this.ftpClient.receive().substring(0,3);
-		exp="331";
 		assertEquals(ret, exp);
 
 		cmd="PASS b";
+		exp="430";
 		this.ftpClient.send(cmd);
 		ret= this.ftpClient.receive().substring(0,3);
 		System.err.println("Junit:" + ret);
-		exp="430";
 		assertEquals(ret, exp);
+
 		cmd="quit";
 		this.ftpClient.send(cmd);
 	}

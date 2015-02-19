@@ -29,13 +29,12 @@ public class ServeurTest {
 	}
 
 	@Test
-	public void testRunning() throws UnknownHostException, IOException {
+	public void testRunServer() throws UnknownHostException, IOException {
 
 		assertNotNull(ftpServer.getServeurSocket());
-		@SuppressWarnings("unused")
-		FtpClient ftpclient = new FtpClient(serverPort);
 		assertNotNull(ftpServer.getSocket());
 		assertEquals(ftpServer.getServeurSocket().getLocalPort(), serverPort);
+		this.ftpClient.send("quit");
 		ftpServer.setKeepServingRunning(false);
 	}
 
