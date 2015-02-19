@@ -10,9 +10,9 @@ Conception application repartie
 
 
 Éxécuter le projet:
-        java -jar Serveur.jar /path/to/home/dir [1/0]
+        java -jar Serveur.jar /path/to/home/dir [1,0]
 
-1/0 => debugMode: affichage verbeux du traitement.
+1,0 => debugMode: affichage verbeux du traitement.
 
 Ne pas oublier de placer avec le jar un fichier mdp.txt contenant la liste des utilisateurs avec leurs mot de passe sous le forme
 user1:password1
@@ -21,10 +21,24 @@ user2:password2
 *** 1/ Introduction
 
 
-Ce programme crée un serveur FTP utilisant le port 2100 pour communiquer avec des clients, le serveur gère les requête USER, PASS, QUIT, LIST RETR, STOR, PASV, PWD, CWD, PORT, CDUP et deux autres commandes (DELE, QUOTE) que j'ai ajouté pour mener a bien les tests fonctionnels. 
-Les utilisateurs seront placé dans un repertoir /{serverpath}/username, ou serverpath peut etre passer en parametre. Il n'a pas été mis en place un contingentement dans le répertoire de travail.
+Ce programme crée un serveur FTP utilisant le port 2100 pour communiquer avec des clients, le serveur gère les requête USER, PASS, QUIT, LIST RETR, STOR, PASV, PWD, CWD, PORT, CDUP et deux autres commandes (DELE, QUOTE) que nous avons ajouté pour mener à bien les tests fonctionnels. 
+Les utilisateurs seront placé dans un repertoir /{serverpath}/username, ou serverpath peut etre passer en parametre. par defaut il s'agit de "/tmp/homedir". Il n'a pas été mis en place un contingentement dans le répertoire de travail.
 
 
+Avant de démarrer le serveur, il convient de créer les repertoires des utilisateurs...
+mkdir -p /tmp/homedir/user
+mkdir -p /tmp/homedir/anonymous
+
+
+L'application se compile sans erreur, ni warning.
+l'application est multi client. Le port d'ecoute peut etre changer dans le main.
+Un mode verbeux est disponible via le passage de parametre.
+
+L'application a été testé avec filezilla, le client ftp debian , ubuntu et un série de session ftp scriptées.
+
+6 tests unitaires sont effectués ( demarrage du serveur et 5 verifications de login)
+
+19 tests fonctionnels sont effectués. (details des scripts dans /tests/features)
 
 *** 2/ Architecture
 
@@ -44,13 +58,8 @@ Packages:
 		Tools
 
 
-
-
-
 Design patterns:
 	Etat
-
-
 
 Catch:
 catch (IOError ioe)
@@ -68,65 +77,80 @@ Throw:
 Server se lance en mode ecoute et lance un FTPRequest en thread pour traiter les clients.
 
 
-public class Server {
+public class Server extends Thread {
 
-	static String prepath;
-	public static int nbClients;
-	public static boolean debugMode;
+	String prepath;
+	int nbClients;
+	boolean debugMode;
+	ServerSocket serverskt;
+	Boolean keepServingRunning;
+	int serverPort;
+	FtpRequest ftpreq;
+	private Socket cltSocCtrl;
+	private String clientIP;
+	ConcurrentLinkedQueue<FtpRequest> ftpReqList;
 
-	public static void main(String[] args) {
-		ServerSocket serverskt = null;
-		Boolean keepServingRunning = true;
-		int nbMAxCLients = 3, serverPort = 2100;
-		FtpRequest ftpreq = null;
+	public void initialization(int _serverPort, String _homedir,
+			boolean _debugMode) {
+
 		debugMode = false;
+		serverPort = -1;
+		debugMode = _debugMode;
+		keepServingRunning = true;
+
 		prepath = "/tmp/homedir";
+
+		if (_serverPort < 1024 || serverPort > 65535) {
+			String messageLog = "\n Ouch, the port given is not in a valid range ( 1024-65535)!!! Exit\n";
+			System.err.println(messageLog);
+			return;
+		}
+
+		serverPort = _serverPort;
+
+		try {
+			serverskt = new ServerSocket(serverPort);
+		} catch (IOException e) {
+			System.err.print("!!!!!Error, cannot open ServerSocket on port "
+					+ serverPort + " !!!!!!!!!!!!");
+			e.printStackTrace();
+		}
+	}
+
+	public Boolean getKeepServingRunning() {
+		return keepServingRunning;
+	}
+
+	public void setKeepServingRunning(Boolean keepServingRunning) {
+		this.keepServingRunning = keepServingRunning;
+	}
+
+	public void run() {
 
 		String messageLog = "\nStarting FTP Server on port "
 				+ String.valueOf(serverPort)
-				+ "\nMaximum number of clients accepted: "
-				+ String.valueOf(nbMAxCLients)
-				+ "\nServer homedir has been set by ";
-
-		if (args.length > 0) {
-			if (args[0].startsWith("/")) {
-				prepath = args[0].endsWith("/") ? args[0].substring(0,
-						args[0].length() - 1) : args[0];
-				messageLog += " an argument at runtime: " + prepath;
-			} else {
-				messageLog += "default without argument at runtime: " + prepath;
-			}
-			if (args.length > 1) {
-				Server.debugMode = args[1].equals("1") ? true : false;
-			}
-		}
+				+ "\nServer homedir has been set to " + prepath;
 
 		System.out.println(messageLog);
 
 		try {
-			serverskt = new ServerSocket(serverPort);
 
 			while (keepServingRunning) {
-				Socket cltSocCtrl = serverskt.accept();
-				String clientIP = cltSocCtrl.getLocalAddress().getHostAddress();
+				cltSocCtrl = serverskt.accept();
+				clientIP = cltSocCtrl.getLocalAddress().getHostAddress();
 				System.out.println("Server:incoming connection from "
 						+ clientIP);
 
-				if (nbClients >= nbMAxCLients) {
-					ftpreq = new FtpRequest(cltSocCtrl, true);
-				} else {
-					ftpreq = new FtpRequest(cltSocCtrl, false);
-				}
+				ftpreq = new FtpRequest(cltSocCtrl, prepath,debugMode);
 
 				if (ftpreq != null) {
 					ftpreq.start();
-					nbClients++;
 				}
 
 				System.out.println("Server:started thread FTPRequest for "
-						+ cltSocCtrl.getInetAddress().getHostName());
+						+ cltSocCtrl.getInetAddress().getHostName() + ".");
 			}
-			//server is stopping
+			// server is stopping
 			serverskt.close();
 		} catch (IOException e) {
 			System.err.println(Thread.currentThread().getClass().getName()
@@ -142,6 +166,27 @@ public class Server {
 		}
 
 	}
+
+
+	/**
+	 * Return the serveur socket mainly for test purpose.
+	 * 
+	 * @return serverSocket
+	 */
+	public ServerSocket getServeurSocket() {
+		return serverskt;
+	}
+
+	/**
+	 * Return accepted socket from client
+	 * 
+	 * @return socket
+	 */
+	public Socket getSocket() {
+		return cltSocCtrl;
+	}
+
+}
 
 
 
@@ -230,6 +275,10 @@ public class FtpRequest extends Thread {...
 	}
 
 **** 5 / Tests Fonctionnels
+
+19 tests fonctionnels sont effectués. (details des scripts dans /tests/features)
+
+Le lancement se fait par ./tests/check.sh
 
 #################################################
 ##       tests login des utilisateurs          ##
