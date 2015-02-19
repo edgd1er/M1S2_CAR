@@ -38,13 +38,14 @@ function restorefile {
 
 echo -e  "\n!!!!Verification des échantillions de départ!!!!"
 
-oracle=$(md5sum -c *.md5 | cut -d':' -f 2 | grep -i "réussi" | wc -l )
+oracle=$(md5sum -c *.md5 | cut -d':' -f 2 | egrep -i "réussi|OK" | wc -l )
 
 if [ "$oracle" != "2" ]; then 
 echo -e "Erreur de md5 dans les fichiers, restauration des fichiers originaux."
 echo -e "Pouvez vous relancer le scripts ?\n"
  cp -f ${datatxtori} ${datatxt}
  cp -f ${databinori} ${databin}
+exit
 else 
 echo -e "Fichiers de tests non corrompus. on peut continuer\n"
 fi
