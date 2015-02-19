@@ -57,6 +57,14 @@ public class Server extends Thread {
 		}
 	}
 
+	public Boolean getKeepServingRunning() {
+		return keepServingRunning;
+	}
+
+	public void setKeepServingRunning(Boolean keepServingRunning) {
+		this.keepServingRunning = keepServingRunning;
+	}
+
 	public void run() {
 
 		String messageLog = "\nStarting FTP Server on port "

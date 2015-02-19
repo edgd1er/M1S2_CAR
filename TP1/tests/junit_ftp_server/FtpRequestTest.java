@@ -9,26 +9,29 @@ import com.ftp.client.FtpClient;
 import com.ftp.server.Server;
 
 public class FtpRequestTest {
-	public static Server ftpServer;
+	public Server ftpServer;
 	public FtpClient ftpClient;
-	static int serverPort=2100;
+	static int serverPort=2101;
 	static String homedir="/tmp/homedir";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		ftpServer = new Server();
-		ftpServer.initialization(serverPort,homedir,false);
-		ftpServer.start();
+
 	}
 
+	/*
 	@SuppressWarnings("deprecation")
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		ftpServer.stop();
 	}
+	*/
 
 	@Before
 	public void setUp() throws Exception {
+		ftpServer = new Server();
+		ftpServer.initialization(serverPort,homedir,false);
+		ftpServer.start();
 		this.ftpClient = new FtpClient(serverPort);
 		System.out.println("Connected");
 	}
@@ -36,6 +39,7 @@ public class FtpRequestTest {
 	@After
 	public void tearDown() throws Exception {
 		this.ftpClient.close();
+		this.ftpServer.setKeepServingRunning(false);
 	}
 	
 		
