@@ -48,7 +48,7 @@ Packages:
 	com.ftp.client
 		FtpClient
 
-	com.ftpServer
+	com.ftp.Server
 		Server
 		FtpRequest
 		ftpEtat

@@ -111,12 +111,13 @@ public class FtpRequest extends Thread {
 	 *            Maximum number of clients to acccept.
 	 * @throws IOException 
 	 */
-	public FtpRequest(Socket _clskt,String usersRootFolder, boolean _debugMode) {
+	public FtpRequest(Socket _clskt,String _usersRootFolder, boolean _debugMode) {
 		cltSocketCtrl = _clskt;
 		isPASV = false;
 		ftpetat = FtpEtat.FS_WAIT_LOGIN;
 		debugMode= _debugMode;
 		myErrorCode = new ErrorCode(debugMode);
+		usersRootFolder= _usersRootFolder;
 
 		try {
 			mytools = new Tools(cltSocketCtrl,debugMode);
@@ -860,7 +861,6 @@ public class FtpRequest extends Thread {
 
 		if (commande.equalsIgnoreCase("cwd")) {
 
-			// TODO verification des droits de changement
 			tempDir = mytools.getNewDirectory(currentDir, parametre);
 			if (!tempDir.equalsIgnoreCase(currentDir)) {
 				currentDir = tempDir;
