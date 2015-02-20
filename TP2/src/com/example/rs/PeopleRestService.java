@@ -1,4 +1,4 @@
-package main.java.com.example.rs;
+package com.example.rs;
 
 import java.util.Collection;
 
@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import main.java.com.example.model.Person;
-import main.java.com.example.services.PeopleService;
+import com.example.model.Person;
+import com.example.services.PeopleService;
 
 @Path( "/people" ) 
 public class PeopleRestService {

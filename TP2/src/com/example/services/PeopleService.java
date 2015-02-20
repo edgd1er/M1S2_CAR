@@ -1,4 +1,4 @@
-package main.java.com.example.services;
+package com.example.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,9 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.stereotype.Service;
 
-import main.java.com.example.exceptions.PersonAlreadyExistsException;
-import main.java.com.example.model.PersonNotFoundException;
-
+import com.example.exceptions.PersonAlreadyExistsException;
+import com.example.exceptions.PersonNotFoundException;
 import com.example.model.Person;
 
 @Service

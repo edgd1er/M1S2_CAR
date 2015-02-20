@@ -1,4 +1,4 @@
-package main.java.com.example;
+package com.example;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
@@ -7,7 +7,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import main.java.com.example.config.AppConfig;
+import com.example.config.AppConfig;
 
 public class Starter {
 	public static void main( final String[] args ) throws Exception {
