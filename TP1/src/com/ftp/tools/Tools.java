@@ -71,7 +71,7 @@ public class Tools {
 	public void sendMessage(String message) throws IOException {
 		// dos.writeBytes(message + (message.endsWith("\n")?"":"\n"));
 		// dos.flush();
-		osw.println(message);
+		osw.print(message+"\r\n");
 		osw.flush();
 		}
 

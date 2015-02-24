@@ -10,9 +10,39 @@ import com.restgateway.service.HTMLGenerator;
 
 @Service
 public class FTPService {
-	
-	
-	
+
+	/**
+	 * Get the welcome message from server
+	 * 
+	 * @param ftpHostName
+	 *            IP or name of the server.
+	 * @param ftpPort
+	 *            Port of the server
+	 * @return Array of string containing the welcome message.
+	 */
+	public String[] getWelcomeMsg(String ftpHostName, int ftpPort) {
+
+		FTPClient ftpClient = new FTPClient();
+		String[] myreturn = null;
+
+		try {
+			ftpClient.enterLocalPassiveMode();
+			ftpClient.connect(ftpHostName, ftpPort);
+			myreturn = ftpClient.getReplyStrings();
+
+		} catch (IOException ex) {
+
+			myreturn[0] = HTMLGenerator.getInstance()
+					.getFtpErrorConnectionContent(ex.getMessage());
+		}
+		try {
+			ftpClient.disconnect();
+		} catch (Exception e) {
+		}
+
+		return myreturn;
+	}
+
 	/**
 	 * Return the welcome Message from FTP Server
 	 * 
@@ -24,14 +54,16 @@ public class FTPService {
 	 * @param string
 	 * @return welcome message from Server
 	 */
-	public String getWelcomeMsg(String ftpHostName, int ftpPort, String login,
+	public String listFiles(String ftpHostName, int ftpPort, String login,
 			String passwd) {
-		
-		FTPClient ftpClient= new FTPClient();
-		
-		
+
+		FTPClient ftpClient = new FTPClient();
+
 		try {
+			ftpClient.enterLocalPassiveMode();
 			ftpClient.connect(ftpHostName, ftpPort);
+			ftpClient.pasv();
+			ftpClient.l
 		} catch (IOException ex) {
 
 			return HTMLGenerator.getInstance().getFtpErrorConnectionContent(
@@ -39,22 +71,23 @@ public class FTPService {
 		}
 		try {
 			if (ftpClient.login(login, passwd)) {
-				String[] msg= ftpClient.getReplyStrings();
+				String[] msg = ftpClient.getReplyStrings();
 				ftpClient.disconnect();
-				//Todo generer le code html
+				// Todo generer le code html
 				return msg.toString();
 			}
 		} catch (IOException ex) {
 			return HTMLGenerator.getInstance().getError(ex.getMessage());
 		}
-		
+
+		ftpClient.disconnect();
 		return "Oups, this should not be seen !!!";
 
 	}
 
 	public String getFileList(String ftpHostName, int ftpPort,
 			String loginName, String passwd) {
-		FTPClient ftpClient= new FTPClient();
+		FTPClient ftpClient = new FTPClient();
 
 		try {
 			ftpClient.connect(ftpHostName, ftpPort);
@@ -64,7 +97,7 @@ public class FTPService {
 					ex.getMessage());
 		}
 		try {
-			if (ftpClient.login(loginName,passwd)) {
+			if (ftpClient.login(loginName, passwd)) {
 				FTPFile[] fileList = ftpClient.listFiles();
 				String cwd = ftpClient.printWorkingDirectory();
 				ftpClient.disconnect();
@@ -80,33 +113,24 @@ public class FTPService {
 	// ************************************************************************************************************
 
 	/*
-	public Person getByEmail(final String email) {
-		final Person person = persons.get(email);
+	 * public Person getByEmail(final String email) { final Person person =
+	 * persons.get(email);
+	 * 
+	 * if (person == null) { throw new PersonNotFoundException(email); }
+	 * 
+	 * return person; }
+	 * 
+	 * public Person addPerson(final String email, final String firstName, final
+	 * String lastName) { final Person person = new Person(email);
+	 * person.setFirstName(firstName); person.setLastName(lastName);
+	 * 
+	 * if (persons.putIfAbsent(email, person) != null) { throw new
+	 * PersonAlreadyExistsException(email); }
+	 * 
+	 * return person; }
+	 * 
+	 * public void removePerson(final String email) { if (persons.remove(email)
+	 * == null) { throw new PersonNotFoundException(email); } }
+	 */
 
-		if (person == null) {
-			throw new PersonNotFoundException(email);
-		}
-
-		return person;
-	}
-
-	public Person addPerson(final String email, final String firstName,
-			final String lastName) {
-		final Person person = new Person(email);
-		person.setFirstName(firstName);
-		person.setLastName(lastName);
-
-		if (persons.putIfAbsent(email, person) != null) {
-			throw new PersonAlreadyExistsException(email);
-		}
-
-		return person;
-	}
-
-	public void removePerson(final String email) {
-		if (persons.remove(email) == null) {
-			throw new PersonNotFoundException(email);
-		}
-	}*/
-	
 }

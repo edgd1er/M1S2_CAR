@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -32,6 +33,9 @@ public class RestGateway {
 	private Credentials nameStorage = new Credentials();
 	private static String ftpHostName = "127.0.0.1";
 	private static int ftpPort = 2100;
+	
+	//private static String ftpHostName = "ftps.fil.univ-lille1.fr";
+	//private static int ftpPort = 21;
 
 	@GET
 	@Produces("text/html")
@@ -46,10 +50,26 @@ public class RestGateway {
 	// login / logout
 	// ************************************************************************
 
-	@Path("/login/{lname}/password/{lpass}")
 	@GET
-	public String loginToFtp(@FormParam("lname") final String loginName,
-			@FormParam("lpass") final String loginPass) {
+	@Path("/welcome")
+	public String welcomeFtp() {
+
+		String msg = null;
+
+		String[] ret= ftpService.getWelcomeMsg(ftpHostName,ftpPort);
+		
+		for( String tmp : ret){
+			msg+=tmp+"\n";
+		}
+		
+		return msg; 
+	}
+
+	
+	@GET
+	@Path("/login/{lname}/password/{lpass}")
+	public String loginToFtp(@PathParam("lname") final String loginName,
+			@PathParam("lpass") final String loginPass) {
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);

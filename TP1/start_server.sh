@@ -20,7 +20,7 @@ location=":~/Documents/S2_CAR/M1S2_CAR/TP1/"
 JAR="ServerFtp.jar"
 # users homedir
 HDIR="/tmp/homedir"
-DBG="0"
+DBG="1"
 
 ## Fonctions
 

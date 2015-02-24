@@ -10,6 +10,22 @@ import java.util.HashMap;
  * 
  * @author user
  *
+ *
+ *
+ *    2xx - Success reply
+ *    4xx or 5xx - Failure reply
+ *   1xx or 3xx - Error or Incomplete reply
+ *
+ * The second digit defines the kind of error:
+ *
+ *   x0z - Syntax - These replies refer to syntax errors.
+ *   x1z - Information - Replies to requests for information.
+ *   x2z - Connections - Replies referring to the control and data connections.
+ *   x3z - Authentication and accounting - Replies for the login process and accounting procedures.
+ *   x4z - Not defined.
+ *   x5z - File system - These replies relay status codes from the server file system.
+ *   
+ *
  */
 public class ErrorCode {
 
