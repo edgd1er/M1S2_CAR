@@ -1,4 +1,4 @@
-package com.example.config;
+package com.restgateway.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,11 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
-import car.HelloWorldResource;
-
-import com.example.rs.JaxRsApiApplication;
-import com.example.rs.PeopleRestService;
-import com.example.services.PeopleService;
+import com.restgateway.rs.JaxRsApiApplication;
+import com.restgateway.service.RestGateway;
+import com.restgateway.services.FTPService;
 
 @Configuration
 public class AppConfig {	
@@ -33,7 +31,7 @@ public class AppConfig {
 		
 		List<Object> serviceBeans = new ArrayList<Object>();
 //		serviceBeans.add(peopleRestService());
-		serviceBeans.add(new HelloWorldResource());
+		serviceBeans.add(restGateway());
 		
 		factory.setServiceBeans(serviceBeans);
 		factory.setAddress( "/" + factory.getAddress() );
@@ -47,13 +45,13 @@ public class AppConfig {
 	}
 	
 	@Bean 
-	public PeopleRestService peopleRestService() {
-		return new PeopleRestService();
+	public RestGateway restGateway() {
+		return new RestGateway();
 	}
 	
 	@Bean 
-	public PeopleService peopleService() {
-		return new PeopleService();
+	public FTPService ftpService() {
+		return new FTPService();
 	}
 		
 	@Bean

@@ -1,4 +1,4 @@
-package com.example;
+package com.restgateway;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
@@ -7,7 +7,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import com.example.config.AppConfig;
+import com.restgateway.config.AppConfig;
 
 public class Starter {
 	public static void main( final String[] args ) throws Exception {
@@ -16,8 +16,8 @@ public class Starter {
  		// Register and map the dispatcher servlet
  		final ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
  		final ServletContextHandler context = new ServletContextHandler(); 		
- 		context.setContextPath( "/" );
- 		context.addServlet( servletHolder, "/rest/*" ); 	
+ 		context.setContextPath( "/rest" );
+ 		context.addServlet( servletHolder, "/*" ); 	
  		context.addEventListener( new ContextLoaderListener() );
  		
  		context.setInitParameter( "contextClass", AnnotationConfigWebApplicationContext.class.getName() );
