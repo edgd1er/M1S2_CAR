@@ -1,9 +1,9 @@
 package com.restgateway.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -11,7 +11,6 @@ import javax.ws.rs.Produces;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-
 
 import com.restgateway.services.FTPService;
 
@@ -24,18 +23,27 @@ import com.restgateway.services.FTPService;
  * Seinturier <Lionel.Seinturier@univ-lille1.fr>
  */
 
-@Path("/ftpgateway")
+@Path("/ftp")
 public class RestGateway {
-	@Inject	private FTPService ftpService;
-	
-	//FTPService ftpService = new FTPService();
+	@Inject
+	private FTPService ftpService;
 
+
+	/**
+	 * credentials store
+	 */
 	private Credentials nameStorage = new Credentials();
 	private static String ftpHostName = "127.0.0.1";
 	private static int ftpPort = 2100;
+	/**
+	 * FTP Passive mode
+	 */
+	private static boolean isPASV= true;
 	
-	//private static String ftpHostName = "ftps.fil.univ-lille1.fr";
-	//private static int ftpPort = 21;
+	
+	
+	// private static String ftpHostName = "ftps.fil.univ-lille1.fr";
+	// private static int ftpPort = 21;
 
 	@GET
 	@Produces("text/html")
@@ -53,51 +61,47 @@ public class RestGateway {
 	@GET
 	@Path("/welcome")
 	public String welcomeFtp() {
-
-		String msg = null;
-
-		String[] ret= ftpService.getWelcomeMsg(ftpHostName,ftpPort);
-		
-		for( String tmp : ret){
-			msg+=tmp+"\n";
+		String msg = "";
+		if (ftpService.getFtpClient()==null){ftpService.setFtpClient(new FTPClient());}
+		List<String> ret = ftpService.getWelcomeMsg(ftpHostName, ftpPort, isPASV);
+		for (String tmp : ret) {
+			msg += tmp + "\n";
 		}
-		
-		return msg; 
+		return msg;
 	}
 
-	
 	@GET
 	@Path("/login/{lname}/password/{lpass}")
 	public String loginToFtp(@PathParam("lname") final String loginName,
 			@PathParam("lpass") final String loginPass) {
+		String msg = "";
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);
-
-		String msg = "";
-
-		msg= ftpService.getWelcomeMsg(ftpHostName,ftpPort,this.nameStorage.getLogin(),this.nameStorage.getPassword());
-		
-		return msg; 
+		msg = ftpService.loginToFtp((FTPClient)null, ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),isPASV);
+		return msg;
 	}
-	
+
 	/*
-	public Response addPerson(@Context final UriInfo uriInfo,
-			@FormParam("lname") final String loginName,
-			@FormParam("lpass") final String loginPass) {
-
-		this.nameStorage.setLogin(loginName);
-		this.nameStorage.setPassword(loginPass);
-
-		String msg = "";
-
-		ftpService.getWelcomeMsg(ftpHostName,ftpPort,this.nameStorage.getLogin(),this.nameStorage.getPassword());
-		
-		
-		//return Response.created(
-		//		uriInfo.getRequestUriBuilder().path(email).build()).build();
-	}
-*/
+	 * public Response addPerson(@Context final UriInfo uriInfo,
+	 * 
+	 * @FormParam("lname") final String loginName,
+	 * 
+	 * @FormParam("lpass") final String loginPass) {
+	 * 
+	 * this.nameStorage.setLogin(loginName);
+	 * this.nameStorage.setPassword(loginPass);
+	 * 
+	 * String msg = "";
+	 * 
+	 * ftpService.getWelcomeMsg(ftpHostName,ftpPort,this.nameStorage.getLogin(),this
+	 * .nameStorage.getPassword());
+	 * 
+	 * 
+	 * //return Response.created( //
+	 * uriInfo.getRequestUriBuilder().path(email).build()).build(); }
+	 */
 	// ************************************************************************
 	// file op
 	// ************************************************************************
@@ -111,29 +115,29 @@ public class RestGateway {
 	 * @return String containing HTML content
 	 */
 	@GET
-	@Path("/file")
+	@Path("file/login/{lname}/password/{lpass}/list")
 	@Produces("text/html")
-	public String getFileList() {
-		FTPClient client = new FTPClient();
-		try {
-			client.connect(ftpHostName, ftpPort);
-		} catch (IOException ex) {
+	public String getFileList(@PathParam("lname") final String loginName,
+			@PathParam("lpass") final String loginPass) {
+		String cwd = "";
+		FTPClient ftpClient=null;
+		
+		this.nameStorage.setLogin(loginName);
+		this.nameStorage.setPassword(loginPass);
 
-			return HTMLGenerator.getInstance().getFtpErrorConnectionContent(
-					ex.getMessage());
-		}
 		try {
-			if (client.login(this.nameStorage.getLogin(),
-					this.nameStorage.getPassword())) {
-				FTPFile[] fileList = client.listFiles();
-				String cwd = client.printWorkingDirectory();
-				client.disconnect();
-				return HTMLGenerator.getInstance().getFileListWith(cwd,
-						fileList);
-			}
+			cwd = ftpService.loginToFtp((FTPClient)null, ftpHostName, ftpPort,
+					this.nameStorage.getLogin(), this.nameStorage.getPassword(),isPASV);
+			ftpClient = ftpService.getFtpClient();
+			FTPFile[] fileList = ftpClient.listFiles(cwd);
+			FTPFile[] dirList = ftpClient.listDirectories(cwd);
+			ftpClient.disconnect();
+			return HTMLGenerator.getInstance().getFileListWith(cwd, dirList,
+					fileList);
 		} catch (IOException ex) {
 			return HTMLGenerator.getInstance().getError(ex.getMessage());
 		}
-		return "";
+		
 	}
+	
 }

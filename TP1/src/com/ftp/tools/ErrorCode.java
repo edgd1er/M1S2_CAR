@@ -166,6 +166,10 @@ public class ErrorCode {
 	 * ErrorCode, Message dictionary.
 	 * 
 	 * Populate will fill ftpErrorMap.
+	 * 
+	 * Assigned Numbers
+	 * https://tools.ietf.org/html/rfc1340#page-87
+	 * 
 	 */
 	private void populateCode() {
 		
@@ -185,7 +189,7 @@ public class ErrorCode {
 		ftpErrorMap.put("212", "Directory status.");
 		ftpErrorMap.put("213", "File status.");
 		ftpErrorMap.put("214", "Help message.");
-		ftpErrorMap.put("215", "Master 1 CAR 2014-2015 FTP Java server. PARAM");
+		ftpErrorMap.put("215", "UNIX-PC Master 1 CAR 2014-2015 FTP Java server. PARAM");
 		ftpErrorMap
 				.put("220",
 						" 	Service ready for new user on PARAM. login using the USER command.");

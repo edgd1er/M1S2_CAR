@@ -24,12 +24,12 @@ public class HTMLGenerator {
 	 *            list of Files
 	 * @return String containing HTML content, listing all files and directory
 	 */
-	public String getFileListWith(String cwd, FTPFile[] fileList) {
+	public String getFileListWith(String cwd, FTPFile[] dirlist, FTPFile[] fileList) {
 		// return "<html>" + this.getCssContent() + "<body><h1>" + cwd +
 		// "</h1><div id=\"corps\">" + this.processFileList(cwd, fileList) +
 		// "</div>" + this.getDisconnectionButton() + this.getUploadButton(cwd)
 		// + "</body></html>";
-		return this.processFileStringList(cwd, fileList);
+		return this.processFileStringList(cwd, dirlist,fileList);
 
 	}
 
@@ -48,9 +48,14 @@ public class HTMLGenerator {
 	 * @return String containing HTML part containing href link for download
 	 *         files and browse directory
 	 */
-	private String processFileStringList(String cwd, FTPFile[] fileList) {
+	private String processFileStringList(String cwd, FTPFile[] dirList, FTPFile[] fileList) {
 		String tmp = "\n";
-		tmp += cwd+"\n";
+		tmp += cwd+"\n DirList\n";
+		for (FTPFile fTPFile : dirList) {
+			tmp += fTPFile.getName()+"\n";
+		}
+		tmp+="\n File List";
+				
 		for (FTPFile fTPFile : fileList) {
 			tmp += fTPFile.getName()+"\n";
 		}

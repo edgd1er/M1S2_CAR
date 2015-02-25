@@ -1,0 +1,9 @@
+Test du message de bienvenue
+curl http://localhost:8080/rest/api/ftp/welcome
+
+Test du login
+curl http://localhost:8080/rest/api/ftp/login/user/passowrd/a
+
+
+liste des fichiers
+curl  http://localhost:8080/rest/api/ftp/file/login/user/password/a/list

@@ -34,7 +34,7 @@ public class FtpData extends Thread {
 	private String DataAddr;
 	private Integer DataPort;
 	private List<String> aString;
-	private boolean isPASV;
+	private boolean isPASV=true;
 	private String commande;
 	private String parametre;
 	private ServerSocket dataSrvSocket;
@@ -424,7 +424,7 @@ public class FtpData extends Thread {
 					datasocket.getOutputStream());
 			// on envoie le fourbi
 			for (String strTemp : aString) {
-				DataOutStream.writeBytes(strTemp);
+				DataOutStream.writeBytes(strTemp+"\n");
 			}
 			// nice and quiet close
 			DataOutStream.flush();

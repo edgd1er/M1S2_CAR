@@ -12,15 +12,26 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.CharBuffer;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.PosixFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
- * support class - send/receive messages on control channel - close sockets and buffers - detection of folder/file - path changing/validity check
- * @author  user
+ * support class - send/receive messages on control channel - close sockets and
+ * buffers - detection of folder/file - path changing/validity check
+ * 
+ * @author user
  */
 public class Tools {
 
@@ -31,10 +42,10 @@ public class Tools {
 	static InputStreamReader isr = null;
 	CharBuffer cBuf;
 	/**
-	 * @uml.property  name="myErrorCode"
-	 * @uml.associationEnd  
+	 * @uml.property name="myErrorCode"
+	 * @uml.associationEnd
 	 */
-	public ErrorCode myErrorCode= null;
+	public ErrorCode myErrorCode = null;
 	boolean debugMode;
 
 	/**
@@ -44,9 +55,9 @@ public class Tools {
 	 *            socket used for control channel
 	 * @throws IOException
 	 */
-	public Tools(Socket _s,boolean _debugMode) throws IOException {
+	public Tools(Socket _s, boolean _debugMode) throws IOException {
 		mysocket = _s;
-		debugMode= _debugMode;
+		debugMode = _debugMode;
 		myErrorCode = new ErrorCode(debugMode);
 		osw = new PrintWriter(
 				new OutputStreamWriter(mysocket.getOutputStream()), true);
@@ -71,39 +82,40 @@ public class Tools {
 	public void sendMessage(String message) throws IOException {
 		// dos.writeBytes(message + (message.endsWith("\n")?"":"\n"));
 		// dos.flush();
-		osw.print(message+"\r\n");
+		osw.print(message + "\r\n");
 		osw.flush();
-		}
+	}
 
 	/**
 	 * users and password list loading.
 	 * 
 	 */
 
-	public HashMap<String, String> loadPasswordList(InputStream ipss) throws IOException {
+	public HashMap<String, String> loadPasswordList(InputStream ipss)
+			throws IOException {
 
 		HashMap<String, String> usrMap = new HashMap<String, String>();
-		/*usrMap.put("user","a");
-		usrMap.put("pollux","b");
-		*/
-		
+		/*
+		 * usrMap.put("user","a"); usrMap.put("pollux","b");
+		 */
+
 		InputStreamReader ipsrr = new InputStreamReader(ipss);
 		BufferedReader brr = new BufferedReader(ipsrr);
 		String ligne;
 		while ((ligne = brr.readLine()) != null) {
 			String[] aligne = ligne.split(":");
 			usrMap.put(aligne[0], aligne[1]);
-	        if (debugMode){System.out.println(ligne);}
+			if (debugMode) {
+				System.out.println(ligne);
+			}
 		}
 		brr.close();
 		ipsrr.close();
 		ipss.close();
-		
+
 		return usrMap;
 	}
-	
-	
-	
+
 	/**
 	 * Close the streams and buffer, seems obvious neh ? It says what it does
 	 * and contrary also
@@ -112,7 +124,10 @@ public class Tools {
 		try {
 
 			if (mysocket != null) {
-				if (debugMode){System.out.println(this.getClass().toString()+ " closing input/output streams");}
+				if (debugMode) {
+					System.out.println(this.getClass().toString()
+							+ " closing input/output streams");
+				}
 				if (mysocket.isConnected()) {
 					sendMessage(myErrorCode.getMessage("221", ""));
 				}
@@ -160,36 +175,143 @@ public class Tools {
 
 	public List<String> getDirectoryListing(String localDir) {
 
-		String strTemp = null;
+		String size, date, permTypeString, hardlink, user, group;
 		File thisDir = new File(localDir);
 		File[] fileList = thisDir.listFiles();
 		List<String> message = new ArrayList<String>();
 
+		StringBuilder sb;
+
 		if (fileList != null) {
 			for (File atomicFile : fileList) {
-				if (atomicFile.isFile()) {
-					strTemp = "+s" + atomicFile.length() + ",m"
-							+ atomicFile.lastModified() / 1000 + ",\011"
-							+ atomicFile.getName() + "\015\012";
-					// first attempt
-					// strTemp = "\053,r,i" + atomicFile.length() +",\011" +
-					// atomicFile.getName() + "\015\012";
-					message.add(strTemp);
+
+				//FTPFile regex
+				//([bcdelfmpSs-])(((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-]))((r|-)(w|-)([xsStTL-])))\+?\s*(\d+)\s+(?:(\S+(?:\s\S+)*?)\s+)?(?:(\S+(?:\s\S+)*)\s+)?(\d+(?:,\s*\d+)?)\s+((?:\d+[-/]\d+[-/]\d+)|(?:\S{3}\s+\d{1,2})|(?:\d{1,2}\s+\S{3}))\s+(\d+(?::\d+)?)\s+(\S*)(\s*.*)
+				//-rwxrwxrwx 1 user 02 25 2015 9685 000 26 00 Class_server.svg
+				
+				//http://cr.yp.to/ftpparse/ftpparse.c
+				/* UNIX-style listing, without inum and without blocks */
+				/* "-rw-r--r--   1 root     other        531 Jan 29 03:26 README" */
+				/* "dr-xr-xr-x   2 root     other        512 Apr  8  1994 etc" */
+
+				permTypeString = getTypePermString(atomicFile);
+				date = getFileDate(atomicFile);
+				size = String.valueOf(atomicFile.length());
+				try {
+					hardlink = java.nio.file.Files.getAttribute(
+							atomicFile.toPath(), "unix:nlink").toString();
+				} catch (IOException e) {
+					hardlink = "1";
 				}
-				if (atomicFile.isDirectory()) {
-					// first attempt
-					// strTemp ="\053m" + atomicFile.lastModified() +",/,\011" +
-					// atomicFile.getName() + "\015\012";
-					strTemp = "+/,m" + atomicFile.lastModified() / 1000
-							+ ",\011" + atomicFile.getName() + "\015\012";
-					message.add(strTemp);
+
+				try {
+					user = Files.getOwner(atomicFile.toPath()).toString();
+				} catch (IOException e) {
+					user = "unknown";
 				}
+				user = user.length()>8?user.substring(0,7):user;
+				GroupPrincipal groupP;
+				try {
+					groupP = Files.readAttributes(
+							atomicFile.toPath(), PosixFileAttributes.class,
+							LinkOption.NOFOLLOW_LINKS).group();
+					group = groupP.toString();
+				} catch (IOException e) {
+					group="unknown";
+				}
+				group = group.length()>8?group.substring(0,7):group;
+
+				sb = new StringBuilder();
+				sb.append(permTypeString);
+				sb.append(' ');
+				sb.append(hardlink);
+				sb.append(' ');
+				sb.append(user);
+				sb.append(' ');
+				sb.append(group);
+				sb.append(' ');
+				sb.append(size);
+				sb.append(' ');
+				sb.append(date);
+				sb.append(" ");
+				sb.append(atomicFile.getName());
+
+				message.add(sb.toString());
 			}
+
+			/*
+			 * if (atomicFile.isFile()) { strTemp = "+s" + atomicFile.length() +
+			 * ",m" + atomicFile.lastModified() / 1000 + ",\011" +
+			 * atomicFile.getName() + "\015\012";
+			 * 
+			 * // first attempt // strTemp = "\053,r,i" + atomicFile.length()
+			 * +",\011" + // atomicFile.getName() + "\015\012";
+			 * 
+			 * } if (atomicFile.isDirectory()) { // first attempt // strTemp
+			 * ="\053m" + atomicFile.lastModified() +",/,\011" + //
+			 * atomicFile.getName() + "\015\012"; strTemp = "+/,m" +
+			 * atomicFile.lastModified() / 1000 + ",\011" + atomicFile.getName()
+			 * + "\015\012"; message.add(strTemp); }
+			 * 
+			 * }
+			 */
 		}
 		if (message.isEmpty()) {
 			message.add("");
 		}
 		return message;
+	}
+
+	/**
+	 * Return the last modified data as MMM DD YYYY for file older than 6 months
+	 * MM DD YYYY HH:MM for newer ones
+	 * 
+	 * @param thisFile
+	 * @return
+	 */
+	public String getFileDate(File thisFile) {
+
+		DateTime fdate = new DateTime(thisFile.lastModified());
+		Interval inter = new Interval(fdate, new DateTime());
+		DateTimeFormatter fmt;
+
+		// detail for recent files
+		if (inter.contains(fdate)) {
+			fmt = DateTimeFormat.forPattern("MMM dd HH:mm").withLocale(Locale.US);
+		} else {
+			fmt = DateTimeFormat.forPattern("MM dd yyyy").withLocale(Locale.US);
+		}
+		String date = (new DateTime(thisFile.lastModified())).toString(fmt);
+		return date;
+	}
+
+	/**
+	 * return type d for directory, f for file, - for unknown and permissions
+	 * RWX for user, group and others
+	 * 
+	 * @param thisFile
+	 * @return
+	 */
+	public String getTypePermString(File thisFile) {
+		String d = "", r = "", x = "", w = "", rights = "";
+
+		d = thisFile.isDirectory() ? "d" : "-";
+		r = thisFile.canRead() ? "r" : "-";
+		w = thisFile.canWrite() ? "w" : "-";
+		x = thisFile.canExecute() ? "x" : "-";
+
+		/*
+		 * PosixFileAttributes attrs = Files.getFileAttributeView(thisFile,
+		 * PosixFileAttributeView.class).readAttributes(); rights =
+		 * PosixFilePermissions.toString(attrs.permissions());
+		 * java.nio.file.Files.getAttribute(thisFile.toPath(), "unix:");
+		 */
+
+		rights = d;
+		for (int i = 0; i <= 2; i++) {
+			rights += r + w + x;
+		}
+		return rights;
 	}
 
 	/**

@@ -15,18 +15,22 @@
 #set -x
 
 #Location of the JAR File
-location=":~/Documents/S2_CAR/M1S2_CAR/TP1/"
+LOCATION=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/
 # Jar Filename
 JAR="ServerFtp.jar"
 # users homedir
 HDIR="/tmp/homedir"
 DBG="1"
+JAVA=$(which java)
+JAVA="/usr/lib/jvm/java-7-oracle/bin/java"
 
 ## Fonctions
 
 function launchjar(){
-	
-	java -jar ${LOCATION}${JAR} $HDIR $DBG
+
+cmd="$JAVA -jar ${LOCATION}${JAR} $HDIR $DBG"
+echo $cmd
+$($cmd)
 
 }
 
@@ -36,6 +40,8 @@ function createUserDir {
 }
 
 ## Main Start Java Server
+
+echo "!!!!!!!!!!!!"$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"` 
 
 createUserDir
 launchjar
