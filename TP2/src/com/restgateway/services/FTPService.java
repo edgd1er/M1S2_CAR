@@ -2,15 +2,20 @@ package com.restgateway.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.stereotype.Service;
 
+import com.restgateway.exceptions.FileNotFoundException;
 import com.restgateway.service.HTMLGenerator;
 
 @Service
@@ -210,35 +215,28 @@ public class FTPService {
 		return msg;
 	}
 
-	public OutputStream getFile(String ftpHostName, int ftpPort,
+	public Response getFile(String ftpHostName, int ftpPort,
 			String loginName, String passwd,String path, String name) {
 		
-		
-		if (this.getFtpClient()==null){
-			return "Error, you are not logged in. Please login first !";
-		}
-
-		
+				
 		try {
 			ftpClient.connect(ftpHostName, ftpPort);
 		} catch (IOException ex) {
 	
-			return HTMLGenerator.getInstance().getFtpErrorConnectionContent(
-					ex.getMessage());
+			return null;
 		}
 		try {
 			if (ftpClient.login(loginName, passwd)) {
 				String cwd = ftpClient.printWorkingDirectory();
-				ftpClient.retrieveFil
-	
+				 InputStream in = ftpClient.retrieveFileStream(path+name);
+				 Response reponse = Response.ok(in, MediaType.APPLICATION_OCTET_STREAM).build();
 				ftpClient.disconnect();
-				return HTMLGenerator.getInstance().getFileListWith(cwd,
-						dirList, fileList);
+
 			}
 		} catch (IOException ex) {
-			return HTMLGenerator.getInstance().getError(ex.getMessage());
+			return new FileNotFoundException();
 		}
-		return "";
+		return null;
 	}
 
 	// ************************************************************************************************************
