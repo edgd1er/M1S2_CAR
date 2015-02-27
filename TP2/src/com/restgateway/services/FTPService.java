@@ -1,6 +1,8 @@
 package com.restgateway.services;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,6 +173,64 @@ public class FTPService {
 				FTPFile[] fileList = ftpClient.listFiles(cwd);
 				FTPFile[] dirList = ftpClient.listDirectories(cwd);
 
+				ftpClient.disconnect();
+				return HTMLGenerator.getInstance().getFileListWith(cwd,
+						dirList, fileList);
+			}
+		} catch (IOException ex) {
+			return HTMLGenerator.getInstance().getError(ex.getMessage());
+		}
+		return "";
+	}
+
+	/**
+	 * delete a File from the server.
+	 * 
+	 * @param path
+	 * @param file
+	 */
+	public String deleteFile(String path, String file) {
+		String msg="";
+		
+		if (this.getFtpClient()==null){
+			return "Error, you are not logged in. Please login first !";
+			}
+		
+		path =path.endsWith(File.pathSeparator)?path:path+ File.pathSeparator;
+		msg="error, file "+ path + file + " not deleted.";
+		
+		try {
+			if (ftpClient.deleteFile(path+file)){
+				msg="Ok, file "+ path + file + " deleted.";
+			}
+		} catch (IOException e) {
+			msg+=e.getMessage();
+		}
+		
+		return msg;
+	}
+
+	public OutputStream getFile(String ftpHostName, int ftpPort,
+			String loginName, String passwd,String path, String name) {
+		
+		
+		if (this.getFtpClient()==null){
+			return "Error, you are not logged in. Please login first !";
+		}
+
+		
+		try {
+			ftpClient.connect(ftpHostName, ftpPort);
+		} catch (IOException ex) {
+	
+			return HTMLGenerator.getInstance().getFtpErrorConnectionContent(
+					ex.getMessage());
+		}
+		try {
+			if (ftpClient.login(loginName, passwd)) {
+				String cwd = ftpClient.printWorkingDirectory();
+				ftpClient.retrieveFil
+	
 				ftpClient.disconnect();
 				return HTMLGenerator.getInstance().getFileListWith(cwd,
 						dirList, fileList);

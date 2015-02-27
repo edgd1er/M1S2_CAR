@@ -4,10 +4,17 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -137,7 +144,46 @@ public class RestGateway {
 		} catch (IOException ex) {
 			return HTMLGenerator.getInstance().getError(ex.getMessage());
 		}
-		
 	}
+		/**
+		 * FILE GET with Method POST
+		 * 
+		 * Send a file with a post method
+		 * 
+		 * @return String containing HTML content
+		 */
+	@Produces( { MediaType.APPLICATION_OCTET_STREAM  } )
+		@POST
+		public Response  getFile( @Context final UriInfo uriInfo,
+					@FormParam( "cmd" ) final String cmd,
+					@FormParam( "path" ) final String path, 
+					@FormParam( "name" ) final String fname)
+		{
+			if (cmd.equals("get"))
+			{
+				ftpService.getFile(ftpHostName, ftpPort, this.nameStorage.getLogin(), this.nameStorage.getPassword(),path,name,isPASV);
+			return 
+					;
+			}
+		}
+	
+	
+	/**
+	 * Delete with delete method
+	 * 
+	 *
+	 * @param path	pathname of the file.
+	 * @param file	FileName of the file.
+
+	 * @return 
+	 */
+	@Path( "/delete/path/{path}/file/{file}" )
+	@DELETE
+	public Response deletePerson( @PathParam( "path" ) final String path, @PathParam( "file" ) final String file) {
+		ftpService.deleteFile( path ,file );
+		return Response.ok().build();
+
+	}
+	
 	
 }
