@@ -40,7 +40,9 @@ function createUserDir {
 }
 
 ## Main Start Java Server
-
+echo "Copying file for tests"
+cp *.svg ${HDIR}/user/
+mkdir -p ${HDIR}/user/testdir
 echo "!!!!!!!!!!!!"$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"` 
 
 createUserDir

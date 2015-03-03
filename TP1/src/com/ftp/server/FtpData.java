@@ -34,7 +34,7 @@ public class FtpData extends Thread {
 	private String DataAddr;
 	private Integer DataPort;
 	private List<String> aString;
-	private boolean isPASV=true;
+	private boolean isPASV=false;
 	private String commande;
 	private String parametre;
 	private ServerSocket dataSrvSocket;
@@ -334,9 +334,19 @@ public class FtpData extends Thread {
 		// Gestion ASCII / BIN
 		String rep, paramCode, messageLog;
 		int nread = 0, ntotalread = 0;
+		//ASCII
 		OutputStream out = null;
+		FileReader frd = null;
+		BufferedReader brd = null;
+		OutputStreamWriter sow = null;
+		BufferedWriter bwr = null;
+		//Bin
+		FileInputStream fis = null;
+		BufferedInputStream bis = null;
+		DataOutputStream dos = null;
+		BufferedOutputStream bdos = null;
 
-		// TODO Gestion des mode ASCII / BIN
+
 		messageLog = this.getClass().toString() + " StoreFile (Ascii:"
 				+ isASCII + "), commande: " + commande + " " + parametre;
 
@@ -347,41 +357,35 @@ public class FtpData extends Thread {
 			// mode ascii
 			if (isASCII) {
 				// preparation des I/O
-				FileReader frd = new FileReader(parametre);
-				BufferedReader brd = new BufferedReader(frd);
-				OutputStreamWriter sow = new OutputStreamWriter(out);
-				BufferedWriter bwr = new BufferedWriter(sow);
+				frd = new FileReader(parametre);
+				brd = new BufferedReader(frd);
+				sow = new OutputStreamWriter(out);
+				bwr = new BufferedWriter(sow);
 
 				String readString = "";
 				while ((readString = brd.readLine()) != null) {
 					sow.write(readString + "\n");
 					ntotalread += readString.length() + 1;
 				}
-				brd.close();
-				sow.close();
-				frd.close();
-				bwr.close();
+	
 
 			} else
 			// mode binaire
 			{
-				FileInputStream fis = new FileInputStream(parametre);
-				BufferedInputStream bis = new BufferedInputStream(fis);
-				DataOutputStream dos = new DataOutputStream(out);
-				BufferedOutputStream bdos = new BufferedOutputStream(dos);
+				fis = new FileInputStream(parametre);
+				bis = new BufferedInputStream(fis);
+				dos = new DataOutputStream(out);
+				bdos = new BufferedOutputStream(dos);
 
 				byte buf[] = new byte[bufferSize];
 				while ((nread = bis.read(buf)) > 0) {
 					ntotalread += nread;
 					bdos.write(buf, 0, nread);
 				}
-				bdos.close();
-				dos.flush();
-				dos.close();
-				bis.close();
+	
 			}
 
-			datasocket.close();
+			
 			if (dataSrvSocket != null) {
 				dataSrvSocket.close();
 			}
@@ -396,6 +400,7 @@ public class FtpData extends Thread {
 			rep = "550";
 			paramCode = "Fichier non accessible: " + parametre;
 			returnstatus = myErrorCode.getMessage(rep, paramCode);
+			this.KeepRunning=false;
 
 			returnstatus = myErrorCode.getMessage(rep, paramCode);
 		} catch (IOException ioe) {
@@ -403,6 +408,25 @@ public class FtpData extends Thread {
 			paramCode = "Can't Open data connection";
 			returnstatus = myErrorCode.getMessage(rep, paramCode);
 			messageLog += " " + returnstatus;
+			this.KeepRunning=false;
+		}
+		
+		finally{
+			try{
+			if (bdos!=null){bdos.close();}
+			if (dos!=null){dos.flush();}
+			if (dos!=null){dos.close();}
+			if (bis!=null){bis.close();}
+			if (bis!=null){brd.close();}
+			if (sow!=null){sow.close();}
+			if (frd!=null){frd.close();}
+			if (bwr!=null){bwr.close();}
+			datasocket.close();
+			}
+			catch(Exception ex)
+			{
+				
+			}
 		}
 
 		if (debugMode){System.out.println(messageLog);}

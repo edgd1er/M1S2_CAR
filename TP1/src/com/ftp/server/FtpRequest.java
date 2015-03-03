@@ -16,13 +16,15 @@ import com.ftp.tools.ErrorCode;
 import com.ftp.tools.Tools;
 
 /**
- * Main class to handle the control channel. this thread is launched by the server thread. Most of the FTP commands are implemented.
- * @author  Emeline Salomon & François Dubiez
+ * Main class to handle the control channel. this thread is launched by the
+ * server thread. Most of the FTP commands are implemented.
+ * 
+ * @author Emeline Salomon & François Dubiez
  */
 public class FtpRequest extends Thread {
 
 	/**
-	 * client Socket 
+	 * client Socket
 	 */
 	private Socket cltSocketCtrl;
 	/**
@@ -40,7 +42,7 @@ public class FtpRequest extends Thread {
 	private String currentDir = "";
 	private Integer ftpetat;
 	/**
-	 * Keep the thread running or not 
+	 * Keep the thread running or not
 	 */
 	private boolean KeepRunning = true;
 	/**
@@ -57,34 +59,37 @@ public class FtpRequest extends Thread {
 	boolean isPASV = false;
 	/**
 	 * tools class for IO operations (files, sockets).
-	 * @uml.property  name="mytools"
-	 * @uml.associationEnd  
+	 * 
+	 * @uml.property name="mytools"
+	 * @uml.associationEnd
 	 */
 	Tools mytools = null;
 	/**
 	 * Class to retrieve message associated with an FTP errorCode
-	 * @uml.property  name="myErrorCode"
-	 * @uml.associationEnd  
+	 * 
+	 * @uml.property name="myErrorCode"
+	 * @uml.associationEnd
 	 */
-	ErrorCode myErrorCode =null;
+	ErrorCode myErrorCode = null;
 	/**
 	 * Thread for listing directory, sending or receiving data.
-	 * @uml.property  name="myftpData"
-	 * @uml.associationEnd  
+	 * 
+	 * @uml.property name="myftpData"
+	 * @uml.associationEnd
 	 */
 	private FtpData myftpData;
 	/**
 	 * File where credentials are stored
 	 */
-	String TableDesMdps="mdp.txt";
+	String TableDesMdps = "mdp.txt";
 	/**
 	 * Answer Code to FTP command
 	 */
-	String rep=null;
+	String rep = null;
 	/**
 	 * Text to replace in the response texte (PARAM =>"paramCode")
 	 */
-	String paramCode=null;
+	String paramCode = null;
 	/**
 	 * Command and parameter received by server
 	 */
@@ -93,13 +98,13 @@ public class FtpRequest extends Thread {
 	/**
 	 * verbose mode
 	 */
-	boolean debugMode=false;
+	boolean debugMode = false;
 	/**
 	 * InputStream for password File
 	 * 
 	 */
 	InputStream pwdInputStream;
-	
+
 	/**
 	 * Constructeur du thread FTPRequest Ce thread recoit les commandes via le
 	 * canal de controle, traites les operations sauf list, prepare et retrieve
@@ -109,19 +114,19 @@ public class FtpRequest extends Thread {
 	 *            Client socket to handle connection with client.
 	 * @param _tooMAny
 	 *            Maximum number of clients to acccept.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public FtpRequest(Socket _clskt,String _usersRootFolder, boolean _debugMode) {
+	public FtpRequest(Socket _clskt, String _usersRootFolder, boolean _debugMode) {
 		cltSocketCtrl = _clskt;
 		isPASV = false;
 		ftpetat = FtpEtat.FS_WAIT_LOGIN;
-		debugMode= _debugMode;
+		debugMode = _debugMode;
 		myErrorCode = new ErrorCode(debugMode);
-		usersRootFolder= _usersRootFolder;
+		usersRootFolder = _usersRootFolder;
 
 		try {
-			mytools = new Tools(cltSocketCtrl,debugMode);
-			
+			mytools = new Tools(cltSocketCtrl, debugMode);
+
 		} catch (IOException e) {
 			System.err
 					.println("ohoh, seems like the client has disconnected ....");
@@ -138,15 +143,14 @@ public class FtpRequest extends Thread {
 		String messageLog = "";
 		int nbCommandeVide = 0;
 
-
 		messageLog = this.getClass().toString();
-
 
 		if (tooManyClient) {
 			rep = "421";
 			paramCode = " Clients number has reach it limit, please try again later.";
 			try {
-				myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+				myErrorCode
+						.sendCodeMessage(mytools, rep, paramCode, messageLog);
 				killConnection();
 			} catch (Exception e) {
 				// Rien A Faire: cloture de la connection de tt façon.
@@ -190,7 +194,9 @@ public class FtpRequest extends Thread {
 		}
 		// fin de try
 
-		System.out.println("Thread End.("+String.valueOf(this.getThreadGroup().activeGroupCount())+" clients remaining)");
+		System.out.println("Thread End.("
+				+ String.valueOf(this.getThreadGroup().activeGroupCount())
+				+ " clients remaining)");
 	}
 
 	/**
@@ -255,7 +261,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * State 1, USER & QUIT allowed. State 2, USER, QUIT & PASS allowed. State
 	 * 3, All commands allowed.
-	 *
+	 * 
 	 * internal var used: commande, parametre.
 	 */
 
@@ -385,7 +391,9 @@ public class FtpRequest extends Thread {
 			rep = myftpData.getReturnstatus();
 
 			mytools.sendMessage(rep);
-			if (debugMode){System.out.println(messageLog);}
+			if (debugMode) {
+				System.out.println(messageLog);
+			}
 		} else {
 			myErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
 		}
@@ -426,13 +434,14 @@ public class FtpRequest extends Thread {
 				rep = "150";
 				paramCode = "Opening " + parametre
 						+ " en mode data connection.\n";
-				myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+				myErrorCode
+						.sendCodeMessage(mytools, rep, paramCode, messageLog);
 
 				// Envoi des données vers le client
 				// mode sequence
-				 myftpData.run();
+				myftpData.run();
 				// mode thread
-				//myftpData.start();
+				// myftpData.start();
 
 				// attente de la fin du transfert (thread super utile :( )
 				while (myftpData.isAlive()) {
@@ -506,8 +515,8 @@ public class FtpRequest extends Thread {
 		// early return mode
 		HashMap<String, String> usrMap;
 		String rep = "430", paramCode = "";
-		String messageLog = this.getClass().toString() + " USER: " + currentUser
-				+ " PASS: " + parametre;
+		String messageLog = this.getClass().toString() + " USER: "
+				+ currentUser + " PASS: " + parametre;
 
 		// Verification des conditions d'entrées
 		if (!this.commande.toUpperCase().startsWith("PASS")
@@ -537,28 +546,37 @@ public class FtpRequest extends Thread {
 		} else {
 			try {
 				// Chargement de la liste des mdp
-				String myPath ;
+				String myPath;
 				ClassLoader test = this.getClass().getClassLoader();
 				if (debugMode) {
-					 Enumeration<URL> e = test.getResources("");
-				        while (e.hasMoreElements())
-				        {
-				            System.err.println("ClassLoader Resource: " + e.nextElement());
-				        }
-				        System.err.println("Class Resource: " + this.getClass().getResource("/"));
-						myPath = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-						System.err.println("CodeSource location:" + myPath);
+					Enumeration<URL> e = test.getResources("");
+					while (e.hasMoreElements()) {
+						System.err.println("ClassLoader Resource: "
+								+ e.nextElement());
+					}
+					System.err.println("Class Resource: "
+							+ this.getClass().getResource("/"));
+					myPath = this.getClass().getProtectionDomain()
+							.getCodeSource().getLocation().toURI().getPath();
+					System.err.println("CodeSource location:" + myPath);
 				}
-		
+
 				myPath = new File(".").getAbsolutePath().replaceAll(".$", "");
-				if (debugMode) {System.err.println("New File(.) location:" + myPath);}
-				
-				//pwdInputStream = this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
-				pwdInputStream = new FileInputStream(myPath +TableDesMdps);
-				//this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()
-				if (pwdInputStream  ==null){ throw new Exception("Cannot open password file (not found ?)");} 
+				if (debugMode) {
+					System.err.println("New File(.) location:" + myPath);
+				}
+
+				// pwdInputStream =
+				// this.getClass().getClassLoader().getResourceAsStream(TableDesMdps);
+				pwdInputStream = new FileInputStream(myPath + TableDesMdps);
+				// this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()
+				if (pwdInputStream == null) {
+					throw new Exception(
+							"Cannot open password file (not found ?)");
+				}
 				usrMap = mytools.loadPasswordList(pwdInputStream);
-				pwdInputStream.close();;
+				pwdInputStream.close();
+				;
 
 				// verification du login/pwd
 				if (usrMap.containsKey(currentUser)) {
@@ -579,7 +597,8 @@ public class FtpRequest extends Thread {
 				}
 
 				// envoi du resultat au client ftp
-				myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
+				myErrorCode
+						.sendCodeMessage(mytools, rep, paramCode, messageLog);
 
 			} catch (IOException ioe) {
 				System.out.println(messageLog
@@ -595,11 +614,13 @@ public class FtpRequest extends Thread {
 		}
 
 		// Homedir
-		currentDir = (ftpetat == FtpEtat.FS_LOGGED) ? usersRootFolder + File.separator
-				+ currentUser : "";
+		currentDir = (ftpetat == FtpEtat.FS_LOGGED) ? usersRootFolder
+				+ File.separator + currentUser : "";
 		messageLog += " status= " + ftpetat
 				+ "(0=wait_login, 1=wait_pass, 2=logged)";
-		if (debugMode){System.out.println(messageLog);}
+		if (debugMode) {
+			System.out.println(messageLog);
+		}
 
 		if (ftpetat != FtpEtat.FS_LOGGED) {
 			// rien ne va plus, envoi du refus de pass et cloture de la
@@ -671,7 +692,8 @@ public class FtpRequest extends Thread {
 				paramCode = "BINARY transfer mode set.";
 				rep = "200";
 			} else {
-				myErrorCode.sendErrorMessage(mytools, rep, paramCode, messageLog);
+				myErrorCode.sendErrorMessage(mytools, rep, paramCode,
+						messageLog);
 			}
 
 			myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
@@ -923,7 +945,7 @@ public class FtpRequest extends Thread {
 				rep = "550";
 				paramCode = "Error, file " + parametre + " does not exist.";
 			}
-			
+
 		}
 		myErrorCode.sendCodeMessage(mytools, rep, paramCode, messageLog);
 	}
@@ -936,32 +958,34 @@ public class FtpRequest extends Thread {
 		try {
 			KeepRunning = false;
 			currentUser = "Anonymous";
-			if (debugMode){System.out.println(this.getClass().toString()
-					+ " Killing the connection");}
-	
+			if (debugMode) {
+				System.out.println(this.getClass().toString()
+						+ " Killing the connection");
+			}
+
 			mytools.CloseStreams();
 			this.cltSocketCtrl.close();
-	
+
 		} catch (Exception e) {
 			System.err.println(this.getClass().toString()
 					+ " error: requesting connection closure \n");
 			e.printStackTrace();
 		}
-	
+
 	}
 
 	/**
 	 * @param string
-	 * @uml.property  name="commande"
+	 * @uml.property name="commande"
 	 */
 	public void setCommande(String string) {
-		this.commande=string;
-		
+		this.commande = string;
+
 	}
 
 	/**
 	 * @return
-	 * @uml.property  name="rep"
+	 * @uml.property name="rep"
 	 */
 	public Object getRep() {
 		return rep;
@@ -969,7 +993,7 @@ public class FtpRequest extends Thread {
 
 	/**
 	 * @return
-	 * @uml.property  name="paramCode"
+	 * @uml.property name="paramCode"
 	 */
 	public Object getParamCode() {
 		// TODO Auto-generated method stub
