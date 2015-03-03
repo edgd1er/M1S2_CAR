@@ -19,12 +19,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
 import com.restgateway.services.FTPService;
+import com.sun.jersey.core.header.FormDataContentDisposition;
 
 /**
  * FTP Gateway to allow browser to operate as a FTP Client.
@@ -33,7 +31,6 @@ import com.restgateway.services.FTPService;
  * 
  * Based on: * http://localhost:8080/rest/api/helloworld * @author Lionel
  * Seinturier <Lionel.Seinturier@univ-lille1.fr>
-
  */
 
 @Path("/ftp")
@@ -107,13 +104,12 @@ public class RestGateway {
 		// TODO faire un retour via une response
 		return msg;
 	}
-	
-	
+
 	@POST
 	@Path("/loginPost")
 	public String loginToFtpPost(@FormParam("lname") final String loginName,
 			@FormParam("lpass") final String loginPass) throws IOException {
-		
+
 		String msg = "Error, Bad login and/or password. Please try again";
 
 		this.nameStorage.setLogin(loginName);
@@ -132,8 +128,6 @@ public class RestGateway {
 		// TODO faire un retour via une response
 		return msg;
 	}
-	
-	
 
 	@DELETE
 	@Path("/logout")
@@ -160,22 +154,12 @@ public class RestGateway {
 	@GET
 	@Path("/list")
 	@Produces("text/html")
-	public String getFileList() {
-		String cwd = "";
-		FTPClient ftpClient = null;
+	public Response getFileList(@QueryParam("path") String path) {
 
-		// TODO remettre la generation de la liste dans FTPService.
-		try {
-			cwd = ftpService.loginToFtp(ftpHostName, ftpPort,
-					this.nameStorage.getLogin(),
-					this.nameStorage.getPassword(), isPASV);
-			ftpClient = ftpService.getFtpClient();
-			FTPFile[] fileList = ftpClient.listFiles(cwd);
-			ftpClient.disconnect();
-			return HTMLGenerator.getInstance().getFileListWith(cwd, fileList);
-		} catch (IOException ex) {
-			return HTMLGenerator.getInstance().getError(ex.getMessage());
-		}
+		return ftpService.getFileList(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				path, isPASV);
+
 	}
 
 	/**
@@ -199,20 +183,18 @@ public class RestGateway {
 				"", fname, isPASV);
 		return response;
 	}
-	
+
 	@GET
 	@Path("/getfile")
 	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
 	public Response getFile(@Context final UriInfo uriInfo,
-			@QueryParam("file") String fname,
-			@QueryParam("path") String path) {
+			@QueryParam("file") String fname, @QueryParam("path") String path) {
 		Response response = null; // Response.noContent().build();
 		response = ftpService.getFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-			path, fname, isPASV);
+				path, fname, isPASV);
 		return response;
 	}
-
 
 	// *********************************************************
 
@@ -223,7 +205,6 @@ public class RestGateway {
 		return HTMLGenerator.getInstance().getUploadContent();
 	}
 
-	
 	@GET
 	@Path("/LoginForm")
 	@Produces("text/html")
@@ -231,7 +212,6 @@ public class RestGateway {
 		return HTMLGenerator.getInstance().getLoginFormContent();
 	}
 
-	
 	/**
 	 * File Upoad through a request with POST Method
 	 * 
@@ -243,17 +223,17 @@ public class RestGateway {
 	 * @return Octet-Stream containing the file.
 	 * 
 	 */
-	
+
 	@POST
 	@Path("/uploadfile")
-	@Consumes({MediaType.MULTIPART_FORM_DATA})
+	@Consumes({ MediaType.MULTIPART_FORM_DATA })
 	public Response uploadtFile(@FormParam("file") InputStream file,
 			@FormParam("file") FormDataContentDisposition fileDetail,
 			@PathParam("path") String path) {
 		Response response = null;
 		response = ftpService.putFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				path, fileDetail.getFileName(),file, isPASV);
+				path, fileDetail.getFileName(), file, isPASV);
 		return response;
 	}
 
@@ -269,7 +249,9 @@ public class RestGateway {
 	@Path("/delete/{file}")
 	@DELETE
 	public Response deleteFile(@PathParam("file") final String file) {
-		Response res= ftpService.deleteFile(ftpHostName,ftpPort,this.nameStorage.getLogin(), this.nameStorage.getPassword(),"", file);
+		Response res = ftpService.deleteFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", file);
 		return res;
 
 	}
@@ -289,7 +271,9 @@ public class RestGateway {
 	@GET
 	public Response deleteFile(@QueryParam("path") final String path,
 			@QueryParam("file") final String file) {
-		ftpService.deleteFile(ftpHostName,ftpPort,this.nameStorage.getLogin(), this.nameStorage.getPassword(),path, file);
+		ftpService.deleteFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				path, file);
 		return Response.ok().build();
 
 	}

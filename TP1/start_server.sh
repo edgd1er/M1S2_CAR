@@ -30,7 +30,7 @@ function launchjar(){
 
 cmd="$JAVA -jar ${LOCATION}${JAR} $HDIR $DBG"
 echo $cmd
-$($cmd)
+$cmd
 
 }
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.restgateway.exceptions.FTPClientNotFound;
 import com.restgateway.exceptions.FileNotFoundException;
+import com.restgateway.exceptions.IncorrectPathException;
 import com.restgateway.exceptions.NoLoginPasswordException;
 import com.restgateway.service.HTMLGenerator;
 
@@ -72,7 +73,6 @@ public class FTPService {
 		return myreturn;
 	}
 
-	
 	/**
 	 * Public method to login in FTP server
 	 * 
@@ -98,7 +98,8 @@ public class FTPService {
 				res = this.getFtpClient().printWorkingDirectory();
 			}
 			if (isPASV) {
-				ftpClient.enterLocalPassiveMode();}
+				ftpClient.enterLocalPassiveMode();
+			}
 			return HTMLGenerator.getInstance().getFTPLoggedContent(res);
 
 		} catch (SocketException sex) {
@@ -123,16 +124,18 @@ public class FTPService {
 	 * @return welcome message from Server
 	 */
 	public String listFiles(String ftpHostName, int ftpPort, String login,
-			String passwd, boolean isPASV) {
+			String passwd, String path, boolean isPASV) {
 
 		String res = "";
 
 		try {
 			if (intloginToFtp(this.ftpClient, ftpHostName, ftpPort, login,
 					passwd, isPASV)) {
-				FTPFile[] files = this.ftpClient.listFiles();
-				FTPFile[] dirs = this.ftpClient.listDirectories();
 				String cwd = this.ftpClient.printWorkingDirectory();
+				path = path.length() > 0 ? checkPath(path) : cwd;
+				this.ftpClient.changeWorkingDirectory(path);
+				FTPFile[] files = this.ftpClient.listFiles();
+
 				this.ftpClient.disconnect();
 				res = HTMLGenerator.getInstance().getFileListWith(cwd, files);
 			} else {
@@ -151,34 +154,40 @@ public class FTPService {
 		}
 	}
 
-	public String getFileList(String ftpHostName, int ftpPort,
-			String loginName, String passwd, boolean isPASV) {
-		FTPClient ftpClient = new FTPClient();
+	public Response getFileList(String ftpHostName, int ftpPort,
+			String loginName, String passwd, String path, boolean isPASV) {
 
+		Response response = null;
+		path =checkPath(path);
 		try {
-			ftpClient.connect(ftpHostName, ftpPort);
-		} catch (IOException ex) {
-
-			return HTMLGenerator.getInstance().getFtpErrorConnectionContent(
-					ex.getMessage());
-		}
-		try {
-			if (ftpClient.login(loginName, passwd)) {
-				if (isPASV) {
-					ftpClient.enterLocalPassiveMode();
+			if (checkClient()) {
+				ftpClient.connect(ftpHostName, ftpPort);
+				if (ftpClient.login(loginName, passwd)) {
+					if (isPASV) {
+						ftpClient.enterLocalPassiveMode();
+					}
+					ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+					if (path.length() > 0) {
+						ftpClient.changeWorkingDirectory(path);
+					} else {
+						path=ftpClient.printWorkingDirectory();
 				}
-				String cwd = ftpClient.printWorkingDirectory();
-				ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-				FTPFile[] fileList = ftpClient.listFiles(cwd);
-				FTPFile[] dirList = ftpClient.listDirectories(cwd);
-
-				ftpClient.disconnect();
-				return HTMLGenerator.getInstance().getFileListWith(cwd,fileList);
+					FTPFile[] fileList = ftpClient.listFiles(path);
+					response = Response.ok(HTMLGenerator.getInstance().getFileListWith(path, fileList)).build();
+				}
+				disconnectClient();
 			}
 		} catch (IOException ex) {
-			return HTMLGenerator.getInstance().getError(ex.getMessage());
+			return Response
+					.status(Status.NOT_FOUND)
+					.entity(HTMLGenerator.getInstance().getError(
+							ex.getMessage())).build();
+		} catch (FTPClientNotFound | IncorrectPathException
+				| NoLoginPasswordException e) {
+			return e.getResponse();
 		}
-		return "";
+		return response;
+
 	}
 
 	/**
@@ -199,7 +208,7 @@ public class FTPService {
 		String msg = "Error, user not logged in. Please log before";
 		Response response = Response.status(Status.PRECONDITION_FAILED)
 				.entity(msg).build();
-		path =checkPath(path);
+		path = checkPath(path);
 		try {
 			if (checkClient()) {
 				ftpClient.connect(ftpHostName, ftpPort);
@@ -210,11 +219,16 @@ public class FTPService {
 					ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 					ftpClient.changeWorkingDirectory(path);
 					InputStream in = ftpClient.retrieveFileStream(name);
-					response = Response.ok(in,MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition", "attachment; filename=\""+name+"\"").build();
-					
+					response = Response
+							.ok(in, MediaType.APPLICATION_OCTET_STREAM)
+							.header("Content-Disposition",
+									"attachment; filename=\"" + name + "\"")
+							.build();
+
 					if (!ftpClient.completePendingCommand()
 							|| ftpClient.getReplyCode() != 226) {
-						response = new FileNotFoundException(ftpClient.getReplyString() +path + name)
+						response = new FileNotFoundException(
+								ftpClient.getReplyString() + path + name)
 								.getResponse();
 					} else {
 					}
@@ -235,7 +249,7 @@ public class FTPService {
 	public Response putFile(String ftpHostName, int ftpPort, String login,
 			String password, String remotePath, String fname, InputStream in,
 			boolean isPASV) {
-			Response response =null;
+		Response response = null;
 		try {
 			if (checkClient()) {
 				ftpClient.connect(ftpHostName, ftpPort);
@@ -267,7 +281,8 @@ public class FTPService {
 				}
 			}
 		} catch (IOException ex) {
-			response = new FileNotFoundException(remotePath+ fname).getResponse();
+			response = new FileNotFoundException(remotePath + fname)
+					.getResponse();
 		} catch (FTPClientNotFound ex) {
 			response = new FTPClientNotFound().getResponse();
 		}
@@ -287,7 +302,6 @@ public class FTPService {
 		try {
 			if (checkClient()) {
 
-				
 				path = checkPath(path);
 				msg = "error, file " + path + file + " not deleted.";
 
@@ -295,7 +309,7 @@ public class FTPService {
 				ftpClient.changeWorkingDirectory(path);
 				if (ftpClient.login(login, password)) {
 					if (ftpClient.deleteFile(file)) {
-						msg = "Ok, file " +path + file+ " deleted.";
+						msg = "Ok, file " + path + file + " deleted.";
 					}
 				}
 			}
@@ -311,12 +325,42 @@ public class FTPService {
 
 	}
 
+	public boolean changeWorkingDirectory(String ftpHostName, int ftpPort,
+			String login, String password, String path, String file) {
+		String msg = "Error, user not logged in. Please log before";
+		try {
+			if (checkClient()) {
+				path = checkPath(path);
+				msg = "error, file " + path + " not changed.";
+
+				ftpClient.connect(ftpHostName, ftpPort);
+				if (ftpClient.changeWorkingDirectory(path)) {
+					return true;
+				} else {
+					throw new IncorrectPathException(ftpClient.getReplyString());
+				}
+			}
+		} catch (IOException | FTPClientNotFound e) {
+			msg += e.getMessage();
+			throw new FTPClientNotFound();
+		} catch (IncorrectPathException e) {
+			msg = e.getMessage();
+			throw new IncorrectPathException(msg);
+		} catch (NoLoginPasswordException e) {
+			msg += e.getMessage();
+			throw new NoLoginPasswordException();
+		}
+		return false;
+
+	}
+
 	private String checkPath(String path) {
-		String properPath= path;
+		String properPath = "";
+		if (path ==null){return properPath;}
 		if (path.length() > 0) {
-			path = path.endsWith(File.separator) ? path : path
-					+ File.separator;
-			path = path.startsWith(File.separator) ? path : File.separator+ path;
+			path = path.endsWith(File.separator) ? path : path + File.separator;
+			path = path.startsWith(File.separator) ? path : File.separator
+					+ path;
 			properPath = path;
 		}
 		return properPath;

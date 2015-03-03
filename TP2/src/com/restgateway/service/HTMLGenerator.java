@@ -31,7 +31,8 @@ public class HTMLGenerator {
 	 */
 	public String getFileListWith(String cwd, FTPFile[] fileList) {
 
-		String html = "<html><body><h1>" + getPathCD(cwd) + "</h1><div id=\"corps\">";
+		String html = "<html><body><h1>" + getPathCD(cwd)
+				+ "</h1><div id=\"corps\">";
 		for (FTPFile myfile : fileList) {
 			html += this.getFnameAndLink(cwd, myfile);
 		}
@@ -41,13 +42,16 @@ public class HTMLGenerator {
 
 	private String getPathCD(String cwd) {
 		String[] aString = cwd.split(File.separator);
-		String html="", iterPath="";
+		String html = "", iterPath = "";
 
-		html+="<a href=\""+path + "moveto?path=/> / </a> ";
-		for (String str : aString){
-			iterPath+="/"+str;
-			html+="<a href=\""+path + "moveto?path="+iterPath.substring(1)+"\">/"+str+"</a> ";
-			
+		html += "<a href=\"" + path + "list?path=%2F\">/ </a>";
+		for (String str : aString) {
+			if (!str.equals("")) {
+				iterPath += "%2F" + str;
+				html += "<a href=\"" + path + "list?path="
+						+ iterPath + "\">/" + str + "</a> ";
+			}
+
 		}
 		return html;
 	}
@@ -57,29 +61,27 @@ public class HTMLGenerator {
 		if (file.isDirectory())
 			tmp += "<img src=\"http://agingparentsauthority.com/wp-content/plugins/sem-theme-pro/icons/folder.png\" alt=\"[ ]\" /> <a href='"
 					+ path
-					+ "/moveTo?cd="
-					+ cwd
-					+ "/"
+					+ "list?path="
+					+ cwd.replace("/", "%2F")
+					+ "%2F"
 					+ file.getName()
-					+ "'>" + file.getName() + "</a></br>\n";
+					+ "'>"
+					+ file.getName() + "</a></br>\n";
 		if (file.isFile()) {
 			tmp += "<img src=\"http://png.findicons.com/files/icons/2015/24x24_free_application/24/new_document.png\" alt=\"[ ]\" /> "
 					+ "<a href=\""
 					+ path
 					+ "delete?path="
-					+ cwd
-					+ "/&file="
+					+ cwd.replace("/", "%2F")
+					+ "&file="
 					+ file.getName()
 					+ "\"><img src=\"http://findicons.com/files/icons/2139/uidesign/16/delete.png\" /></a> "
 					+ "<a href=\""
 					+ path
-					+ "getfile?path="					
-					+ cwd
-					+ "&file=" 
-					+ file.getName()
-					+ "\">"
-					+ file.getName()
-					+ "</a></br>";
+					+ "getfile?path="
+					+ cwd.replace("/", "%2F")
+					+ "&file="
+					+ file.getName() + "\">" + file.getName() + "</a></br>";
 		}
 		return tmp;
 	}
@@ -156,7 +158,8 @@ public class HTMLGenerator {
 					+ cwd
 					+ "/"
 					+ file.getName()
-					+ "'>" + file.getName() + "</a></br>\n";
+					+ "'>"
+					+ file.getName() + "</a></br>\n";
 		if (file.isFile()) {
 			tmp += "<img src=\"http://www.appropedia.org/skins/vector/images/file-icon.png\" alt=\"[ ]\" /> "
 					+ "<a href=\""
