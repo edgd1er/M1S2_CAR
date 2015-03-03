@@ -1,4 +1,4 @@
-package com.restgateway.service;
+package com.restgateway.services;
 
 import java.io.File;
 
@@ -31,25 +31,25 @@ public class HTMLGenerator {
 	 */
 	public String getFileListWith(String cwd, FTPFile[] fileList) {
 
-		String html = "<html><body><h1>" + getPathCD(cwd)
+		String html = "<html>"+getCssContent()+"<body><h1>" + getPathCD(cwd)
 				+ "</h1><div id=\"corps\">";
 		for (FTPFile myfile : fileList) {
 			html += this.getFnameAndLink(cwd, myfile);
 		}
 
-		return html += "</body></html>";
+		return html += getUpLoadButton(cwd)+getLogoutButton()+"</body></html>";
 	}
 
 	private String getPathCD(String cwd) {
 		String[] aString = cwd.split(File.separator);
 		String html = "", iterPath = "";
 
-		html += "<a href=\"" + path + "list?path=%2F\">/ </a>";
+		html += "<a href=\"" + path + "list?path=%2F\">/</a>";
 		for (String str : aString) {
 			if (!str.equals("")) {
 				iterPath += "%2F" + str;
 				html += "<a href=\"" + path + "list?path="
-						+ iterPath + "\">/" + str + "</a> ";
+						+ iterPath + "\">" + str + "</a>/";
 			}
 
 		}
@@ -88,115 +88,21 @@ public class HTMLGenerator {
 
 	public String getLogoutButton() {
 		return "<a class=\"btn btn-primary btn-large\" href=\"" + path
-				+ "/logout\">Logout </a>";
+				+ "logout\">Logout </a>";
 	}
 
 	public String getUpLoadButton(String cwd) {
-		return "<a href=\"" + path + "resources/store" + cwd + "\">Upload</a>";
+		return "<a href=\"" + path + "getUpLoadForm\">Upload</a>";
 	}
 
 	/******************************************************
 	 * Inner tools
 	 */
 
-	/***
-	 * return an simple string containing the list of fileList.
-	 * 
-	 * 
-	 * @param fileList
-	 *            list of Files
-	 * @return String containing HTML part containing href link for download
-	 *         files and browse directory
-	 */
-	private String processFileStringList(String cwd, FTPFile[] dirList,
-			FTPFile[] fileList) {
-		String tmp = "\n";
-		tmp += cwd + "\n DirList\n";
-		for (FTPFile fTPFile : dirList) {
-			tmp += fTPFile.getName() + "\n";
-		}
-		tmp += "\n File List";
 
-		for (FTPFile fTPFile : fileList) {
-			tmp += fTPFile.getName() + "\n";
-		}
-		return tmp + "\n";
-	}
+	
 
-	/***
-	 * return an HTML generated code for list.
-	 * 
-	 * 
-	 * @param fileList
-	 *            list of Files
-	 * @return String containing HTML part containing href link for download
-	 *         files and browse directory
-	 */
-	private String processFileList(String cwd, FTPFile[] fileList) {
-		String tmp = "\n";
-		tmp += this.getLinkForParentDirectory(cwd);
-		for (FTPFile fTPFile : fileList) {
-			tmp += this.getLinkForFileName(cwd, fTPFile);
-		}
-		return tmp + "\n";
-	}
-
-	/**
-	 * This method return HTML source code than provide user to browse files, or
-	 * retrive one
-	 * 
-	 * @param file
-	 *            list of Files
-	 * @return String containing HTML part containing href link
-	 */
-	private String getLinkForFileName(String cwd, FTPFile file) {
-		String tmp = "";
-		if (file.isDirectory())
-			tmp += "<img src=\"http://agingparentsauthority.com/wp-content/plugins/sem-theme-pro/icons/folder.png\" alt=\"[ ]\" /> <a href='"
-					+ path
-					+ "/file"
-					+ cwd
-					+ "/"
-					+ file.getName()
-					+ "'>"
-					+ file.getName() + "</a></br>\n";
-		if (file.isFile()) {
-			tmp += "<img src=\"http://www.appropedia.org/skins/vector/images/file-icon.png\" alt=\"[ ]\" /> "
-					+ "<a href=\""
-					+ path
-					+ "/resources/file/"
-					+ cwd
-					+ "/delete/"
-					+ file.getName()
-					+ "\"><img src=\" \" /></a> "
-					+ "<a href=\""
-					+ path
-					+ "/resources/file/"
-					+ cwd
-					+ "/download/"
-					+ file.getName()
-					+ "\">"
-					+ file.getName()
-					+ "</a></br>";
-		}
-		return tmp;
-	}
-
-	/**
-	 * This method return HTML source code than provide cdup ability to the user
-	 * 
-	 * @return String containing HTML link for cdup dir
-	 */
-	private String getLinkForParentDirectory(String cwd) {
-		String[] split = cwd.split("/");
-		String parent = "";
-		for (int i = 0; i < split.length - 1; i++) {
-			parent += split[i] + "/";
-		}
-		return "<a href='" + path + "/resources/file/" + parent
-				+ "'>Parent directory</a></br>\n";
-	}
-
+	
 	// *******************************************************************************************************
 	// *******************************************************************************************************
 	// FTP ERROR HANDLING
@@ -230,8 +136,8 @@ public class HTMLGenerator {
 	}
 
 	public Response getUploadContent() {
-		String html = "<html><body><h1>JAX-RS Upload Form</h1>";
-		html += "<form action=\"uploadfile/\" method=\"post\" enctype=\"multipart/form-data\">";
+		String html = "<html>"+getCssContent()+"<body><h1>JAX-RS Upload Form</h1>";
+		html += "<form action=\"uploadfile\" method=\"post\" enctype=\"multipart/form-data\">";
 		html += "<p>";
 		html += "Select a file : <input type=\"file\" name=\"uploadedFile\" size=\"50\" />";
 		html += "</p>";
@@ -243,14 +149,14 @@ public class HTMLGenerator {
 	}
 
 	public Response getLoginFormContent() {
-		String html = "<%@page contentType=\"text/html\" pageEncoding=\"UTF-8\"%>";
-		html += "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"";
+		String html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"";
 		html += "\"http://www.w3.org/TR/html4/loose.dtd\">";
 		html += "<html>";
 		html += "<head>";
 		html += "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">";
 		html += "<title>FTP Login</title>";
 		html += "</head>";
+		html += getCssContent();
 		html += "<body>";
 		html += "<section class=\"loginform cf\">";
 		html += "<form name=\"login\" action=\"loginPost\" method=\"post\" accept-charset=\"utf-8\">";
@@ -273,4 +179,85 @@ public class HTMLGenerator {
 		return Response.ok(html, MediaType.TEXT_HTML).build();
 	}
 
+	 /**
+	* Return default CSS content for HTML pages
+	* @return String containing CSS content
+	*/
+	public String getCssContent(){
+	return "<style type=\"text/css\">\n" +
+	" \n" +
+	"html {\n" +
+	" background: url('http://zinzinzibidi.com/Areas/web_tasarim/Content/img/background-sample.png');\n" +
+	" font-size: 10pt;\n" +
+	"}\n" +
+	"label {\n" +
+	" display: block;\n" +
+	" color: #fff;\n" +
+	"}\n" +
+	":focus {\n" +
+		" outline: 0;\n" +
+		"}\n" +
+		".loginform {\n" +
+		" width: 410px;\n" +
+		" margin: 50px auto;\n" +
+		" padding: 25px;\n" +
+		" background-color: rgba(250,250,250,0.5);\n" +
+		" border-radius: 5px;\n" +
+		" box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2), \n" +
+		" inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5);\n" +
+		" border: 1px solid rgba(0, 0, 0, 0.3);\n" +
+		"}\n" +
+		".loginform ul {\n" +
+		" padding: 0;\n" +
+		" margin: 0;\n" +
+		"}\n" +
+		".loginform li {\n" +
+		" display: inline;\n" +
+		" float: left;\n" +
+		"}\n" +
+		".loginform input:not([type=submit]) {\n" +
+		" padding: 5px;\n" +
+		" margin-right: 10px;\n" +
+		" border: 1px solid rgba(0, 0, 0, 0.3);\n" +
+		" border-radius: 3px;\n" +
+		" box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1), \n" +
+		" 0px 1px 0px 0px rgba(250, 250, 250, 0.5) ;\n" +
+		"}\n" +
+		".loginform input[type=submit] {\n" +
+		" border: 1px solid rgba(0, 0, 0, 0.3);\n" +
+		" background: #64c8ef; /* Old browsers */\n" +
+		" background: -moz-linear-gradient(top, #64c8ef 0%, #00a2e2 100%); /* FF3.6+ */\n" +
+		" background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#64c8ef), color-stop(100%,#00a2e2)); /* Chrome,Safari4+ */\n" +
+		" background: -webkit-linear-gradient(top, #64c8ef 0%,#00a2e2 100%); /* Chrome10+,Safari5.1+ */\n" +
+		" background: -o-linear-gradient(top, #64c8ef 0%,#00a2e2 100%); /* Opera 11.10+ */\n" +
+		" background: -ms-linear-gradient(top, #64c8ef 0%,#00a2e2 100%); /* IE10+ */\n" +
+		" background: linear-gradient(to bottom, #64c8ef 0%,#00a2e2 100%); /* W3C */\n" +
+		" filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#64c8ef', endColorstr='#00a2e2',GradientType=0 ); /* IE6-9 */\n" +
+		" color: #fff;\n" +
+		" padding: 5px 15px;\n" +
+		" margin-right: 0;\n" +
+		" margin-top: 15px;\n" +
+		" border-radius: 3px;\n" +
+		" text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);\n" +
+		"}\n" +
+		"\n" +
+		"\n" +
+		"article,\n" +
+		"aside,\n" +
+		"details,\n" +
+		"figcaption,\n" +
+		"figure,\n" +
+		"footer,\n" +
+		"header,\n" +
+		"hgroup,\n" +
+		"nav,\n" +
+		"section,\n" +
+		"summary {\n" +
+		" display: block;\n" +
+		"}\n" 
+		 +
+		 " </style>";
+
+	}
+	
 }

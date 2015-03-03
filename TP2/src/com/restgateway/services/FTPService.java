@@ -20,7 +20,7 @@ import com.restgateway.exceptions.FTPClientNotFound;
 import com.restgateway.exceptions.FileNotFoundException;
 import com.restgateway.exceptions.IncorrectPathException;
 import com.restgateway.exceptions.NoLoginPasswordException;
-import com.restgateway.service.HTMLGenerator;
+import com.restgateway.services.HTMLGenerator;
 
 @Service
 public class FTPService {
@@ -246,10 +246,11 @@ public class FTPService {
 		return response;
 	}
 
-	public Response putFile(String ftpHostName, int ftpPort, String login,
+	public Response postFile(String ftpHostName, int ftpPort, String login,
 			String password, String remotePath, String fname, InputStream in,
 			boolean isPASV) {
 		Response response = null;
+		remotePath=checkPath(remotePath);
 		try {
 			if (checkClient()) {
 				ftpClient.connect(ftpHostName, ftpPort);
@@ -319,7 +320,7 @@ public class FTPService {
 		}
 
 		if (msg.toLowerCase().contains("error")) {
-			return Response.status(Status.CONFLICT).entity(msg).build();
+			return Response.status(Status.ACCEPTED).entity(msg).build();
 		}
 		return Response.status(Status.OK).entity(msg).build();
 
@@ -421,7 +422,9 @@ public class FTPService {
 	 */
 	public void disconnectClient() {
 		try {
-			this.getFtpClient().disconnect();
+			if (this.getFtpClient()!=null){
+				this.getFtpClient().disconnect();
+				}
 		} catch (IOException e) {
 			// nothing to be done
 		}

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -17,12 +19,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.net.ftp.FTPClient;
 
+import com.restgateway.exceptions.NoLoginPasswordException;
+import com.restgateway.services.Credentials;
 import com.restgateway.services.FTPService;
+import com.restgateway.services.HTMLGenerator;
 import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * FTP Gateway to allow browser to operate as a FTP Client.
@@ -32,7 +38,6 @@ import com.sun.jersey.core.header.FormDataContentDisposition;
  * Based on: * http://localhost:8080/rest/api/helloworld * @author Lionel
  * Seinturier <Lionel.Seinturier@univ-lille1.fr>
  */
-
 @Path("/ftp")
 public class RestGateway {
 	@Inject
@@ -49,44 +54,68 @@ public class RestGateway {
 	 */
 	private static boolean isPASV = true;
 
-	// private static String ftpHostName = "ftps.fil.univ-lille1.fr";
-	// private static int ftpPort = 21;
-
+	/**
+	 * Welcome message from the Rest gateway to validate effectiveness of
+	 * request processing
+	 * 
+	 * @return a Html page saying "This is a gateway to reach ...."
+	 */
 	@GET
 	@Produces("text/html")
-	public String sayHello() {
-		String msg = "<h1>This is Web gateway to reach a FTP Server "
-				+ ftpHostName + ":" + String.valueOf(ftpPort) + "</h1>";
+	public Response sayHello() {
+		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
+				+ "<body><h1>" + "This is Web gateway to reach a FTP Server "
+				+ ftpHostName + ":" + String.valueOf(ftpPort)
+				+ "</h1></body></html>";
 
-		return msg;
+		return Response.ok().entity(msg).build();
 	}
 
 	// ************************************************************************
 	// login / logout
 	// ************************************************************************
-
+	/**
+	 * Welcome message from the FTP server to validate effectiveness of
+	 * communication with the FTP server.
+	 * 
+	 * @return 
+	 *         "220 Service ready for new user on 127.0.0.1.. login using the USER command."
+	 * 
+	 */
 	@GET
 	@Path("/welcome")
-	public String welcomeFtp() {
-		String msg = "";
+	public Response welcomeFtp() {
+		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
+				+ "<body><h1>";
 		if (ftpService.getFtpClient() == null) {
 			ftpService.setFtpClient(new FTPClient());
 		}
 		List<String> ret = ftpService.getWelcomeMsg(ftpHostName, ftpPort,
 				isPASV);
+
 		for (String tmp : ret) {
 			msg += tmp + "\n";
 		}
-
-		// TODO faire un retour via une response
-		return msg;
+		msg += "</h1></body></html>";
+		return Response.ok().entity(msg).build();
 	}
 
+	/**
+	 * login to ftp server with a http get method.
+	 * 
+	 * @param loginName
+	 * @param loginPass
+	 * @return current working directory or ftp error
+	 * @throws IOException
+	 */
 	@GET
 	@Path("/login/{lname}/password/{lpass}")
-	public String loginToFtp(@PathParam("lname") final String loginName,
-			@PathParam("lpass") final String loginPass) throws IOException {
-		String msg = "Error, Bad login and/or password. Please try again";
+	public Response loginToFtp(@PathParam("lname") final String loginName,
+			@PathParam("lpass") final String loginPass,
+			@Context HttpServletRequest request,
+			@Context HttpServletResponse response) throws IOException {
+		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
+				+ "<body><h1>";
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);
@@ -99,39 +128,70 @@ public class RestGateway {
 		if (msg.toLowerCase().contains("error")) {
 			this.nameStorage.setLogin("");
 			this.nameStorage.setPassword("");
-
+			return new NoLoginPasswordException().getResponse();
 		}
-		// TODO faire un retour via une response
-		return msg;
+
+		String contextPath = request.getContextPath();
+		response.sendRedirect(contextPath + "/api/ftp/list");
+		return Response.status(Status.ACCEPTED).build();
+
 	}
 
+	/**
+	 * login to ftp server with a http post method (From login Form) .
+	 * 
+	 * @param lName
+	 * @param lpass
+	 * @param request
+	 *            get HttpServletRequest in order to manipulate refresh page
+	 * @param response
+	 *            get HttpServletResponse in order to manipulate refresh page
+	 * @return current working directory or ftp error
+	 * @throws IOException
+	 */
 	@POST
 	@Path("/loginPost")
-	public String loginToFtpPost(@FormParam("lname") final String loginName,
-			@FormParam("lpass") final String loginPass) throws IOException {
+	public Response loginToFtpPost(@FormParam("lname") final String loginName,
+			@FormParam("lpass") final String loginPass,
+			@Context HttpServletRequest request,
+			@Context HttpServletResponse response) throws IOException {
 
-		String msg = "Error, Bad login and/or password. Please try again";
+		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
+				+ "<body><h1>";
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);
 
-		msg = ftpService.loginToFtp(ftpHostName, ftpPort,
+		msg += ftpService.loginToFtp(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				isPASV);
+
 		ftpService.disconnectClient();
 
 		if (msg.toLowerCase().contains("error")) {
 			this.nameStorage.setLogin("");
 			this.nameStorage.setPassword("");
-
+			return new NoLoginPasswordException().getResponse();
 		}
-		// TODO faire un retour via une response
-		return msg;
+		String contextPath = request.getContextPath();
+		response.sendRedirect(contextPath + "/api/ftp/list");
+		return Response.status(Status.ACCEPTED).build();
 	}
 
+	/**
+	 * Login out from FTP server with http delete method
+	 * 
+	 * @param request
+	 *            get HttpServletRequest in order to manipulate refresh page
+	 * @param response
+	 *            get HttpServletResponse in order to manipulate refresh page
+	 * @return html page to login.
+	 * @throws IOException
+	 */
 	@DELETE
 	@Path("/logout")
-	public String logout() throws IOException {
+	public Response logout(@Context HttpServletRequest request,
+			@Context HttpServletResponse response) throws IOException {
 
 		this.nameStorage.setLogin("");
 		this.nameStorage.setPassword("");
@@ -139,17 +199,47 @@ public class RestGateway {
 		ftpService.disconnectClient();
 		ftpService.setFtpClient(null);
 
-		// TODO faire un retour via une response
-		return "204";
+		String contextPath = request.getContextPath();
+		response.sendRedirect(contextPath + "/api/ftp/LoginForm");
+		return Response.status(Status.ACCEPTED).build();
 	}
 
 	/**
-	 * LIST PART
+	 * Login out from FTP server with http get method more suitable to use with
+	 * a browser.
+	 * 
+	 * @param request
+	 *            get HttpServletRequest in order to manipulate refresh page
+	 * @param response
+	 *            get HttpServletResponse in order to manipulate refresh page
+	 * @return html page to login.
+	 * @throws IOException
+	 */
+	@GET
+	@Path("/logout")
+	public Response logoutGet(@Context HttpServletRequest request,
+			@Context HttpServletResponse response) throws IOException {
+
+		this.nameStorage.setLogin("");
+		this.nameStorage.setPassword("");
+
+		ftpService.disconnectClient();
+		ftpService.setFtpClient(null);
+
+		String contextPath = request.getContextPath();
+		response.sendRedirect(contextPath + "/api/ftp/LoginForm");
+		return Response.status(Status.ACCEPTED).build();
+	}
+
+	/**
+	 * LIST PART with http Get Method
 	 * 
 	 * GetFileList return the root file list directory of the server This is the
 	 * default behavior when you get file/ without any parameter
 	 * 
+	 * @param path
 	 * @return String containing HTML content
+	 * 
 	 */
 	@GET
 	@Path("/list")
@@ -159,7 +249,6 @@ public class RestGateway {
 		return ftpService.getFileList(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				path, isPASV);
-
 	}
 
 	/**
@@ -168,36 +257,48 @@ public class RestGateway {
 	 * Filename is the only parameter accepted due to limitation of a GET
 	 * parameters (not suitable for path)
 	 * 
-	 * 
+	 * @param fname
+	 *            Filename of the file to retrieve
 	 * @return Response containing OCTET Stream
 	 */
-
 	@GET
 	@Path("/getfile/{file}")
 	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response getFile(@Context final UriInfo uriInfo,
-			@PathParam("file") String fname) {
-		Response response = null; // Response.noContent().build();
-		response = ftpService.getFile(ftpHostName, ftpPort,
+	public Response getFile(@PathParam("file") String fname) {
+		return ftpService.getFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				"", fname, isPASV);
-		return response;
 	}
 
+	/**
+	 * getFile allows user to retrieve a file through a HTTP Get request using
+	 * queryparameters. Furthermore a direct access is possible with the path.
+	 * 
+	 * @param fname
+	 *            Filename of the file to retrieve
+	 * @param path
+	 *            Path of the filename.
+	 * @return Response containing OCTET Stream
+	 */
 	@GET
 	@Path("/getfile")
 	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response getFile(@Context final UriInfo uriInfo,
-			@QueryParam("file") String fname, @QueryParam("path") String path) {
-		Response response = null; // Response.noContent().build();
-		response = ftpService.getFile(ftpHostName, ftpPort,
+	public Response getFile(@QueryParam("file") String fname,
+			@QueryParam("path") String path) {
+		return ftpService.getFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				path, fname, isPASV);
-		return response;
 	}
 
 	// *********************************************************
+	// Login & Upload Forms
+	// *********************************************************
 
+	/**
+	 * Produce the UploadForm in html.
+	 * 
+	 * @return Response containing the UploadForm in html
+	 */
 	@GET
 	@Path("/getUpLoadForm")
 	@Produces("text/html")
@@ -205,6 +306,11 @@ public class RestGateway {
 		return HTMLGenerator.getInstance().getUploadContent();
 	}
 
+	/**
+	 * Produces the LoginForm in html format
+	 * 
+	 * @return Response containing the LoginForm in html
+	 */
 	@GET
 	@Path("/LoginForm")
 	@Produces("text/html")
@@ -213,7 +319,7 @@ public class RestGateway {
 	}
 
 	/**
-	 * File Upoad through a request with POST Method
+	 * File Upload through a request with POST Method
 	 * 
 	 * @param uriInfo
 	 * @param path
@@ -223,17 +329,20 @@ public class RestGateway {
 	 * @return Octet-Stream containing the file.
 	 * 
 	 */
-
 	@POST
 	@Path("/uploadfile")
 	@Consumes({ MediaType.MULTIPART_FORM_DATA })
-	public Response uploadtFile(@FormParam("file") InputStream file,
-			@FormParam("file") FormDataContentDisposition fileDetail,
-			@PathParam("path") String path) {
+	public Response uploadFile(
+			@FormDataParam("uploadedFile") InputStream fileInputStream,
+			@FormDataParam("uploadedFile") FormDataContentDisposition contentDispositionHeader) {
+
 		Response response = null;
-		response = ftpService.putFile(ftpHostName, ftpPort,
+		String file = contentDispositionHeader.getFileName();
+
+		response = ftpService.postFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				path, fileDetail.getFileName(), file, isPASV);
+				"", contentDispositionHeader.getFileName(), fileInputStream,
+				isPASV);
 		return response;
 	}
 
@@ -243,8 +352,7 @@ public class RestGateway {
 	 * 
 	 * @param file
 	 *            FileName of the file.
-	 * 
-	 * @return
+	 * @return Operation status
 	 */
 	@Path("/delete/{file}")
 	@DELETE
@@ -257,15 +365,15 @@ public class RestGateway {
 	}
 
 	/**
-	 * Delete with delete method, pathname & filename
-	 * 
+	 * Delete with GET method, pathname & filename. More suitable for Browser
+	 * use.
 	 * 
 	 * @param path
 	 *            pathname of the file.
 	 * @param file
 	 *            FileName of the file.
 	 * 
-	 * @return
+	 * @return Operation status
 	 */
 	@Path("/delete")
 	@GET

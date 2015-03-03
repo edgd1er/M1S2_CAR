@@ -1,4 +1,4 @@
-package com.restgateway.service;
+package com.restgateway.services;
 
 import javax.inject.Singleton;
 
