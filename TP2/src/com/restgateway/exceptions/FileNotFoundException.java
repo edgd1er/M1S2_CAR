@@ -11,7 +11,7 @@ public class FileNotFoundException extends WebApplicationException {
 		super(
 			Response
 				.status( Status.NOT_FOUND )
-				.entity( "File not found: " + fileName )
+				.entity( "<html><body><h1>File not found: " + fileName+"</h1></body></html>")
 				.build()
 		);
 	}

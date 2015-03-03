@@ -1,9 +1,11 @@
 package com.restgateway.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -11,13 +13,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
 import com.restgateway.services.FTPService;
 
@@ -28,13 +33,13 @@ import com.restgateway.services.FTPService;
  * 
  * Based on: * http://localhost:8080/rest/api/helloworld * @author Lionel
  * Seinturier <Lionel.Seinturier@univ-lille1.fr>
+
  */
 
 @Path("/ftp")
 public class RestGateway {
 	@Inject
 	private FTPService ftpService;
-
 
 	/**
 	 * credentials store
@@ -45,10 +50,8 @@ public class RestGateway {
 	/**
 	 * FTP Passive mode
 	 */
-	private static boolean isPASV= true;
-	
-	
-	
+	private static boolean isPASV = true;
+
 	// private static String ftpHostName = "ftps.fil.univ-lille1.fr";
 	// private static int ftpPort = 21;
 
@@ -69,49 +72,82 @@ public class RestGateway {
 	@Path("/welcome")
 	public String welcomeFtp() {
 		String msg = "";
-		if (ftpService.getFtpClient()==null){ftpService.setFtpClient(new FTPClient());}
-		List<String> ret = ftpService.getWelcomeMsg(ftpHostName, ftpPort, isPASV);
+		if (ftpService.getFtpClient() == null) {
+			ftpService.setFtpClient(new FTPClient());
+		}
+		List<String> ret = ftpService.getWelcomeMsg(ftpHostName, ftpPort,
+				isPASV);
 		for (String tmp : ret) {
 			msg += tmp + "\n";
 		}
+
+		// TODO faire un retour via une response
 		return msg;
 	}
 
 	@GET
 	@Path("/login/{lname}/password/{lpass}")
 	public String loginToFtp(@PathParam("lname") final String loginName,
-			@PathParam("lpass") final String loginPass) {
-		String msg = "";
+			@PathParam("lpass") final String loginPass) throws IOException {
+		String msg = "Error, Bad login and/or password. Please try again";
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);
-		msg = ftpService.loginToFtp((FTPClient)null, ftpHostName, ftpPort,
-				this.nameStorage.getLogin(), this.nameStorage.getPassword(),isPASV);
+
+		msg = ftpService.loginToFtp(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				isPASV);
+		ftpService.disconnectClient();
+
+		if (msg.toLowerCase().contains("error")) {
+			this.nameStorage.setLogin("");
+			this.nameStorage.setPassword("");
+
+		}
+		// TODO faire un retour via une response
 		return msg;
 	}
+	
+	
+	@POST
+	@Path("/loginPost")
+	public String loginToFtpPost(@FormParam("lname") final String loginName,
+			@FormParam("lpass") final String loginPass) throws IOException {
+		
+		String msg = "Error, Bad login and/or password. Please try again";
 
-	/*
-	 * public Response addPerson(@Context final UriInfo uriInfo,
-	 * 
-	 * @FormParam("lname") final String loginName,
-	 * 
-	 * @FormParam("lpass") final String loginPass) {
-	 * 
-	 * this.nameStorage.setLogin(loginName);
-	 * this.nameStorage.setPassword(loginPass);
-	 * 
-	 * String msg = "";
-	 * 
-	 * ftpService.getWelcomeMsg(ftpHostName,ftpPort,this.nameStorage.getLogin(),this
-	 * .nameStorage.getPassword());
-	 * 
-	 * 
-	 * //return Response.created( //
-	 * uriInfo.getRequestUriBuilder().path(email).build()).build(); }
-	 */
-	// ************************************************************************
-	// file op
-	// ************************************************************************
+		this.nameStorage.setLogin(loginName);
+		this.nameStorage.setPassword(loginPass);
+
+		msg = ftpService.loginToFtp(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				isPASV);
+		ftpService.disconnectClient();
+
+		if (msg.toLowerCase().contains("error")) {
+			this.nameStorage.setLogin("");
+			this.nameStorage.setPassword("");
+
+		}
+		// TODO faire un retour via une response
+		return msg;
+	}
+	
+	
+
+	@DELETE
+	@Path("/logout")
+	public String logout() throws IOException {
+
+		this.nameStorage.setLogin("");
+		this.nameStorage.setPassword("");
+
+		ftpService.disconnectClient();
+		ftpService.setFtpClient(null);
+
+		// TODO faire un retour via une response
+		return "204";
+	}
 
 	/**
 	 * LIST PART
@@ -122,68 +158,140 @@ public class RestGateway {
 	 * @return String containing HTML content
 	 */
 	@GET
-	@Path("file/login/{lname}/password/{lpass}/list")
+	@Path("/list")
 	@Produces("text/html")
-	public String getFileList(@PathParam("lname") final String loginName,
-			@PathParam("lpass") final String loginPass) {
+	public String getFileList() {
 		String cwd = "";
-		FTPClient ftpClient=null;
-		
-		this.nameStorage.setLogin(loginName);
-		this.nameStorage.setPassword(loginPass);
+		FTPClient ftpClient = null;
 
+		// TODO remettre la generation de la liste dans FTPService.
 		try {
-			cwd = ftpService.loginToFtp((FTPClient)null, ftpHostName, ftpPort,
-					this.nameStorage.getLogin(), this.nameStorage.getPassword(),isPASV);
+			cwd = ftpService.loginToFtp(ftpHostName, ftpPort,
+					this.nameStorage.getLogin(),
+					this.nameStorage.getPassword(), isPASV);
 			ftpClient = ftpService.getFtpClient();
 			FTPFile[] fileList = ftpClient.listFiles(cwd);
-			FTPFile[] dirList = ftpClient.listDirectories(cwd);
 			ftpClient.disconnect();
-			return HTMLGenerator.getInstance().getFileListWith(cwd, dirList,
-					fileList);
+			return HTMLGenerator.getInstance().getFileListWith(cwd, fileList);
 		} catch (IOException ex) {
 			return HTMLGenerator.getInstance().getError(ex.getMessage());
 		}
 	}
-		/**
-		 * FILE GET with Method POST
-		 * 
-		 * Send a file with a post method
-		 * 
-		 * @return String containing HTML content
-		 */
-	@Produces( { MediaType.APPLICATION_OCTET_STREAM  } )
-		@POST
-		public Response  getFile( @Context final UriInfo uriInfo,
-					@FormParam( "cmd" ) final String cmd,
-					@FormParam( "path" ) final String path, 
-					@FormParam( "name" ) final String fname)
-		{
-			if (cmd.equals("get"))
-			{
-				ftpService.getFile(ftpHostName, ftpPort, this.nameStorage.getLogin(), this.nameStorage.getPassword(),path,name,isPASV);
-			return 
-					;
-			}
-		}
+
+	/**
+	 * Simplest File download through a request with GET Method No path given.
+	 * 
+	 * Filename is the only parameter accepted due to limitation of a GET
+	 * parameters (not suitable for path)
+	 * 
+	 * 
+	 * @return Response containing OCTET Stream
+	 */
+
+	@GET
+	@Path("/getfile/{file}")
+	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	public Response getFile(@Context final UriInfo uriInfo,
+			@PathParam("file") String fname) {
+		Response response = null; // Response.noContent().build();
+		response = ftpService.getFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", fname, isPASV);
+		return response;
+	}
 	
+	@GET
+	@Path("/getfile")
+	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	public Response getFile(@Context final UriInfo uriInfo,
+			@QueryParam("file") String fname,
+			@QueryParam("path") String path) {
+		Response response = null; // Response.noContent().build();
+		response = ftpService.getFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+			path, fname, isPASV);
+		return response;
+	}
+
+
+	// *********************************************************
+
+	@GET
+	@Path("/getUpLoadForm")
+	@Produces("text/html")
+	public Response getUploadForm() {
+		return HTMLGenerator.getInstance().getUploadContent();
+	}
+
 	
+	@GET
+	@Path("/LoginForm")
+	@Produces("text/html")
+	public Response getLoginForm() {
+		return HTMLGenerator.getInstance().getLoginFormContent();
+	}
+
+	
+	/**
+	 * File Upoad through a request with POST Method
+	 * 
+	 * @param uriInfo
+	 * @param path
+	 *            Path where to create the new file
+	 * @param fname
+	 *            Filename on the FTP server
+	 * @return Octet-Stream containing the file.
+	 * 
+	 */
+	
+	@POST
+	@Path("/uploadfile")
+	@Consumes({MediaType.MULTIPART_FORM_DATA})
+	public Response uploadtFile(@FormParam("file") InputStream file,
+			@FormParam("file") FormDataContentDisposition fileDetail,
+			@PathParam("path") String path) {
+		Response response = null;
+		response = ftpService.putFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				path, fileDetail.getFileName(),file, isPASV);
+		return response;
+	}
+
 	/**
 	 * Delete with delete method
 	 * 
-	 *
-	 * @param path	pathname of the file.
-	 * @param file	FileName of the file.
-
-	 * @return 
+	 * 
+	 * @param file
+	 *            FileName of the file.
+	 * 
+	 * @return
 	 */
-	@Path( "/delete/path/{path}/file/{file}" )
+	@Path("/delete/{file}")
 	@DELETE
-	public Response deletePerson( @PathParam( "path" ) final String path, @PathParam( "file" ) final String file) {
-		ftpService.deleteFile( path ,file );
+	public Response deleteFile(@PathParam("file") final String file) {
+		Response res= ftpService.deleteFile(ftpHostName,ftpPort,this.nameStorage.getLogin(), this.nameStorage.getPassword(),"", file);
+		return res;
+
+	}
+
+	/**
+	 * Delete with delete method, pathname & filename
+	 * 
+	 * 
+	 * @param path
+	 *            pathname of the file.
+	 * @param file
+	 *            FileName of the file.
+	 * 
+	 * @return
+	 */
+	@Path("/delete")
+	@GET
+	public Response deleteFile(@QueryParam("path") final String path,
+			@QueryParam("file") final String file) {
+		ftpService.deleteFile(ftpHostName,ftpPort,this.nameStorage.getLogin(), this.nameStorage.getPassword(),path, file);
 		return Response.ok().build();
 
 	}
-	
-	
+
 }
