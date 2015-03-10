@@ -64,7 +64,7 @@ public class RestGateway {
 	@Produces("text/html")
 	public Response sayHello() {
 		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
-				+ "<body><h1>" + "This is Web gateway to reach a FTP Server "
+				+ "<body><h1>" + "This is a Web gateway to reach a FTP Server "
 				+ ftpHostName + ":" + String.valueOf(ftpPort)
 				+ "</h1></body></html>";
 
@@ -357,6 +357,7 @@ public class RestGateway {
 	@Path("/delete/{file}")
 	@DELETE
 	public Response deleteFile(@PathParam("file") final String file) {
+
 		Response res = ftpService.deleteFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				"", file);

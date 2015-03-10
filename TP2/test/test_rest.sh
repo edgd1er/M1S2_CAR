@@ -30,64 +30,141 @@ fi
 
 # verification de l oracle
 function testoracle {
-	ftp -dvin < $scr  > temp.log 2>&1
-	oracle=$(grep $tval temp.log | cut -d' ' -f1 )
+	
+	res=$(curl ${param} ${url} -o temp.log 2>&1)
+	
+	oracle=$(grep -i "$expect" temp.log)
 	if [ "$oracle" == "" ]; then 
-	res="Erreur: \n"$(<temp.log)
+	res="\033[0;31m Erreur: \n"$res$(cat temp.log)"\033[0m"
 		else 
-	res="OK"
+	res="\033[0;32mOK\033[0m"
 fi
 echo -e "$txt $res"
 }
 
 
 
-cp ../TP1/tests/${efile} /tmp/homedir/user/
+
+## copy of test file for download ##
+cp ${efile} /tmp/homedir/user/
+
+curl -s -o  /dev/null ${urlstart}ftp/logout
+
+###############################
+# tests fonctionnels
+
+## curl parameters i: with header s:silent
+param="-is"
+
+echo -e "\n"
+echo "#################################################"
+echo "##       tests welcome msg REST                ##"
+echo "#################################################"
 
 
 url="${urlstart}ftp"
-res=$(curl -s ${url})
-echo -e "\nRest Welcome message: "${res}
-
+expect="This is a Web gateway"
+txt="\nRest Welcome message: "
+testoracle
 
 
 url="${urlstart}ftp/welcome"
-res=$(curl -s ${url})
-echo -e "\nFTP Server welcome message: "${res}
+expect="220  	Service ready for new user on"
+txt="\nFTP Through Rest Welcome message: "
+testoracle
+
+
+echo -e "\n"
+echo "#################################################"
+echo "##       test login/list   msg                 ##"
+echo "#################################################"
+
+
+url="${urlstart}ftp/login/${login}/password/zz"
+expect="no login, password found."
+txt="unrecognized user, should be warned about the error"
+testoracle
 
 url="${urlstart}ftp/login/${login}/password/${password}"
-res=$(curl -s ${url})
-echo -e "\nFTP Server login: $url"$res
+expect="Location: http://localhost:8080/rest/api/ftp/list"
+txt="logged user, should be redirected to list page"
+testoracle
 
 url="${urlstart}ftp/list"
-res=$(curl -s ${url})
-echo -e "\nFTP Server list"$res
+expect="baboon_gray.png"
+txt="logged user, should see the file baboon_gray.png in homedir/"${login}
+testoracle
 
 
+
+echo -e "\n"
+echo "#################################################"
+echo "##   test get file/ put file for logged user   ##"
+echo "#################################################"
+
+param="-is -X GET "
 url="${urlstart}ftp/getfile/${efile}"
-param="-s -X GET "
-res=$(curl $param ${url}-o test_file.png)
-echo -e "\nFTP GetFile with GET: $url : $res"
+expect='Content-Disposition: attachment; filename="baboon_gray.png'
+txt="Logged user, should be able to download a file:"
+testoracle
+
+param="-is -X GET "
+url="${urlstart}ftp/getfile/${nefile}"
+expect="File not found: 550"
+txt="Logged user, should not be able to download a not existing file:"
+testoracle
+
+param="-is -X POST "
+url="${urlstart}ftp/postfile/${efile}"
+expect="File not found: 550"
+txt="Logged user, should not be able to upload an existing file:"
+testoracle
 
 
-#url="http://localhost:8080/rest/api/ftp/getfile/Class_tools.svg"
-#param="-s -d path=/tmp/homedir/user -X POST -d file=Class_tools.svg"
-#res=$(curl $param ${url})
-#echo -e "\nFTP GetFile with POST : $url : $res"
+echo -e "\n"
+echo "#################################################"
+echo "##       test logout                           ##"
+echo "#################################################"
+
+param="-is -X GET "
+url="${urlstart}ftp/logout"
+expect="Location: http://localhost:8080/rest/api/ftp/LoginForm"
+txt="logged out user, should be redirected to login page"
+testoracle
 
 
-url="${urlstart}ftp/delete/${nefile}"
-param="-s -X delete"
-res=$(curl $param ${url})
-echo -e "\nFTP delete not existing file with Delete No param : $url : $res"
+echo -e "\n"
+echo "#################################################"
+echo "## test get file/ put / detete file for not logged user ##"
+echo "#################################################"
 
+param="-is -X GET "
+url="${urlstart}ftp/getfile/${efile}"
+expect='No login, password found'
+txt="Not logged user, should not be able to download a file:"
+testoracle
+
+param="-is -X GET"
+url="${urlstart}ftp/delete?path=%2ftmp%2fhomedir%2f&file=${efile}"
+expect='No login, password found'
+txt="Not logged user, should not be able to delete a file through get method:"
+testoracle
+
+
+param="-is -X DELETE"
 url="${urlstart}ftp/delete/${efile}"
-param="-s -X delete"
-res=$(curl $param ${url})
-echo -e "\nFTP delete existing file with Delete No param : $url : $res"
+expect='No login, password found'
+txt="Not logged user, should not be able to delete a file through DELETE method:"
+testoracle
 
 
 
+echo -e "\033[1;34m#################################################"
+echo "TODO"
+echo " login post, lgout delete, getfile queryparam"
+echo " getloginform, getuploadForm, uploadfile"
+echo "#################################################"
+echo -e "#################################################\033[0m"
 
 
 
