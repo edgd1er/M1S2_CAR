@@ -18,6 +18,7 @@ login="user"
 password="a"
 urlstart="http://localhost:8080/rest/api/"
 efile="baboon_gray.png"
+e1file="test.jpg"
 nefile="baboon_gray.png1"
 
 ## Fonctions
@@ -47,6 +48,7 @@ echo -e "$txt $res"
 
 ## copy of test file for download ##
 cp ${efile} /tmp/homedir/user/
+cp ${e1file} /tmp/homedir/anonymous/
 
 curl -s -o  /dev/null ${urlstart}ftp/logout
 
@@ -66,7 +68,6 @@ url="${urlstart}ftp"
 expect="This is a Web gateway"
 txt="\nRest Welcome message: "
 testoracle
-
 
 url="${urlstart}ftp/welcome"
 expect="220  	Service ready for new user on"
@@ -114,6 +115,32 @@ expect="File not found: 550"
 txt="Logged user, should not be able to download a not existing file:"
 testoracle
 
+param="-is -X GET "
+url="${urlstart}ftp/getfile?path=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
+expect="Content-Type: application/octet-stream"
+txt="Logged user, should not be able to download a file giving a different path and name:"
+testoracle
+
+#curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
+
+param="-is -X POST -T /tmp/homedir/anonymous/${efile1} "
+url="${urlstart}ftp/uploadfile?path=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
+expect="Content-Type: application/octet-stream"
+txt="Logged user, should not be able to download a file giving a different path and name:"
+testoracle
+
+
+# curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
+
+param="-is -X PUT -T /tmp/homedir/anonymous/${efile1} "
+url="${urlstart}ftp/upload?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
+expect="Content-Type: application/octet-stream"
+txt="Logged user, should not be able to download a file giving a different path and name:"
+testoracle
+
+
+# curl --form upload=@localfilename --form press=OK [URL]
+
 param="-is -X POST "
 url="${urlstart}ftp/postfile/${efile}"
 expect="File not found: 550"
@@ -157,12 +184,33 @@ expect='No login, password found'
 txt="Not logged user, should not be able to delete a file through DELETE method:"
 testoracle
 
+echo -e "\n"
+echo "#################################################"
+echo "## test des formulaires                        ##"
+echo "#################################################"
+
+param="-is -X GET "
+url="${urlstart}ftp/LoginForm"
+expect='action="loginPost"'
+txt="Not logged user, should be able to see the loginForm:"
+testoracle
+
+param='-is -X POST -H Content-type:application/x-www-form-urlencoded --data lname=user&lpass=a'
+url="${urlstart}ftp/loginPost"
+expect='Location: http://localhost:8080/rest/api/ftp/list'
+txt="Not logged user, should be able to login:"
+testoracle
+
+param='-is -X DELETE '
+url="${urlstart}ftp/logout"
+expect='Location: http://localhost:8080/rest/api/ftp/LoginForm'
+txt="logged user, should be able to logout through a delete request:"
+testoracle
 
 
 echo -e "\033[1;34m#################################################"
 echo "TODO"
-echo " login post, lgout delete, getfile queryparam"
-echo " getloginform, getuploadForm, uploadfile"
+echo " getuploadForm, uploadfile"
 echo "#################################################"
 echo -e "#################################################\033[0m"
 

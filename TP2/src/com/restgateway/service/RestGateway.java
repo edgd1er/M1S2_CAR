@@ -1,5 +1,7 @@
 package com.restgateway.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -12,6 +14,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -346,6 +349,25 @@ public class RestGateway {
 		return response;
 	}
 
+	
+	/**
+	 * Upload file through a put method 
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	@PUT
+	@Path("/upload/")
+	public Response putUpload(@QueryParam("file") String filePath) {
+	Response response = null;
+	
+	response = ftpService.postFile(ftpHostName, ftpPort,
+			this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+			"",filePath,isPASV);
+	return response;
+	
+	}
+	
 	/**
 	 * Delete with delete method
 	 * 
