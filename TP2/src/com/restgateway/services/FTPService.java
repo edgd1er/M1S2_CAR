@@ -1,6 +1,7 @@
 package com.restgateway.services;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -158,7 +159,7 @@ public class FTPService {
 			String loginName, String passwd, String path, boolean isPASV) {
 
 		Response response = null;
-		path =checkPath(path);
+		path = checkPath(path);
 		try {
 			if (checkClient()) {
 				ftpClient.connect(ftpHostName, ftpPort);
@@ -170,10 +171,12 @@ public class FTPService {
 					if (path.length() > 0) {
 						ftpClient.changeWorkingDirectory(path);
 					} else {
-						path=ftpClient.printWorkingDirectory();
-				}
+						path = ftpClient.printWorkingDirectory();
+					}
 					FTPFile[] fileList = ftpClient.listFiles(path);
-					response = Response.ok(HTMLGenerator.getInstance().getFileListWith(path, fileList)).build();
+					response = Response.ok(
+							HTMLGenerator.getInstance().getFileListWith(path,
+									fileList)).build();
 				}
 				disconnectClient();
 			}
@@ -246,11 +249,58 @@ public class FTPService {
 		return response;
 	}
 
+	/**
+	 * File upload knowing filename and filepath
+	 * 
+	 * @param ftpHostName
+	 * @param ftpPort
+	 * @param login
+	 * @param password
+	 * @param string
+	 * @param filePath
+	 * @param isPASV
+	 * @return
+	 */
+	public Response postFile(String ftpHostName, int ftpPort, String login,
+			String password, String string, String filePath, boolean isPASV) {
+
+		Response response = null;
+		File file = null;
+		InputStream in = null;
+
+		try {
+			file = new File(filePath);
+			in = new FileInputStream(file);
+
+		} catch (IOException ex) {
+			response = new FileNotFoundException(filePath).getResponse();
+		} catch (FTPClientNotFound ex) {
+			response = new FTPClientNotFound().getResponse();
+		}
+		response = postFile(ftpHostName, ftpPort, login, password,
+				file.getPath(), file.getName(), in, isPASV);
+
+		return response;
+	}
+
+	/**
+	 * File upload knowing the fileInpustream
+	 * 
+	 * @param ftpHostName
+	 * @param ftpPort
+	 * @param login
+	 * @param password
+	 * @param remotePath
+	 * @param fname
+	 * @param in
+	 * @param isPASV
+	 * @return
+	 */
 	public Response postFile(String ftpHostName, int ftpPort, String login,
 			String password, String remotePath, String fname, InputStream in,
 			boolean isPASV) {
 		Response response = null;
-		remotePath=checkPath(remotePath);
+		remotePath = checkPath(remotePath);
 		try {
 			if (checkClient()) {
 				ftpClient.connect(ftpHostName, ftpPort);
@@ -357,7 +407,9 @@ public class FTPService {
 
 	private String checkPath(String path) {
 		String properPath = "";
-		if (path ==null){return properPath;}
+		if (path == null) {
+			return properPath;
+		}
 		if (path.length() > 0) {
 			path = path.endsWith(File.separator) ? path : path + File.separator;
 			path = path.startsWith(File.separator) ? path : File.separator
@@ -422,9 +474,9 @@ public class FTPService {
 	 */
 	public void disconnectClient() {
 		try {
-			if (this.getFtpClient()!=null){
+			if (this.getFtpClient() != null) {
 				this.getFtpClient().disconnect();
-				}
+			}
 		} catch (IOException e) {
 			// nothing to be done
 		}
