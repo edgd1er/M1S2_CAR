@@ -1,7 +1,5 @@
 package com.restgateway.service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -11,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -23,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -154,7 +154,7 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/loginPost")
-	public Response loginToFtpPost(@FormParam("lname") final String loginName,
+	public Response loginToFtpPost(@Context SecurityContext sc,@FormParam("lname") final String loginName,
 			@FormParam("lpass") final String loginPass,
 			@Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws IOException {
@@ -176,7 +176,12 @@ public class RestGateway {
 			this.nameStorage.setPassword("");
 			return new NoLoginPasswordException().getResponse();
 		}
-		String contextPath = request.getContextPath();
+		System.out.println("auth: "+sc.getAuthenticationScheme()+" \n" 
+				+ "user: "+sc.getUserPrincipal()+"\n" +
+				"secure: " + sc.isSecure());
+		
+		 String contextPath = request.getContextPath();
+		 
 		response.sendRedirect(contextPath + "/api/ftp/list");
 		return Response.status(Status.ACCEPTED).build();
 	}
@@ -231,7 +236,7 @@ public class RestGateway {
 
 		String contextPath = request.getContextPath();
 		response.sendRedirect(contextPath + "/api/ftp/LoginForm");
-		return Response.status(Status.ACCEPTED).build();
+		return Response.status(Status.OK).build();
 	}
 
 	/**
@@ -334,17 +339,23 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/uploadfile")
-	@Consumes({ MediaType.MULTIPART_FORM_DATA })
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFile(
-			@FormDataParam("uploadedFile") InputStream fileInputStream,
-			@FormDataParam("uploadedFile") FormDataContentDisposition contentDispositionHeader) {
+		       @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
+               @FormDataParam("file") InputStream file,
+	           @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 
+		
 		Response response = null;
-		String file = contentDispositionHeader.getFileName();
+		String filename ="nofilename.given";
+		if (fileDisposition!=null){
+			filename = fileDisposition.getFileName();
+			}
 
 		response = ftpService.postFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				"", contentDispositionHeader.getFileName(), fileInputStream,
+				"", filename, file,
 				isPASV);
 		return response;
 	}

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.restgateway.exceptions.FTPClientNotFound;
 import com.restgateway.exceptions.FileNotFoundException;
+import com.restgateway.exceptions.FileNotUploadedException;
 import com.restgateway.exceptions.IncorrectPathException;
 import com.restgateway.exceptions.NoLoginPasswordException;
 import com.restgateway.services.HTMLGenerator;
@@ -315,16 +316,13 @@ public class FTPService {
 
 					ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 					ftpClient.changeWorkingDirectory(remotePath);
-					ftpClient.storeFile(remotePath + fname, in);
-					response = Response.ok(in,
-							MediaType.APPLICATION_OCTET_STREAM).build();
-					if (!ftpClient.completePendingCommand()
-							|| ftpClient.getReplyCode() != 226) {
-						response = new FileNotFoundException(remotePath + fname)
-								.getResponse();
+					if (ftpClient.storeFile(remotePath + fname, in))
+					{
+					response = HTMLGenerator.getInstance().getFileUploadedContent();
 					} else {
-
+						response = new FileNotUploadedException(remotePath + fname).getResponse();
 					}
+
 					disconnectClient();
 
 				} else {

@@ -31,7 +31,7 @@ fi
 
 # verification de l oracle
 function testoracle {
-	
+	rm temp.log
 	res=$(curl ${param} ${url} -o temp.log 2>&1)
 	
 	oracle=$(grep -i "$expect" temp.log)
@@ -91,6 +91,7 @@ expect="Location: http://localhost:8080/rest/api/ftp/list"
 txt="logged user, should be redirected to list page"
 testoracle
 
+
 url="${urlstart}ftp/list"
 expect="baboon_gray.png"
 txt="logged user, should see the file baboon_gray.png in homedir/"${login}
@@ -118,33 +119,32 @@ testoracle
 param="-is -X GET "
 url="${urlstart}ftp/getfile?path=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
 expect="Content-Type: application/octet-stream"
-txt="Logged user, should not be able to download a file giving a different path and name:"
+txt="Logged user, should be able to download a file giving a different path and name:"
 testoracle
 
 #curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
 
-param="-is -X POST -T /tmp/homedir/anonymous/${efile1} "
-url="${urlstart}ftp/uploadfile?path=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
-expect="Content-Type: application/octet-stream"
-txt="Logged user, should not be able to download a file giving a different path and name:"
+param="-is -X POST -F file=@/tmp/homedir/anonymous/${e1file} -F press=UploadIt"
+url="${urlstart}ftp/uploadfile"
+expect="HTTP/1.1 200 OK"
+txt="Logged user, should be able to upload a file giving name:"
 testoracle
 
-
 # curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
-
+#### TO CORRECT ###
 param="-is -X PUT -T /tmp/homedir/anonymous/${efile1} "
 url="${urlstart}ftp/upload?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
 expect="Content-Type: application/octet-stream"
 txt="Logged user, should not be able to download a file giving a different path and name:"
-testoracle
+#testoracle
 
 
 # curl --form upload=@localfilename --form press=OK [URL]
-
-param="-is -X POST "
-url="${urlstart}ftp/postfile/${efile}"
+#### TO CORRECT ###
+param="-is -X PUT "
+url="${urlstart}ftp/upload?file=${efile}"
 expect="File not found: 550"
-txt="Logged user, should not be able to upload an existing file:"
+txt="Logged user, should not be able to post an existing file(PutFile):"
 testoracle
 
 
@@ -201,6 +201,12 @@ expect='Location: http://localhost:8080/rest/api/ftp/list'
 txt="Not logged user, should be able to login:"
 testoracle
 
+echo -e "\n"
+echo "#################################################"
+echo "## test du logout via un delete                 ##"
+echo "#################################################"
+
+
 param='-is -X DELETE '
 url="${urlstart}ftp/logout"
 expect='Location: http://localhost:8080/rest/api/ftp/LoginForm'
@@ -210,7 +216,7 @@ testoracle
 
 echo -e "\033[1;34m#################################################"
 echo "TODO"
-echo " getuploadForm, uploadfile"
+echo " PUT upload, POST uploadfile"
 echo "#################################################"
 echo -e "#################################################\033[0m"
 

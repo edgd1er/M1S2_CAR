@@ -11,7 +11,7 @@ curl http://localhost:8080/rest/api/ftp/list
  
  curl http://localhost:8080/rest/api/ftp/getfile/baboon_gray.png1
  
- curl http://localhost:8080/rest/api/ftp/delete/baboon_gray.png1
+ curl -X http://localhost:8080/rest/api/ftp/delete/baboon_gray.png1
 
  http://localhost:8080/rest/api/ftp/getUpLoadForm
  

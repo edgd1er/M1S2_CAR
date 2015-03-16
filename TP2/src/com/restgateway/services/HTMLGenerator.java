@@ -137,11 +137,11 @@ public class HTMLGenerator {
 
 	public Response getUploadContent() {
 		String html = "<html>"+getCssContent()+"<body><h1>JAX-RS Upload Form</h1>";
-		html += "<form action=\"uploadfile\" method=\"post\" enctype=\"multipart/form-data\">";
+		html += "<form action=\"/rest/api/ftp/uploadfile\" method=\"post\" enctype=\"multipart/form-data\" >";
 		html += "<p>";
-		html += "Select a file : <input type=\"file\" name=\"uploadedFile\" size=\"50\" />";
+		html += "Select a file : <input type=\"file\" name=\"file\" size=\"50\" />";
 		html += "</p>";
-		html += "<input type=\"submit\" value=\"Upload It\" />";
+		html += "<input type=\"submit\" name=\"press\" value=\"UploadIt\" />";
 		html += "</form>";
 		html += "</body></html>";
 
@@ -179,6 +179,25 @@ public class HTMLGenerator {
 		return Response.ok(html, MediaType.TEXT_HTML).build();
 	}
 
+	public Response getFileUploadedContent() {
+		String html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"";
+		html += "\"http://www.w3.org/TR/html4/loose.dtd\">";
+		html += "<html>";
+		html += "<head>";
+		html += "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">";
+		html += "<title>File Upload to FTP</title>";
+		html += "</head>";
+		html += getCssContent();
+		html += "<body>";
+		html += "<h1>";
+		html += "File Uploaded to FTP server";
+		html += "<h1>";
+		html += "</body>";
+
+		return Response.ok(html, MediaType.TEXT_HTML).build();
+	}
+	
+	
 	 /**
 	* Return default CSS content for HTML pages
 	* @return String containing CSS content
