@@ -5,8 +5,15 @@ import java.io.File;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+
 import org.apache.commons.net.ftp.FTPFile;
 
+/**
+ * This class will generate response to enhance browser experience.
+ * 
+ * @author Salomon Emmeline & Dubiez François.
+ *
+ */
 public class HTMLGenerator {
 
 	public String path = "http://localhost:8080/rest/api/ftp/";
@@ -137,12 +144,12 @@ public class HTMLGenerator {
 
 	public Response getUploadContent() {
 		String html = "<html>"+getCssContent()+"<body><h1>JAX-RS Upload Form</h1>";
-		html += "<form action=\"/rest/api/ftp/uploadfile\" name=\"fform\" method=\"post\" enctype=\"multipart/form-data\" >";
-		html += "<p>";
-		html += "Select a file : <input type=\"file\" name=\"file\" size=\"50\" />";
-		html += "</p>";
-		html += "<input type=\"submit\" name=\"press\" value=\"UploadIt\" />";
-		html += "</form>";
+		html += "<form method=\"post\" enctype=\"multipart/form-data\" action=\"/rest/api/ftp/uploadfile\" name=\"fform\" >\n";
+		html += "<p>\n";
+		html += "Select a file : <input type=\"file\" name=\"formfilefield\" size=\"50\" />\n";
+		html += "</p>\n";
+		html += "<input type=\"submit\" name=\"press\" value=\"UploadIt\" />\n";
+		html += "</form>\n";
 		html += "</body></html>";
 
 		return Response.ok(html, MediaType.TEXT_HTML).build();

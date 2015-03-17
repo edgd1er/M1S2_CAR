@@ -7,7 +7,7 @@ import javax.ws.rs.core.Response.Status;
 import com.restgateway.services.HTMLGenerator;
 
 /**
- * Exception raised when user not logged in
+ * Exception raised when a FTPCLient object is expected but not found.
  * 
  * @author Emeline Salomon & François Dubiez
  * 

@@ -1,3 +1,4 @@
+package com.junit.restgateway;
 import static org.junit.Assert.assertEquals;
 
 import javax.ws.rs.client.Client;
@@ -12,7 +13,12 @@ import org.junit.Test;
 
 import com.restgateway.service.RestGateway;
 
-
+/**
+ * Junit Test for RestGateway
+ * 
+ * @author user
+ *
+ */
 public class testRestGateway {
 
 	@BeforeClass
@@ -26,6 +32,7 @@ public class testRestGateway {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		RestGateway myRest = new RestGateway();
+		myRest.sayHello();
 		
 	}
 
@@ -47,7 +54,7 @@ public class testRestGateway {
 		 ServerPath="http://localhost:8080/rest/api/ftp/";
 		WebTarget toTest=client.target(ServerPath);
 		String expected ="<h1>This is Web gateway to reach a FTP Server 127.0.0.1 2100</h1>";
-		String toto= toTest.toString();
+		//String toto= toTest.toString();
 		assertEquals(expected, toTest.toString());
 	}
 

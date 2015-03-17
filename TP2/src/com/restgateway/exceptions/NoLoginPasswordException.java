@@ -6,6 +6,13 @@ import javax.ws.rs.core.Response.Status;
 
 import com.restgateway.services.HTMLGenerator;
 
+/**
+ * Exception raised when incorrect Login and/or password is send to FTP server.
+ * 
+ * 
+ * @author Emmeline Salomon & François Dubiez
+ *
+ */
 public class NoLoginPasswordException extends WebApplicationException {
 	private static final long serialVersionUID = 6817489620338221395L;
 
@@ -14,7 +21,7 @@ public class NoLoginPasswordException extends WebApplicationException {
 				Response.status(Status.BAD_REQUEST)
 						.entity("<html>"
 								+ HTMLGenerator.getInstance().getCssContent()
-								+ "<meta http-equiv=\"refresh\" content=\"1; URL=\"javascript:history.back()\" >"
+								//+ "<meta http-equiv=\"refresh\" content=\"1; URL=\"javascript:history.back()\" >"
 								+ "<body><h1>No login, password found. Please, login before any other operation"
 								+ "</h1></body></html>").build());
 	}

@@ -9,7 +9,6 @@ import java.net.Socket;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ftp.client.FtpClient;
 import com.ftp.server.*;
 
 public class TestFtpRequest {
@@ -19,13 +18,12 @@ public class TestFtpRequest {
 	@Before
 	public void setUp() throws Exception {
 		String prepath = "/tmp/homedir";
-		int nbClients = 0;
-		boolean debugMode = false;
+		//boolean debugMode = false;
 		ServerSocket serverskt = null;
 		Boolean keepServingRunning = true;
 		int serverPort = 2100;
 		ftpreq = null;
-		FtpClient myclient=new FtpClient(2100);
+		//FtpClient myclient=new FtpClient(2100);
 
 		try {
 			serverskt = new ServerSocket(serverPort);
@@ -41,7 +39,6 @@ public class TestFtpRequest {
 
 				if (ftpreq != null) {
 					ftpreq.start();
-					nbClients++;
 				}
 
 				System.out.println("Server:started thread FtpRequest for "

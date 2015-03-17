@@ -8,8 +8,20 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import com.restgateway.config.AppConfig;
-
+/**
+ * Main class to start Rest services.
+ * 
+ * 
+ * @author Emmeline Salomon & François Dubiez
+ *
+ */
 public class Starter {
+	/**
+	 * Main Method to start the rest server on port 8080.
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main( final String[] args ) throws Exception {
 		Server server = new Server( 8080 );
 		        

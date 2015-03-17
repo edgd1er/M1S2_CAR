@@ -1,0 +1,7 @@
+com.junit.restgateway
+com.restgateway
+com.restgateway.config
+com.restgateway.exceptions
+com.restgateway.rs
+com.restgateway.service
+com.restgateway.services

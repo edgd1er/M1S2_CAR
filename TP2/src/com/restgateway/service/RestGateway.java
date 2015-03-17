@@ -32,13 +32,11 @@ import com.restgateway.exceptions.NoLoginPasswordException;
 import com.restgateway.services.Credentials;
 import com.restgateway.services.FTPService;
 import com.restgateway.services.HTMLGenerator;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * FTP Gateway to allow browser to operate as a FTP Client.
  * 
- * Salomon Emeline & Dubiez François.
+ * Salomon Emmeline & Dubiez François.
  * 
  * Based on: * http://localhost:8080/rest/api/helloworld * @author Lionel
  * Seinturier <Lionel.Seinturier@univ-lille1.fr>
@@ -170,13 +168,15 @@ public class RestGateway {
 		msg += ftpService.loginToFtp(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				isPASV);
+		msg+= "</h1></body></html>";
 
 		ftpService.disconnectClient();
 
 		if (msg.toLowerCase().contains("error")) {
 			this.nameStorage.setLogin("");
 			this.nameStorage.setPassword("");
-			return new NoLoginPasswordException().getResponse();
+			//return new NoLoginPasswordException().getResponse();
+			return Response.ok(Status.BAD_REQUEST).entity(msg).build();
 		}
 		System.out.println("auth: "+sc.getAuthenticationScheme()+" \n" 
 				+ "user: "+sc.getUserPrincipal()+"\n" +
@@ -345,12 +345,19 @@ public class RestGateway {
 	@Consumes("multipart/form-data")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFile(
-		       @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
-		       @FormDataParam("fform") InputStream is2,
+		       //@DefaultValue("true") @FormParam("enabled") boolean enabled,
+		       //@FormParam("fform") InputStream is2,
 	           @Multipart(value="filename", type="text/plain") String filename,
                @Multipart(value="file", type="*/*") InputStream is) throws WebApplicationException{
 
-		
+		byte[] b=new byte[55];
+		int cnt=0;
+		try {
+			cnt=is.read(b,0, 50);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Response response = null;
 		
 		response = ftpService.postFile(ftpHostName, ftpPort,
@@ -360,6 +367,34 @@ public class RestGateway {
 		return response;
 	}
 
+	
+	@POST
+	@Path("/uploadfile")
+    //@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces(MediaType.TEXT_HTML)
+	public Response uploadFileForm(
+		       @DefaultValue("true") @FormParam("enabled") boolean enabled,
+		       @FormParam("fform") InputStream is2){
+
+
+		byte[] b=new byte[55];
+		int cnt=0;
+		try {
+			cnt=is2.read(b,0, 50);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Response response = null;
+		/*
+		response = ftpService.postFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", filename, is,
+				isPASV);
+				*/
+		return response;
+	}
 	
 	/**
 	 * Upload file through a put method 

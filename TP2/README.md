@@ -17,6 +17,8 @@ Les principales opérations FTP sont implémentées
 - delete
 - Liste
 
+Les methodes utilisant lupload ne fonctionnent pas, en effet, les informations ne
+ sont pas transmsises dans le formulaire d'envoi ( ni le fichier, ni les informations annexes)
 La liste des services exposées peut etre obtenues a l'URL ci-dessous:
 Liste des services: http://localhost:8080/rest/
 Descriptions methodes du service api/ftp : http://localhost:8080/rest/api?_wadl

@@ -9,7 +9,7 @@ import com.restgateway.services.HTMLGenerator;
  * Exception raised when incorrect path is send to FTP server.
  * 
  * 
- * @author user
+ * @author Emmeline Salomon & François Dubiez
  *
  */
 public class IncorrectPathException extends WebApplicationException {

@@ -24,6 +24,12 @@ import com.restgateway.exceptions.IncorrectPathException;
 import com.restgateway.exceptions.NoLoginPasswordException;
 import com.restgateway.services.HTMLGenerator;
 
+/**
+ * Class that will process all FTP operations towards FTP server.
+ * 
+ * @author Salomon Emmeline & Dubiez François.
+ *
+ */
 @Service
 public class FTPService {
 

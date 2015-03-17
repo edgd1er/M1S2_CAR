@@ -17,6 +17,13 @@ import org.springframework.context.annotation.DependsOn;
 import com.restgateway.rs.JaxRsApiApplication;
 import com.restgateway.service.RestGateway;
 import com.restgateway.services.FTPService;
+/**
+ * 
+ * Configuration of Rest service: adding beans that will be used.
+ * 
+ * @author Emmeline Salomon & François Dubiez
+ *
+ */
 
 @Configuration
 public class AppConfig {	

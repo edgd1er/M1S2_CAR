@@ -63,12 +63,13 @@ echo "#################################################"
 echo "##       tests welcome msg REST                ##"
 echo "#################################################"
 
-
+param="-is -X GET "
 url="${urlstart}ftp"
 expect="This is a Web gateway"
 txt="\nRest Welcome message: "
 testoracle
 
+param="-is -X GET "
 url="${urlstart}ftp/welcome"
 expect="220  	Service ready for new user on"
 txt="\nFTP Through Rest Welcome message: "
@@ -80,18 +81,19 @@ echo "#################################################"
 echo "##       test login/list   msg                 ##"
 echo "#################################################"
 
-
+param="-is -X GET "
 url="${urlstart}ftp/login/${login}/password/zz"
 expect="no login, password found."
 txt="unrecognized user, should be warned about the error"
 testoracle
 
+param="-is -X GET "
 url="${urlstart}ftp/login/${login}/password/${password}"
 expect="Location: http://localhost:8080/rest/api/ftp/list"
 txt="logged user, should be redirected to list page"
 testoracle
 
-
+param="-is -X GET "
 url="${urlstart}ftp/list"
 expect="baboon_gray.png"
 txt="logged user, should see the file baboon_gray.png in homedir/"${login}
@@ -125,6 +127,7 @@ testoracle
 #curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
 #### TO CORRECT ###
 param="-isv -X POST --form key1=value1 -F press=submit  -H file=1 -F fform=@/tmp/homedir/anonymous/${e1file}"
+#param="-isv --data-urlencode name@/tmp/homedir/anonymous/${e1file}"
 url="${urlstart}ftp/uploadfile"
 expect="HTTP/1.1 200 OK"
 txt="Logged user, should be able to upload a file giving name:"

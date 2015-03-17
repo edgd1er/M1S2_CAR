@@ -1,3 +1,4 @@
+package com.junit.restgateway;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -6,8 +7,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-public class testFTPService {
+/**
+ * Junit Test for login/logout
+ * 
+ * @author user
+ *
+ */
+public class testLoginLogout {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
