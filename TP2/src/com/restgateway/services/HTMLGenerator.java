@@ -137,7 +137,7 @@ public class HTMLGenerator {
 
 	public Response getUploadContent() {
 		String html = "<html>"+getCssContent()+"<body><h1>JAX-RS Upload Form</h1>";
-		html += "<form action=\"/rest/api/ftp/uploadfile\" method=\"post\" enctype=\"multipart/form-data\" >";
+		html += "<form action=\"/rest/api/ftp/uploadfile\" name=\"fform\" method=\"post\" enctype=\"multipart/form-data\" >";
 		html += "<p>";
 		html += "Select a file : <input type=\"file\" name=\"file\" size=\"50\" />";
 		html += "</p>";

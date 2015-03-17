@@ -18,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,6 +26,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
 import com.restgateway.exceptions.NoLoginPasswordException;
 import com.restgateway.services.Credentials;
@@ -339,23 +341,21 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/uploadfile")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    //@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Consumes("multipart/form-data")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFile(
 		       @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
-               @FormDataParam("file") InputStream file,
-	           @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+		       @FormDataParam("fform") InputStream is2,
+	           @Multipart(value="filename", type="text/plain") String filename,
+               @Multipart(value="file", type="*/*") InputStream is) throws WebApplicationException{
 
 		
 		Response response = null;
-		String filename ="nofilename.given";
-		if (fileDisposition!=null){
-			filename = fileDisposition.getFileName();
-			}
-
+		
 		response = ftpService.postFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				"", filename, file,
+				"", filename, is,
 				isPASV);
 		return response;
 	}
