@@ -16,7 +16,6 @@ import org.apache.commons.net.ftp.FTPFile;
  */
 public class HTMLGenerator {
 
-	public String path = "http://localhost:8080/rest/api/ftp/";
 
 	private static class SingletonHolder {
 		private final static HTMLGenerator instance = new HTMLGenerator();
@@ -51,11 +50,11 @@ public class HTMLGenerator {
 		String[] aString = cwd.split(File.separator);
 		String html = "", iterPath = "";
 
-		html += "<a href=\"" + path + "list?path=%2F\">/</a>";
+		html += "<a href=\"" + "list?path=%2F\">/</a>";
 		for (String str : aString) {
 			if (!str.equals("")) {
 				iterPath += "%2F" + str;
-				html += "<a href=\"" + path + "list?path="
+				html += "<a href=\"" +  "list?path="
 						+ iterPath + "\">" + str + "</a>/";
 			}
 
@@ -67,7 +66,6 @@ public class HTMLGenerator {
 		String tmp = "";
 		if (file.isDirectory())
 			tmp += "<img src=\"http://agingparentsauthority.com/wp-content/plugins/sem-theme-pro/icons/folder.png\" alt=\"[ ]\" /> <a href='"
-					+ path
 					+ "list?path="
 					+ cwd.replace("/", "%2F")
 					+ "%2F"
@@ -77,14 +75,12 @@ public class HTMLGenerator {
 		if (file.isFile()) {
 			tmp += "<img src=\"http://png.findicons.com/files/icons/2015/24x24_free_application/24/new_document.png\" alt=\"[ ]\" /> "
 					+ "<a href=\""
-					+ path
 					+ "delete?path="
 					+ cwd.replace("/", "%2F")
 					+ "&file="
 					+ file.getName()
 					+ "\"><img src=\"http://findicons.com/files/icons/2139/uidesign/16/delete.png\" /></a> "
 					+ "<a href=\""
-					+ path
 					+ "getfile?path="
 					+ cwd.replace("/", "%2F")
 					+ "&file="
@@ -94,12 +90,12 @@ public class HTMLGenerator {
 	}
 
 	public String getLogoutButton() {
-		return "<a class=\"btn btn-primary btn-large\" href=\"" + path
+		return "<a class=\"btn btn-primary btn-large\" href=\"" 
 				+ "logout\">Logout </a>";
 	}
 
 	public String getUpLoadButton(String cwd) {
-		return "<a href=\"" + path + "getUpLoadForm\">Upload</a>";
+		return "<a href=\"" +  "getUpLoadForm\">Upload</a>";
 	}
 
 	/******************************************************

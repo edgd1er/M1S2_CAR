@@ -25,6 +25,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
+import com.restgateway.exceptions.AuthenticationException;
+import com.restgateway.service.AuthenticationManager;
+import com.restgateway.service.ClientSession;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
@@ -52,6 +56,11 @@ public class RestGateway {
 	private Credentials nameStorage = new Credentials();
 	private static String ftpHostName = "127.0.0.1";
 	private static int ftpPort = 2100;
+	@Context
+	javax.ws.rs.core.HttpHeaders requestHeaders;
+	@Context
+	javax.ws.rs.core.UriInfo uriInfo;
+
 	/**
 	 * FTP Passive mode
 	 */
@@ -117,8 +126,26 @@ public class RestGateway {
 			@PathParam("lpass") final String loginPass,
 			@Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws IOException {
+		
+		 ClientSession session;
+		 //AuthenticationManager instance = AuthenticationManager.getInstance();
+		 
 		String msg = "<html>" + HTMLGenerator.getInstance().getCssContent()
 				+ "<body><h1>";
+		
+		
+		/*
+		  try {
+		      session = AuthenticationManager. ..getSession(requestHeaders, uriInfo);
+		    } catch (AuthenticationException e) {
+		      Response.ResponseBuilder response = Response.ok("401 Unauthorized").status(Response.Status.UNAUTHORIZED);
+		      List<String> ajaxHeader = requestHeaders.getRequestHeader("X-Requested-With");
+		      if (ajaxHeader == null || !requestHeaders.getRequestHeader("X-Requested-With").contains("XMLHttpRequest")) {
+		        response = response.header("WWW-Authenticate", "Basic");
+		      }
+		      return response.build();
+		    }
+		    */
 
 		this.nameStorage.setLogin(loginName);
 		this.nameStorage.setPassword(loginPass);
@@ -134,10 +161,16 @@ public class RestGateway {
 			return new NoLoginPasswordException().getResponse();
 		}
 
+		/*
+				try {
+		
+		      session = AuthenticationManager.getInstance().getSession(requestHeaders, uriInfo);
+		    }
+		    */
 		String contextPath = request.getContextPath();
 		response.sendRedirect(contextPath + "/api/ftp/list");
 		return Response.status(Status.ACCEPTED).build();
-
+		
 	}
 
 	/**
@@ -154,7 +187,8 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/loginPost")
-	public Response loginToFtpPost(@Context SecurityContext sc,@FormParam("lname") final String loginName,
+	public Response loginToFtpPost(@Context SecurityContext sc,
+			@FormParam("lname") final String loginName,
 			@FormParam("lpass") final String loginPass,
 			@Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws IOException {
@@ -168,22 +202,22 @@ public class RestGateway {
 		msg += ftpService.loginToFtp(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				isPASV);
-		msg+= "</h1></body></html>";
+		msg += "</h1></body></html>";
 
 		ftpService.disconnectClient();
 
 		if (msg.toLowerCase().contains("error")) {
 			this.nameStorage.setLogin("");
 			this.nameStorage.setPassword("");
-			//return new NoLoginPasswordException().getResponse();
+			// return new NoLoginPasswordException().getResponse();
 			return Response.ok(Status.BAD_REQUEST).entity(msg).build();
 		}
-		System.out.println("auth: "+sc.getAuthenticationScheme()+" \n" 
-				+ "user: "+sc.getUserPrincipal()+"\n" +
-				"secure: " + sc.isSecure());
-		
-		 String contextPath = request.getContextPath();
-		 
+		System.out.println("auth: " + sc.getAuthenticationScheme() + " \n"
+				+ "user: " + sc.getUserPrincipal() + "\n" + "secure: "
+				+ sc.isSecure());
+
+		String contextPath = request.getContextPath();
+
 		response.sendRedirect(contextPath + "/api/ftp/list");
 		return Response.status(Status.ACCEPTED).build();
 	}
@@ -341,63 +375,60 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/uploadfile")
-    //@Consumes(MediaType.MULTIPART_FORM_DATA)
+	// @Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Consumes("multipart/form-data")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFile(
-		       //@DefaultValue("true") @FormParam("enabled") boolean enabled,
-		       //@FormParam("fform") InputStream is2,
-	           @Multipart(value="filename", type="text/plain") String filename,
-               @Multipart(value="file", type="*/*") InputStream is) throws WebApplicationException{
+			// @DefaultValue("true") @FormParam("enabled") boolean enabled,
+			// @FormParam("fform") InputStream is2,
+			@Multipart(value = "filename", type = "text/plain") String filename,
+			@Multipart(value = "file", type = "*/*") InputStream is)
+			throws WebApplicationException {
 
-		byte[] b=new byte[55];
-		int cnt=0;
+		byte[] b = new byte[55];
+		int cnt = 0;
 		try {
-			cnt=is.read(b,0, 50);
+			cnt = is.read(b, 0, 50);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Response response = null;
-		
+
 		response = ftpService.postFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				"", filename, is,
-				isPASV);
+				"", filename, is, isPASV);
 		return response;
 	}
 
-	
 	@POST
 	@Path("/uploadfile")
-    //@Consumes(MediaType.MULTIPART_FORM_DATA)
+	// @Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFileForm(
-		       @DefaultValue("true") @FormParam("enabled") boolean enabled,
-		       @FormParam("fform") InputStream is2){
+			@DefaultValue("true") @FormParam("enabled") boolean enabled,
+			@FormParam("fform") InputStream is2) {
 
-
-		byte[] b=new byte[55];
-		int cnt=0;
+		byte[] b = new byte[55];
+		int cnt = 0;
 		try {
-			cnt=is2.read(b,0, 50);
+			cnt = is2.read(b, 0, 50);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Response response = null;
 		/*
-		response = ftpService.postFile(ftpHostName, ftpPort,
-				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-				"", filename, is,
-				isPASV);
-				*/
+		 * response = ftpService.postFile(ftpHostName, ftpPort,
+		 * this.nameStorage.getLogin(), this.nameStorage.getPassword(), "",
+		 * filename, is, isPASV);
+		 */
 		return response;
 	}
-	
+
 	/**
-	 * Upload file through a put method 
+	 * Upload file through a put method
 	 * 
 	 * @param filePath
 	 * @return
@@ -405,15 +436,15 @@ public class RestGateway {
 	@PUT
 	@Path("/upload/")
 	public Response putUpload(@QueryParam("file") String filePath) {
-	Response response = null;
-	
-	response = ftpService.postFile(ftpHostName, ftpPort,
-			this.nameStorage.getLogin(), this.nameStorage.getPassword(),
-			"",filePath,isPASV);
-	return response;
-	
+		Response response = null;
+
+		response = ftpService.postFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", filePath, isPASV);
+		return response;
+
 	}
-	
+
 	/**
 	 * Delete with delete method
 	 * 
