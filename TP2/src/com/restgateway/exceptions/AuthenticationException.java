@@ -3,7 +3,7 @@ package com.restgateway.exceptions;
 /**
  * The exception is used indicate a problem during client authentication.
  *
- * @author Thomas Durieux
+ * @author   Salomon Emmeline & Dubiez François.
  */
 public class AuthenticationException extends RuntimeException {
 

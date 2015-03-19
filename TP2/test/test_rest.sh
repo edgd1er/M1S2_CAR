@@ -124,49 +124,36 @@ expect="Content-Type: application/octet-stream"
 txt="Logged user, should be able to download a file giving a different path and name:"
 testoracle
 
-
-
-
-set -x
-
-#curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
 #### TO CORRECT ###
-param="-isv --data-urlencode fname=${e1file} --data-binary filename@{e1file} " 
-url="${urlstart}ftp/uploadfile2?file=${e1file}"
-expect="HTTP/1.1 200 OK"
-txt="Logged user, should be able to upload a file giving name:"
+param="-is --data-binary fname=${e1file} --data-binary filename@{e1file} " 
+url="${urlstart}ftp/uploadfilepost?file=${e1file}"
+expect="File Uploaded to FTP server"
+txt="Logged user, should be able to upload a file (POST, --data-urlencode )"
 testoracle
 
-exit
-
-# curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
 #### TO CORRECT ###
-param="-iv -X PUT -T ${e1file} "
-url="${urlstart}ftp/upload?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
+param="-is -X PUT --data-binary ${e1file} "
+url="${urlstart}ftp/uploadput?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
 expect="XXContent-Type: application/octet-stream"
-txt="Logged user, should not be able to download a file giving a different path and name:"
-testoracle
-exit
+txt="Logged user, should not be able to upload a file (PUT, -data-binary):"
+#testoracle
 
-#curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
 #### TO CORRECT ###
-param="-isv -X POST --form key1=value1 -F press=submit  -H file=1 -F fform=@/tmp/homedir/anonymous/${e1file}"
-#param="-isv --data-urlencode name@/tmp/homedir/anonymous/${e1file}"
-url="${urlstart}ftp/uploadfile"
+param="-is -X POST --form key1=value1 -F press=submit  -H file=1 -F fform=@/tmp/homedir/anonymous/${e1file}"
+#param="-is --data-urlencode name@/tmp/homedir/anonymous/${e1file}"
+url="${urlstart}ftp/uploadfilepost"
 expect="HTTP/1.1 200 OK"
-txt="Logged user, should be able to upload a file giving name:"
-testoracle
+txt="Logged user, should be able to upload a file (POST, --data-urlencode ):"
+#testoracle
  
-
 # curl -F "web=@index.html;type=text/html" url.com
 # curl --form upload=@localfilename --form press=OK [URL]
 #### TO CORRECT ###
 param="-is -X PUT "
-url="${urlstart}ftp/upload?file=${efile}"
+url="${urlstart}ftp/uploadput?file=${efile}"
 expect="File not found: 550"
 txt="Logged user, should not be able to post an existing file(PutFile):"
-testoracle
-
+#testoracle
 
 echo -e "\n"
 echo "#################################################"
@@ -197,9 +184,8 @@ expect='No login, password found'
 txt="Not logged user, should not be able to delete a file through get method:"
 testoracle
 
-
 param="-is -X PUT --data /tmp/homedir/${efile}"
-url="${urlstart}ftp/upload?file=%2ftmp%2fhomedir%2f${efile}"
+url="${urlstart}ftp/uploadput?file=%2ftmp%2fhomedir%2f${efile}"
 expect='No login, password found'
 txt="Not logged user, should not be able to delete a file through get method:"
 testoracle
@@ -242,9 +228,6 @@ testoracle
 
 
 echo -e "\033[1;34m#################################################"
-echo "TODO"
-echo " PUT upload, POST uploadfile"
-echo "#################################################"
 echo -e "#################################################\033[0m"
 
 

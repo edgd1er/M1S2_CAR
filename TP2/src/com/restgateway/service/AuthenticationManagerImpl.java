@@ -12,7 +12,7 @@ import org.apache.commons.net.util.Base64;
 /**
  * Class used to autheticate users based on basic authetification
  * 
- * @author Thomas Durieux
+ * @author Emmeline Salomon & François Dubiez
  */
 public class AuthenticationManagerImpl  {
 
@@ -40,7 +40,7 @@ public class AuthenticationManagerImpl  {
 
 		// login the user
 		try {
-			session.login();
+			//session.login();
 		} catch (ClientSessionException e) {
 			sessions.remove(session.getUsername() + ":" + session.getPassword());
 			throw new AuthenticationException(
@@ -90,7 +90,7 @@ public class AuthenticationManagerImpl  {
 		ClientSession session = sessions.get(username + ":" + password);
 		if (session == null) {
 			// create a new session
-			session = new ClientSessionImpl(username, password);
+			session = new ClientSession(username, password);
 			sessions.put(username + ":" + password, session);
 		}
 		return session;

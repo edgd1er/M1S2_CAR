@@ -6,7 +6,7 @@ import com.restgateway.exceptions.AuthenticationException;
 
 /**
  * Singleton used to authenticate users
- * @author Thomas Durieux
+ * @author Emmeline Salomon & François Dubiez
  */
 public interface AuthenticationManager {
 

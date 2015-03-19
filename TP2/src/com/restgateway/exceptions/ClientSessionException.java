@@ -4,7 +4,7 @@ package com.restgateway.exceptions;
  * This class is used when a problem is occured when we manipulate the client
  * session.
  *
- * @author Thomas Durieux
+ * @author Emmeline Salomon & François Dubiez
  */
 public class ClientSessionException extends RuntimeException {
 

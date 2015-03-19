@@ -1,50 +1,67 @@
 package com.restgateway.service;
 
-import com.restgateway.exceptions.ClientSessionException;
 import org.apache.commons.net.ftp.FTPClient;
 
 /**
- * This interface describes methods to manipulate the session of a client.
+ * This class stores all Session information of a spesific client.
  *
- * @author Thomas Durieux
+ * @author Emmeline Salomon & François Dubiez
  */
-public interface ClientSession {
+public class ClientSession {
 
+  private FTPClient ftpClient;
+  String username;
+  String password;
+  private boolean isLogged = false;
+  private boolean isConnected = false;
+
+  public void setLogged(boolean isLogged) {
+	this.isLogged = isLogged;
+}
+
+public ClientSession() {
+    ftpClient = new FTPClient();
+  }
+
+  public ClientSession(String username, String password) {
+    this();
+    this.username = username;
+    this.password = password;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public FTPClient getFTPClient() {
+    return ftpClient;
+  }
+
+  
   /**
-   * Connect the client to ftp server
-   *
-   * @throws ClientSessionException
+   * @see ClientSession
    */
-  void login() throws ClientSessionException;
+  public boolean isLogged() {
+    return isLogged;
+  }
 
-  /**
-   * Connect the client to ftp server
-   *
-   * @throws ClientSessionException
-   */
-  void connect() throws ClientSessionException;
+public boolean isConnected() {
+	return isConnected;
+}
 
-  /**
-   * Disconnect the client to ftp server
-   *
-   * @throws ClientSessionException
-   */
-  void disconnect() throws ClientSessionException;
-
-  String getUsername();
-
-  void setUsername(String username);
-
-  String getPassword();
-
-  void setPassword(String passwword);
-
-  FTPClient getFTPClient();
-
-  /**
-   * If the client is connected to the FTP server
-   *
-   * @return true if the client is connected to the FTP server
-   */
-  public boolean isLogged();
+public void setConnected(boolean isConnected) {
+	this.isConnected = isConnected;
+}
 }

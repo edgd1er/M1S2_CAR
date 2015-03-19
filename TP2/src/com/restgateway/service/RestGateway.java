@@ -2,6 +2,7 @@ package com.restgateway.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
-import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
@@ -379,22 +380,15 @@ public class RestGateway {
 	 */
 	@POST
 	@Path("/uploadfile")
-	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	// @Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Consumes("multipart/form-data")
-	//@Produces(MediaType.TEXT_HTML)
+	// @Produces(MediaType.TEXT_HTML)
 	public Response uploadFile(
-			// @DefaultValue("true") @FormParam("enabled") boolean enabled,
-			//@FormParam("filename") String filename,
-			//@FormParam("formfilefield") String is
-			@Multipart(value = "filename", type = "text/plain", required=false) String filename,
-			@Multipart(value = "formfilefield", type = "*/*",required=false) InputStream is
-			//@Context HttpServletRequest request,
-			//@Context HttpServletResponse response
-			)
+			@Multipart(value = "formfilefield", type = "*/*", required = false) InputStream is)
 			throws WebApplicationException {
-	
 
-		//request.getHeaders(filename);
+		//version 3.0.4 of CXF can handle content type, not the 2.7.2
+		String filename="toto.txt";
 		Response response = null;
 
 		response = ftpService.postFile(ftpHostName, ftpPort,
@@ -404,27 +398,50 @@ public class RestGateway {
 	}
 
 	@POST
-	@Path("/uploadfile2")
-	// @Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Consumes("application/x-www-form-urlencoded")
+	@Path("/uploadfilepost")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	//@Consumes("application/x-www-form-urlencoded")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFileForm(
 			@Context HttpServletRequest request,
 			@DefaultValue("true") @FormParam("enabled") boolean enabled,
 			@QueryParam("file") String filename2,
-			@Multipart(value = "fname", type = "text/plain", required=false) String filename,
-			@Multipart(value = "filename", type = "*/*",required=false) InputStream is) {
+			@Multipart(value = "fname", type = "text/plain", required = false) String filename,
+			@Multipart(value = "filename", type = "*/*", required = false) InputStream is) {
 
 		Response response = null;
-		
-		 filename = filename.equals("")?filename2: filename;
-		 response = ftpService.postFile(ftpHostName, ftpPort,
-		 this.nameStorage.getLogin(), this.nameStorage.getPassword(), "",
-		 filename, is, isPASV);
-		
+
+		filename = filename.equals("") ? filename2 : filename;
+		response = ftpService.postFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", filename, is, isPASV);
+
 		return response;
 	}
 
+	
+	@POST
+	@Path("/uploadfilepost")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces(MediaType.TEXT_HTML)
+	public Response uploadFilePost(
+			@Context HttpServletRequest request,
+			@DefaultValue("true") @FormParam("enabled") boolean enabled,
+			@QueryParam("file") String filename2,
+			@Multipart(value = "fname", type = "text/plain", required = false) String filename,
+			@Multipart(value = "filename", type = "*/*", required = false) InputStream is) {
+
+		Response response = null;
+
+		filename = filename.equals("") ? filename2 : filename;
+		response = ftpService.postFile(ftpHostName, ftpPort,
+				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
+				"", filename, is, isPASV);
+
+		return response;
+	}
+	
 	/**
 	 * Upload file through a put method
 	 * 
@@ -432,14 +449,19 @@ public class RestGateway {
 	 * @return
 	 */
 	@PUT
-	@Path("/upload")
+	@Path("/uploadput")
+	@Consumes("application/x-www-form-urlencoded")
 	public Response putUpload(@QueryParam("file") String fileName,
+			@Context UriInfo ui,
 			@Context HttpServletRequest request,
 			@Context HttpServletResponse Sresponse,
-			@FormParam("formfilefield") InputStream is)
-			 {
-		fileName = fileName.length()<1?"toto":fileName;
+			
+			@FormParam("formfilefield") InputStream is)  {
+		
+		
+		fileName = fileName.length() < 1 ? "toto" : fileName;
 		Response response = null;
+
 		response = ftpService.postFile(ftpHostName, ftpPort,
 				this.nameStorage.getLogin(), this.nameStorage.getPassword(),
 				"", fileName, is, isPASV);
