@@ -124,6 +124,16 @@ expect="Content-Type: application/octet-stream"
 txt="Logged user, should be able to download a file giving a different path and name:"
 testoracle
 
+set -x
+# curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
+#### TO CORRECT ###
+param="-iv -X PUT -T ${e1file} "
+url="${urlstart}ftp/upload?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
+expect="XXContent-Type: application/octet-stream"
+txt="Logged user, should not be able to download a file giving a different path and name:"
+testoracle
+exit
+
 #curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
 #### TO CORRECT ###
 param="-isv -X POST --form key1=value1 -F press=submit  -H file=1 -F fform=@/tmp/homedir/anonymous/${e1file}"
@@ -132,16 +142,9 @@ url="${urlstart}ftp/uploadfile"
 expect="HTTP/1.1 200 OK"
 txt="Logged user, should be able to upload a file giving name:"
 testoracle
-exit 
-# curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
-#### TO CORRECT ###
-param="-i -X PUT -T /tmp/homedir/anonymous/${efile1} "
-url="${urlstart}ftp/upload?file=%2Ftmp%2Fhomedir%2Fanonymous%2F${e1file}"
-expect="Content-Type: application/octet-stream"
-txt="Logged user, should not be able to download a file giving a different path and name:"
-#testoracle
+ 
 
-
+# curl -F "web=@index.html;type=text/html" url.com
 # curl --form upload=@localfilename --form press=OK [URL]
 #### TO CORRECT ###
 param="-is -X PUT "
@@ -180,6 +183,13 @@ expect='No login, password found'
 txt="Not logged user, should not be able to delete a file through get method:"
 testoracle
 
+
+param="-is -X PUT --data /tmp/homedir/${efile}"
+url="${urlstart}ftp/upload?file=%2ftmp%2fhomedir%2f${efile}"
+expect='No login, password found'
+txt="Not logged user, should not be able to delete a file through get method:"
+testoracle
+ 
 
 param="-is -X DELETE"
 url="${urlstart}ftp/delete/${efile}"

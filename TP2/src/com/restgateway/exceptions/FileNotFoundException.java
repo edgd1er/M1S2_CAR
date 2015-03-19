@@ -22,7 +22,7 @@ public class FileNotFoundException extends WebApplicationException {
 	public FileNotFoundException(final String fileName) {
 		super(
 				Response.status(Status.NOT_FOUND)
-						.entity("<html><meta http-equiv=\"refresh\" content=\"1; URL=\"javascript:history.back()\""
+						.entity("<html><meta http-equiv=\"refresh\" content=\"20; URL=\"javascript:history.back()\""
 								+ "><body><h1>File not Found: "
 								+ fileName
 								+ "</h1></body></html>").build());

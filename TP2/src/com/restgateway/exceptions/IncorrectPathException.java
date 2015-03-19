@@ -20,7 +20,7 @@ public class IncorrectPathException extends WebApplicationException {
 				Response.status(Status.BAD_REQUEST)
 						.entity("<html>"
 								+ HTMLGenerator.getInstance().getCssContent()
-								+ "<meta http-equiv=\"refresh\" content=\"1; URL=\"javascript:history.back()\""
+								+ "<meta http-equiv=\"refresh\" content=\"20; URL=\"javascript:history.back()\""
 								+ "\"><body><h1>!Incorrect path.(" + msg + ")"
 								+ "</h1></body></html>").build());
 	}

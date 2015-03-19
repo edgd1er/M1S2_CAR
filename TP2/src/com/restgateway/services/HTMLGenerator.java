@@ -17,7 +17,14 @@ import org.apache.commons.net.ftp.FTPFile;
 public class HTMLGenerator {
 
 
+	/**
+	 * @author   dubiez
+	 */
 	private static class SingletonHolder {
+		/**
+		 * @uml.property  name="instance"
+		 * @uml.associationEnd  
+		 */
 		private final static HTMLGenerator instance = new HTMLGenerator();
 	}
 
@@ -140,9 +147,9 @@ public class HTMLGenerator {
 
 	public Response getUploadContent() {
 		String html = "<html>"+getCssContent()+"<body><h1>JAX-RS Upload Form</h1>";
-		html += "<form method=\"post\" enctype=\"multipart/form-data\" action=\"/rest/api/ftp/uploadfile\" name=\"fform\" >\n";
+		html += "<form method=\"post\" enctype=\"multipart/form-data\" action=\"/rest/api/ftp/uploadfile\" >\n";
 		html += "<p>\n";
-		html += "Select a file : <input type=\"file\" name=\"formfilefield\" size=\"50\" />\n";
+		html += "Select a file : <input type=\"file\" name=\"formfilefield\" id=\"formfilefield\"  />\n";
 		html += "</p>\n";
 		html += "<input type=\"submit\" name=\"press\" value=\"UploadIt\" />\n";
 		html += "</form>\n";

@@ -21,7 +21,7 @@ public class NoLoginPasswordException extends WebApplicationException {
 				Response.status(Status.BAD_REQUEST)
 						.entity("<html>"
 								+ HTMLGenerator.getInstance().getCssContent()
-								//+ "<meta http-equiv=\"refresh\" content=\"1; URL=\"javascript:history.back()\" >"
+								//+ "<meta http-equiv=\"refresh\" content=\"20; URL=\"javascript:history.back()\" >"
 								+ "<body><h1>No login, password found. Please, login before any other operation"
 								+ "</h1></body></html>").build());
 	}

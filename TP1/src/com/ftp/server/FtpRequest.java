@@ -375,7 +375,10 @@ public class FtpRequest extends Thread {
 			}
 
 			myftpData.setCommande(commande);
-			myftpData.setParametre(currentDir + File.separator + parametre);
+			if (!parametre.startsWith("/")) {
+				parametre = currentDir + File.separator + parametre;
+			}
+			myftpData.setParametre(parametre);
 			myftpData.setASCII(ftpType.equals("A") ? true : false);
 
 			rep = "150";
@@ -419,8 +422,10 @@ public class FtpRequest extends Thread {
 
 				if (myftpData != null) {
 					myftpData.setCommande(commande);
-					myftpData.setParametre(currentDir + File.separator
-							+ parametre);
+					if (!parametre.startsWith("/")) {
+						parametre = currentDir + File.separator + parametre;
+					}
+					myftpData.setParametre(parametre);
 				} else {
 					myftpData = new FtpData(dataSrvSocket, cltDataAddr,
 							cltDataPort, null, commande, currentDir

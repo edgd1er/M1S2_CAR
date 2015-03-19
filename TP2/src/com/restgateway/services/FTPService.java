@@ -26,19 +26,28 @@ import com.restgateway.services.HTMLGenerator;
 
 /**
  * Class that will process all FTP operations towards FTP server.
- * 
- * @author Salomon Emmeline & Dubiez François.
- *
+ * @author   Salomon Emmeline & Dubiez François.
  */
 @Service
 public class FTPService {
 
+	/**
+	 * @uml.property  name="ftpClient"
+	 */
 	FTPClient ftpClient = null;
 
+	/**
+	 * @return
+	 * @uml.property  name="ftpClient"
+	 */
 	public FTPClient getFtpClient() {
 		return ftpClient;
 	}
 
+	/**
+	 * @param  ftpClient
+	 * @uml.property  name="ftpClient"
+	 */
 	public void setFtpClient(FTPClient ftpClient) {
 		this.ftpClient = ftpClient;
 	}
@@ -322,11 +331,12 @@ public class FTPService {
 
 					ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 					ftpClient.changeWorkingDirectory(remotePath);
-					if (ftpClient.storeFile(remotePath + fname, in))
+					if (ftpClient.storeFile(remotePath + File.separatorChar+ fname, in))
 					{
 					response = HTMLGenerator.getInstance().getFileUploadedContent();
 					} else {
-						response = new FileNotUploadedException(remotePath + fname).getResponse();
+						response = new FileNotUploadedException(remotePath + File.separator+ fname).getResponse();
+						System.err.println(ftpClient.getReplyString());
 					}
 
 					disconnectClient();
