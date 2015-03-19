@@ -124,7 +124,21 @@ expect="Content-Type: application/octet-stream"
 txt="Logged user, should be able to download a file giving a different path and name:"
 testoracle
 
+
+
+
 set -x
+
+#curl -is -X POST -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/uploadfile
+#### TO CORRECT ###
+param="-isv --data-urlencode fname=${e1file} --data-binary filename@{e1file} " 
+url="${urlstart}ftp/uploadfile2?file=${e1file}"
+expect="HTTP/1.1 200 OK"
+txt="Logged user, should be able to upload a file giving name:"
+testoracle
+
+exit
+
 # curl -is -X PUT -T /tmp/homedir/anonymous/test.jpg    -o temp.log http://localhost:8080/rest/api/ftp/upload?file=/tmp/homedir/anonymous/test.jpg
 #### TO CORRECT ###
 param="-iv -X PUT -T ${e1file} "

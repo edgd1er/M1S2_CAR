@@ -409,16 +409,19 @@ public class RestGateway {
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces(MediaType.TEXT_HTML)
 	public Response uploadFileForm(
+			@Context HttpServletRequest request,
 			@DefaultValue("true") @FormParam("enabled") boolean enabled,
-			@FormParam("filename") String filename,
-			@FormParam("formfilefield") InputStream is2) {
+			@QueryParam("file") String filename2,
+			@Multipart(value = "fname", type = "text/plain", required=false) String filename,
+			@Multipart(value = "filename", type = "*/*",required=false) InputStream is) {
 
 		Response response = null;
-		/*
-		 * response = ftpService.postFile(ftpHostName, ftpPort,
-		 * this.nameStorage.getLogin(), this.nameStorage.getPassword(), "",
-		 * filename, is, isPASV);
-		 */
+		
+		 filename = filename.equals("")?filename2: filename;
+		 response = ftpService.postFile(ftpHostName, ftpPort,
+		 this.nameStorage.getLogin(), this.nameStorage.getPassword(), "",
+		 filename, is, isPASV);
+		
 		return response;
 	}
 
