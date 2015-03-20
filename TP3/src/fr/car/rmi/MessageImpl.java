@@ -16,7 +16,7 @@ public class MessageImpl implements Message, Serializable {
 	}
 
 	/**
-	 * @see lille1.car3.durieux_gouzer.rmi.Message#getContent()
+	 * @see #getContent()
 	 */
 	@Override
 	public String getContent() {
@@ -24,7 +24,7 @@ public class MessageImpl implements Message, Serializable {
 	}
 
 	/**
-	 * @see lille1.car3.durieux_gouzer.rmi.Message#getSender()
+	 * @see #getSender()
 	 */
 	@Override
 	public SiteItf getSender() {

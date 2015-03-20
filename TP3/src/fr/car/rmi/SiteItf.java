@@ -3,7 +3,7 @@ package fr.car.rmi;
 /**
  * Serveur allows to send and reveive a message from an RMI Object
  * 
- * @author Emeline SALOMON & François DUBIEZ
+ * @author Emeline SALOMON & Francois DUBIEZ
  * 
  */
 public interface SiteItf {

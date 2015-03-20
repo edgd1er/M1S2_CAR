@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 /**
  * is a utility class used to load ini file
  * 
- * @author Durieux Thomas
+M1S2_CAR
  */
 public class PropertiesUtilityImpl implements PropertiesUtility {
 	/* Instance */
