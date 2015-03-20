@@ -23,6 +23,7 @@ La liste des services exposées peut etre obtenues a l'URL ci-dessous:
 Liste des services: http://localhost:8080/rest/
 Descriptions methodes du service api/ftp : http://localhost:8080/rest/api?_wadl
 
+Le POST/GET pour uploader les fichiers ne fonctionnent pas. A priori, le CXF est une version trop ancienne pour que les informations du multipart soient prisent en compte.
 
 La RFC 2616 indique les utilisations des différents verbes: http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 
