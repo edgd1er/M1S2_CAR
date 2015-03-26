@@ -58,59 +58,18 @@ public class Node {
 		}
 
 		//create new node and register it.
-		try {
-			site = new SiteImpl(siteName);
-			registry.rebind(site.getName(), site);
-			System.out.println("Site " + site.getName() + " créé.");
-		} catch (final RemoteException e) {
+		try{
+		site = new SiteImpl(siteName,port);
+		}
+		catch(RemoteException e){
 			System.err
-					.println("Error, cannot find Unable to connect to RMI server "
-							+ e.getMessage());
-			System.exit(-1);
+			.println("Error, cannot create and/or register " + siteName + "on registry port "+ String.valueOf(port)+" :"
+					+ e.getMessage());
+	System.exit(-1);
+			
 		}
+		
 
-
-		// kill node afer having suppressed itself from addressBook.
-		Thread T = new Thread() {
-			public Registry registry;
-			public SiteImpl site;
-
-			public void setup(Registry reg, SiteImpl site) {
-				this.registry = reg;
-				this.site = site;
-			}
-
-			@Override
-			public void run() {
-				RemoveSite(this.registry, this.site);
-			}
-		};
-
-		// T.setup(registry,site);
-		Runtime.getRuntime().addShutdownHook(T);
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					Thread.currentThread().sleep(99999999);
-				} catch (final InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}).start();
-	}
-
-	private static void RemoveSite(Registry registry, final SiteImpl site) {
-		String lname = "";
-		try {
-			lname = site.getName();
-			registry.unbind(lname);
-		} catch (final Exception e) {
-			throw new RuntimeException("Error while removing site " + lname
-					+ " from registry.");
-		}
 	}
 
 	public static void getArgs(String[] args) {

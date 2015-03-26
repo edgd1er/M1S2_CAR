@@ -12,86 +12,77 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import fr.car.rmi.core.SiteImpl;
+import fr.car.rmi.core.Message;
+import fr.car.rmi.core.MessageImpl;
+import fr.car.rmi.core.SiteItf;
 
 /**
- * is an executable class used to connect 2 sites. The main has parameters:
- * "siteName1->siteName2" [rmiPort].
+ * Send message from a sit to its child.
  * 
  * @author Emeline SALOMON & Francois DUBIEZ
  * 
  */
-public class NodeConnect {
+public class SendMessage {
 
-	static String host = "";
-	static int port = 0;
-	static String strCom = "";
-	static Registry registry;
+	static String host;
+	static int port;
+	static String siteName;
+	static String message;
 
 	public static void main(final String[] args) {
 
-		String siteName1 = null;
-		String siteName2 = null;
-		SiteImpl site1 = null;
-		SiteImpl site2 = null;
+		Registry registry=null;
+		SiteItf site = null;
 
 		getArgs(args);
 
 		try {
-			registry = LocateRegistry.getRegistry(port);
-		} catch (RemoteException e) {
+			registry = LocateRegistry.getRegistry(host, port);
+		} catch (final RemoteException e1) {
 			System.err.println("Error, cannot contact local registry on port "
-					+ String.valueOf(port));
+					+ String.valueOf(port) + " :" + e1.getMessage());
 			System.exit(-1);
+
 		}
 
 		try {
-
-			site1 = (SiteImpl) registry.lookup(siteName1);
+			site = (SiteItf) registry.lookup(siteName);
+			sendMessage(site, message);
 		} catch (final Exception e) {
-			System.err.println("Impossible de touver le site " + siteName1);
+			System.err.println("Site " + siteName + " non trouvé");
 			System.exit(-1);
 		}
+
+	}
+
+	private static void sendMessage(SiteItf site, final String message) {
+		Message m = new MessageImpl(message, site);
 		try {
-			site2 = (SiteImpl) registry.lookup(siteName2);
+			site.send(m);
 		} catch (final Exception e) {
-			System.err.println("Impossible de touver le site " + siteName2);
-			System.exit(-1);
-		}
-
-		try {
-			// site2 is a child of site1
-			site1.addSite(site2);
-			// site2 has site1 as father
-			site2.setFatherNode(site1);
-
-		} catch (final RemoteException e) {
-			System.err.println("Impossible de connecter " + siteName1 + " et "
-					+ siteName2 + " :" + e.getMessage());
-			System.exit(-1);
-
+			throw new RuntimeException("Impossible d'envoyer le message");
 		}
 	}
 
 	public static void getArgs(String[] args) {
 		// create option port
-		Option oConnect1 = new Option("s", "source", true,
-				"sitename 1 as parent node.");
-		Option oConnect2 = new Option("d", "destination", true,
-				"sitename 2 as child node.");
+		Option oSource = new Option("s", "source", true,
+				"sitename 1 as source node.");
+		Option oMessage = new Option("m", "message", true,
+				"message to be send (String).");
 		Option oHost = new Option("a", "addressbook", true,
-				"Name of the local registry (aka adressBook.jar)");
+				"Name of the local registry");
 		Option oPort = new Option("p", "port", true,
 				"port number of the local addressBook (port between 1024 and 65535");
 		Option oHelp = new Option("h", "help", false, "Get this help message");
 		// create Options object
 		Options options = new Options();
-		oConnect1.setRequired(true);
-		oConnect2.setRequired(true);
+		oSource.setRequired(true);
+		oMessage.setRequired(true);
 		oHost.setRequired(true);
 		oPort.setRequired(true);
-		options.addOption(oConnect1);
-		options.addOption(oConnect2);
+		options.addOption(oSource);
+		options.addOption(oMessage);
 		options.addOption(oHost);
 		options.addOption(oPort);
 		options.addOption(oHelp);
@@ -131,12 +122,6 @@ public class NodeConnect {
 				formatter.printHelp("addressbook", options);
 			}
 		}
-
-		// setting local siteName
-		if (cmd.hasOption('c')) {
-			strCom = cmd.getOptionValue('c');
-		}
-
 	}
 
 }

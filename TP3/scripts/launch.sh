@@ -53,6 +53,20 @@ function startRmi {
     sleep 1
 }
 
+function startAdressBook {
+    echo -e "$GRN Starting AdressBook... $WHT"
+    if [ -z "$AJAR" ]; then
+        echo -e "\n $RED Error, AdressBook jar not found. Please check path and/or Java installation. $WHT \n"
+        killAll
+        exit
+    fi 
+    
+    $AJAR ${APORT} &
+    sleep 1
+}
+
+
+
 function startMessage {
     echo -e "$GRN Starting message app in another terminal... $WHT"
     $TERMINAL -e "java -jar $JAR_PATH/${MJAR} 1 testMessage" . &
@@ -82,10 +96,11 @@ function createConnections {
 # kill all instances of previous runs
 killAll
 
-set -x
+#AdressBook should be start on another terminal
 # start the rmi registry
-startRmi
-
+# startRmi
+# start AdressBook
+# startAddressBook
 
 # Spawn a fixed number of nodes
 startNode

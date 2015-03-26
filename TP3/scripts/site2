@@ -1,7 +1,0 @@
-Error, cannot create parser.Missing required options: p, c
-usage: NodeConnect
- -a,--addressbook <arg>   Name of the local registry (aka adressBook.jar)
- -c,--connection <arg>    sitename 1 -> sitename 2.
- -h,--help                Get this help message
- -p,--port <arg>          port number of the local addressBook (port
-                          between 1024 and 65535
