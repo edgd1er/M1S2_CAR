@@ -13,7 +13,7 @@ public interface Message {
 	 * 
 	 * @return message content
 	 */
-	String getContent();
+	String getContent() ;
 
 	/**
 	 *  

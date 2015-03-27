@@ -18,7 +18,7 @@ import org.apache.commons.cli.ParseException;
 
 import fr.car.rmi.core.SiteItf;
 
-public class AddressBook {
+public class AdressBook {
 
 	/**
 	 * @param args

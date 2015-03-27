@@ -27,11 +27,12 @@ public class NodeConnect {
 	static int port = 0;
 	static String strCom = "";
 	static Registry registry;
+	static String siteName1 = null;
+	static String siteName2 = null;
+	
 
 	public static void main(final String[] args) {
 
-		String siteName1 = null;
-		String siteName2 = null;
 		SiteImpl site1 = null;
 		SiteImpl site2 = null;
 
@@ -132,11 +133,17 @@ public class NodeConnect {
 			}
 		}
 
-		// setting local siteName
-		if (cmd.hasOption('c')) {
-			strCom = cmd.getOptionValue('c');
+		// setting father siteName
+		if (cmd.hasOption('s')) {
+			siteName1 = cmd.getOptionValue('s');
 		}
 
+		// setting child siteName
+		if (cmd.hasOption('d')) {
+			siteName2 = cmd.getOptionValue('d');
+		}
+
+		
 	}
 
 }

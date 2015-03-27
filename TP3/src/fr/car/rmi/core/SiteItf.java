@@ -70,14 +70,16 @@ public interface SiteItf extends Remote {
 	 * 
 	 * @return
 	 */
-	public void setFatherNode(SiteItf father);
+	public void setFatherNode(SiteItf father) throws RemoteException;
+
 
 	/**
 	 * Set a Father to the node
 	 * 
 	 * @return
 	 */
-	public void removeFatherNode();
+	public void removeFatherNode() throws RemoteException;
+
 
 	
 	/**
@@ -85,7 +87,7 @@ public interface SiteItf extends Remote {
 	 * 
 	 * @return
 	 */
-	public SiteItf getFatherNode();
+	public SiteItf getFatherNode() throws RemoteException;
 
 
 	/**

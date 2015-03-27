@@ -42,7 +42,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	}
 
 	@Override
-	public void send(Message message) {
+	public void send(Message message)  throws RemoteException {
 
 		synchronized (this.receivedMessages) {
 			if (this.receivedMessages.contains(message)) {
@@ -134,7 +134,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public void setFatherNode(SiteItf father) {
+	public void setFatherNode(SiteItf father)  throws RemoteException {
 		this.FatherNode = father;
 	}
 
@@ -143,7 +143,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public void removeFatherNode() {
+	public void removeFatherNode()  throws RemoteException {
 		this.FatherNode = null;
 	}
 
@@ -152,7 +152,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public SiteItf getFatherNode() {
+	public SiteItf getFatherNode()  throws RemoteException {
 		return FatherNode;
 	}
 
