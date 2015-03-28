@@ -1,5 +1,6 @@
 package fr.car.rmi;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -150,7 +151,18 @@ public class AdressBook {
 					throw new RuntimeException(
 							"Impossible d'accéder à la liste", e);
 				}
-			} else {
+			} else if (line.startsWith("clearch")){
+				SiteItf site;
+				try{
+				for (final String siteName : registry.list()){
+					site = (SiteItf) registry.lookup(siteName);
+					site.clearSites();
+					site.clearFatherNodes();
+					}}
+				catch(RemoteException | NotBoundException e){
+					System.err.println(e.getMessage());
+				}
+			}else {
 				System.out.println("Commande non trouvée.");
 			}
 		}

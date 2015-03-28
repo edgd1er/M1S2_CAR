@@ -11,14 +11,14 @@ import java.util.UUID;
 * @author Emeline SALOMON & Francois DUBIEZ
  *
  */
-public class MessageImpl implements Message, Serializable {
+public class MessageImpl implements MessageItf, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6462432972907426065L;
 	private final UUID id = UUID.randomUUID();
 	private final String content;
-	private final SiteItf sender;
+	private SiteItf sender;
 
 
 	public MessageImpl(final String content, final SiteItf sender) {
@@ -44,14 +44,14 @@ public class MessageImpl implements Message, Serializable {
 	}
 
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-		return result;
+	
+	public void setSender(SiteItf sender) {
+		this.sender = sender;
 	}
 
+	public UUID getId() {
+		return id;
+	}
 	
 	@Override
 	public boolean equals(final Object obj) {
@@ -74,5 +74,10 @@ public class MessageImpl implements Message, Serializable {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public UUID getUUID() {
+		return this.id;
 	}
 }

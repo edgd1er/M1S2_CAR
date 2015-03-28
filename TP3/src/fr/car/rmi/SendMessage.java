@@ -12,7 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import fr.car.rmi.core.Message;
+import fr.car.rmi.core.MessageItf;
 import fr.car.rmi.core.MessageImpl;
 import fr.car.rmi.core.SiteItf;
 
@@ -31,7 +31,7 @@ public class SendMessage {
 
 	public static void main(final String[] args) {
 
-		Registry registry=null;
+		Registry registry = null;
 		SiteItf site = null;
 
 		getArgs(args);
@@ -56,7 +56,7 @@ public class SendMessage {
 	}
 
 	private static void sendMessage(SiteItf site, final String message) {
-		Message m = new MessageImpl(message, site);
+		MessageItf m = new MessageImpl(message, site);
 		try {
 			site.send(m);
 		} catch (final Exception e) {
@@ -98,7 +98,7 @@ public class SendMessage {
 		} catch (ParseException e2) {
 			System.out
 					.println("Error, cannot create parser." + e2.getMessage());
-			formatter.printHelp("NodeConnect", options);
+			formatter.printHelp("sendMessage", options);
 			System.exit(-11);
 		}
 
@@ -122,6 +122,15 @@ public class SendMessage {
 				formatter.printHelp("addressbook", options);
 			}
 		}
-	}
 
+		// setting sender siteName
+		if (cmd.hasOption('s')) {
+			siteName = cmd.getOptionValue('s');
+		}
+
+		// setting message
+		if (cmd.hasOption('m')) {
+			message = cmd.getOptionValue('m');
+		}
+	}
 }

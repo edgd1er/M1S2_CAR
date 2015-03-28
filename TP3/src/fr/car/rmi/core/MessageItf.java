@@ -1,5 +1,7 @@
 package fr.car.rmi.core;
 
+import java.util.UUID;
+
 
 
 /**
@@ -8,7 +10,16 @@ package fr.car.rmi.core;
 * @author Emeline SALOMON & Francois DUBIEZ
  * 
  */
-public interface Message {
+public interface MessageItf {
+	
+	/**
+	 * Get message if 
+	 * 
+	 * @return UUID
+	 */
+	UUID getUUID();
+	
+	
 	/**
 	 * 
 	 * @return message content

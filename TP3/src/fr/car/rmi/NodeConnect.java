@@ -12,7 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import fr.car.rmi.core.SiteImpl;
+import fr.car.rmi.core.SiteItf;
 
 /**
  * is an executable class used to connect 2 sites. The main has parameters:
@@ -33,8 +33,8 @@ public class NodeConnect {
 
 	public static void main(final String[] args) {
 
-		SiteImpl site1 = null;
-		SiteImpl site2 = null;
+		SiteItf site1 = null;
+		SiteItf site2 = null;
 
 		getArgs(args);
 
@@ -48,15 +48,15 @@ public class NodeConnect {
 
 		try {
 
-			site1 = (SiteImpl) registry.lookup(siteName1);
+			site1 = (SiteItf) registry.lookup(siteName1);
 		} catch (final Exception e) {
-			System.err.println("Impossible de touver le site " + siteName1);
+			System.err.println("Error, cannot find site " + siteName1 +" :" + e.getMessage());
 			System.exit(-1);
 		}
 		try {
-			site2 = (SiteImpl) registry.lookup(siteName2);
+			site2 = (SiteItf) registry.lookup(siteName2);
 		} catch (final Exception e) {
-			System.err.println("Impossible de touver le site " + siteName2);
+			System.err.println("Error, cannot find site " + siteName2 +" :" + e.getMessage());
 			System.exit(-1);
 		}
 
@@ -67,8 +67,9 @@ public class NodeConnect {
 			site2.setFatherNode(site1);
 
 		} catch (final RemoteException e) {
-			System.err.println("Impossible de connecter " + siteName1 + " et "
+			System.err.println("Cannot connect " + siteName1 + " to "
 					+ siteName2 + " :" + e.getMessage());
+			e.printStackTrace();
 			System.exit(-1);
 
 		}

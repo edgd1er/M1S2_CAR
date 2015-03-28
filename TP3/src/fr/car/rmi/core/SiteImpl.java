@@ -16,7 +16,8 @@ import java.util.List;
  * @author Emeline SALOMON & Francois DUBIEZ
  * 
  */
-public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializable {
+public class SiteImpl extends UnicastRemoteObject implements SiteItf,
+		Serializable {
 
 	/**
 	 * 
@@ -25,7 +26,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	private final String name;
 	private final List<SiteItf> childNodes;
 	private SiteItf FatherNode;
-	private final List<Message> receivedMessages;
+	private final List<MessageItf> receivedMessages;
 	private Registry myReg;
 
 	public SiteImpl(final String name, Integer port) throws RemoteException {
@@ -33,7 +34,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 		this.name = name;
 		this.childNodes = new ArrayList<SiteItf>();
 		this.FatherNode = null;
-		this.receivedMessages = new ArrayList<Message>();
+		this.receivedMessages = new ArrayList<MessageItf>();
 		if (myReg == null) {
 			myReg = LocateRegistry.getRegistry(port);
 		}
@@ -42,28 +43,64 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	}
 
 	@Override
-	public void send(Message message)  throws RemoteException {
+	public void send(MessageItf message) throws RemoteException {
+
+		boolean contained = false;
+		String alreadySendUUID = "";
 
 		synchronized (this.receivedMessages) {
-			if (this.receivedMessages.contains(message)) {
-				return;
+			for (MessageItf m : this.receivedMessages) {
+				if (m.getUUID().equals(message.getUUID())) {
+					contained = true;
+					alreadySendUUID = message.getUUID().toString();
+				}
 			}
 		}
 
-		this.receivedMessages.add(message);
-		try {
-			this.receive(message);
+		if (!contained) {
+			this.receivedMessages.add(message);
+			try {
+				this.receive(message);
 
-			for (final SiteItf child : this.childNodes) {
-				if (!child.equals(message.getSender())) {
-					child.send(message);
-					System.out.println(this.getName() + " sent a message("
-							+ message.getContent() + ") to " + child.getName());
+				for (SiteItf child : this.childNodes) {
+					// inner class to run thread thread
+					class myThread extends Thread {
+
+						private SiteItf child;
+						private MessageItf message;
+
+						public myThread(SiteItf child, MessageItf message) {
+							this.child = child;
+							this.message = message;
+						}
+
+						public void run() {
+							try {
+								child.send(message);
+							} catch (RemoteException e) {
+								try {
+									System.err.println("Error, node " + child.getName() + " did not send its message!!!");
+								} catch (RemoteException e1) {
+								}
+								e.printStackTrace();
+							}
+						}
+
+					}
+					myThread t = new myThread(child, message);
+					t.start();
+					
+					System.out.println("node " + this.getName()
+							+ " sent a message(" + message.getContent()
+							+ ") to " + child.getName());
 				}
+			} catch (RemoteException e) {
+				throw new RuntimeException("Unable to send message to node ", e);
 			}
-		} catch (RemoteException e) {
-			throw new RuntimeException("Unable to send message to node ", e);
-
+		} else {
+			System.out.println("Already treated message on node :"
+					+ this.getName() + " " + message.getUUID().toString()
+					+ " = " + alreadySendUUID);
 		}
 	}
 
@@ -72,10 +109,11 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 */
 	@Override
-	public void receive(Message message) throws RemoteException {
+	public void receive(MessageItf message) throws RemoteException {
 
-		System.out.println("Le noeud " + message.getSender().getName()
-				+ " vient de recevoir le message '" + message + "'.");
+		System.out.println("Node " + this.getName() + " has just received "
+				+ " a message: '" + message.getContent() + "' initiated by "
+				+ message.getSender().getName() + ".");
 	}
 
 	/**
@@ -107,6 +145,11 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 
 	}
 
+	public void clearSites() throws RemoteException {
+		this.childNodes.clear();
+
+	}
+
 	/**
 	 * return list of child node.
 	 * 
@@ -125,7 +168,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * @throws RemoteException
 	 */
 	@Override
-	public List<Message> getReceivedMessages() throws RemoteException {
+	public List<MessageItf> getReceivedMessages() throws RemoteException {
 		return this.receivedMessages;
 	}
 
@@ -134,7 +177,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public void setFatherNode(SiteItf father)  throws RemoteException {
+	public void setFatherNode(SiteItf father) throws RemoteException {
 		this.FatherNode = father;
 	}
 
@@ -143,7 +186,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public void removeFatherNode()  throws RemoteException {
+	public void removeFatherNode() throws RemoteException {
 		this.FatherNode = null;
 	}
 
@@ -152,7 +195,7 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 	 * 
 	 * @return
 	 */
-	public SiteItf getFatherNode()  throws RemoteException {
+	public SiteItf getFatherNode() throws RemoteException {
 		return FatherNode;
 	}
 
@@ -181,6 +224,12 @@ public class SiteImpl extends UnicastRemoteObject  implements SiteItf, Serializa
 			e.printStackTrace();
 		}
 		System.exit(0);
+	}
+
+	@Override
+	public void clearFatherNodes() throws RemoteException {
+		this.FatherNode = null;
+
 	}
 
 }

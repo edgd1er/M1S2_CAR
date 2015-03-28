@@ -21,12 +21,12 @@ TERMINAL="gnome-terminal" # xterm
 JAR_PATH="../jar"
 CLASS_PATH="`pwd`/jar/adressbook.jar:fr/car/rmi"
 REGISTRY=`which rmiregistry`
-AJAR="addressbook.jar"
+AJAR="adressbook.jar"
 NJAR="node.jar"
 AHOST="127.0.0.1"
 APORT="2100"
-MJAR="sendMessage.jar"
-CJAR="nodeConnect.jar"
+MJAR="sendmessage.jar"
+CJAR="nodeconnect.jar"
 
 
 
@@ -61,15 +61,15 @@ function startAdressBook {
         exit
     fi 
     
-    $AJAR ${APORT} &
-    sleep 1
+    ${TERMINAL} -e "java -jar ${JAR_PATH}/${AJAR} -p ${APORT} "&
+    sleep 3
 }
 
 
 
 function startMessage {
     echo -e "$GRN Starting message app in another terminal... $WHT"
-    $TERMINAL -e "java -jar $JAR_PATH/${MJAR} 1 testMessage" . &
+    java -jar $JAR_PATH/${MJAR} -a 127.0.0.1 -p 2100 -s 1 -m testMessage
     sleep 0.3
 }
 
@@ -82,38 +82,51 @@ function startNode {
     sleep 0.3
 }
 
-function createConnections {
+function createTree {
     echo -e "$GRN Starting registry and create connections between sites... $WHT"
-    java -jar $JAR_PATH/${CJAR} "-s 1 -d 2"
-    java -jar $JAR_PATH/${CJAR} "-s 1 -d 5"
-    java -jar $JAR_PATH/${CJAR} "-s 5 -d 6"
-    java -jar $JAR_PATH/${CJAR} "-s 2 -d 3"
-    java -jar $JAR_PATH/${CJAR} "-s 2 -d 4"
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 2
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 5
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 5 -d 6
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 2 -d 3
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 2 -d 4
     sleep 0.3
 }
+
+function createCircle {
+    echo -e "$GRN Starting registry and create connections between sites... $WHT"
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 2
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 2 -d 3
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 3 -d 4
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 4 -d 5
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 5 -d 6
+    java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 6 -d 1
+    sleep 0.3
+}
+
 
 
 # kill all instances of previous runs
 killAll
 
+
 #AdressBook should be start on another terminal
 # start the rmi registry
 # startRmi
 # start AdressBook
-# startAddressBook
+startAdressBook
 
 # Spawn a fixed number of nodes
 startNode
 
-exit
 # Connects the nodes
-createConnections
+createTree
+#createCircle
 
 # start the message jar in another terminal
 startMessage
 
 echo -e "$RED Type quit to leave the program... $WHT"
-java -jar $JAR_PATH/${AJAR}.jar
+#java -jar $JAR_PATH/${AJAR}.jar
 
 # kill everything related to java when leaving
-killJava
+#killJava

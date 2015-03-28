@@ -14,6 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import fr.car.rmi.core.SiteImpl;
+import fr.car.rmi.core.SiteItf;
 
 /**
  * This class create new site knwon as node. three parameters are required:
@@ -28,7 +29,7 @@ public class Node {
 	static int port = 0;
 	static String siteName = "";
 	static Registry registry;
-	static SiteImpl site;
+	static SiteItf site;
 
 	public static void main(final String[] args) {
 
@@ -44,8 +45,10 @@ public class Node {
 
 		// is this Node registered ?
 		try {
-			registry.lookup(siteName);
-			System.out.println("[" + siteName + "] already exists");
+			site = (SiteItf) registry.lookup(siteName);
+			System.out.println("[" + siteName
+					+ "] already exists, recovering remote node.");
+
 			return;
 		} catch (final NotBoundException e) {
 			// the site doesn't already exist
@@ -57,18 +60,18 @@ public class Node {
 
 		}
 
-		//create new node and register it.
-		try{
-		site = new SiteImpl(siteName,port);
+		if (site == null) {
+			// create new node and register it.
+			try {
+				site = new SiteImpl(siteName, port);
+			} catch (RemoteException e) {
+				System.err.println("Error, cannot create and/or register "
+						+ siteName + "on registry port " + String.valueOf(port)
+						+ " :" + e.getMessage());
+				System.exit(-1);
+
+			}
 		}
-		catch(RemoteException e){
-			System.err
-			.println("Error, cannot create and/or register " + siteName + "on registry port "+ String.valueOf(port)+" :"
-					+ e.getMessage());
-	System.exit(-1);
-			
-		}
-		
 
 	}
 

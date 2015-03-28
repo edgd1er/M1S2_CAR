@@ -15,17 +15,17 @@ public interface SiteItf extends Remote {
 	/**
 	 * Method allow to send a message
 	 * 
-	 * @param Message
+	 * @param MessageItf
 	 *            Message to transmit
 	 */
-	public void send(Message message) throws RemoteException;
+	public void send(MessageItf messageItf) throws RemoteException;
 
 	/***
 	 * Method allow to receive a message
 	 * 
-	 * @param message
+	 * @param messageItf
 	 */
-	public void receive(Message message) throws RemoteException;
+	public void receive(MessageItf messageItf) throws RemoteException;
 
 	/**
 	 * Get SiteName
@@ -56,6 +56,8 @@ public interface SiteItf extends Remote {
 	 */
 	public void removeSite(SiteItf node) throws RemoteException;
 
+	public void clearSites() throws RemoteException;
+	
 	/**
 	 * return list of sons
 	 * 
@@ -80,6 +82,7 @@ public interface SiteItf extends Remote {
 	 */
 	public void removeFatherNode() throws RemoteException;
 
+	public void clearFatherNodes() throws RemoteException;
 
 	
 	/**
@@ -96,7 +99,7 @@ public interface SiteItf extends Remote {
 	 * @return
 	 * @throws RemoteException
 	 */
-	List<Message> getReceivedMessages() throws RemoteException;
+	List<MessageItf> getReceivedMessages() throws RemoteException;
 
 	/**
 	 * quit, unreference the current instance from its nodes
