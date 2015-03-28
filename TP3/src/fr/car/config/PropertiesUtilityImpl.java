@@ -68,6 +68,7 @@ public class PropertiesUtilityImpl implements PropertiesUtility {
 	}
 
 	/**
+	 * Useful to get the property with a key
 	 * @see PropertiesUtility
 	 */
 	@Override
@@ -76,6 +77,7 @@ public class PropertiesUtilityImpl implements PropertiesUtility {
 	}
 
 	/**
+	 * Useful to know if they have some properties
 	 * @see PropertiesUtility
 	 */
 	@Override
@@ -84,6 +86,7 @@ public class PropertiesUtilityImpl implements PropertiesUtility {
 	}
 
 	/**
+	 * Useful to get the property in int
 	 * @see PropertiesUtility
 	 */
 	@Override

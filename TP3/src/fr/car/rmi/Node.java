@@ -112,7 +112,11 @@ public class Node {
 					+ " from registry.");
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void getArgs(String[] args) {
 		// create option port
 		Option oSite = new Option("s", "sitename", true,

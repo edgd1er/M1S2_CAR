@@ -5,7 +5,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Server interface allow to send and receive a message from an RMI Object
  * 
@@ -14,14 +13,10 @@ import java.util.List;
  */
 public class SiteImpl implements SiteItf, Serializable {
 
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3642112121032722800L;
 	private final String name;
 	private final List<SiteItf> childNodes;
-	private final SiteItf FatherNode;
+	private SiteItf FatherNode;
 	private final List<Message> receivedMessages;
 
 	public SiteImpl(final String name) throws RemoteException {
@@ -31,6 +26,9 @@ public class SiteImpl implements SiteItf, Serializable {
 		this.receivedMessages = new ArrayList<Message>();
 	}
 
+	/**
+	 * Allow to send a message
+	 */
 	@Override
 	public void send(Message message) {
 
@@ -58,14 +56,13 @@ public class SiteImpl implements SiteItf, Serializable {
 	}
 
 	/**
-	 * 
-	 * 
+	 * Allow to receive a message
 	 */
 	@Override
-	public void receive(Message message) throws RemoteException{
-		
-		System.out.println("Le noeud " + message.getSender().getName() +
-				" vient de recevoir le message '" + message + "'.");
+	public void receive(Message message) throws RemoteException {
+
+		System.out.println("Le noeud " + message.getSender().getName()
+				+ " vient de recevoir le message '" + message + "'.");
 	}
 
 	/**
@@ -77,9 +74,8 @@ public class SiteImpl implements SiteItf, Serializable {
 		return this.name;
 	}
 
-	/***
-	 * 
-	 * 
+	/**
+	 * Allow to had a child
 	 */
 	@Override
 	public void addSite(SiteItf node) throws RemoteException {
@@ -91,17 +87,29 @@ public class SiteImpl implements SiteItf, Serializable {
 
 	}
 
+	/**
+	 * Return a list of the message that has been received
+	 */
 	@Override
 	public List<Message> getReceivedMessages() throws RemoteException {
 		return this.receivedMessages;
 	}
 
-	public SiteItf setFatherNode() {
+	/**
+	 * Return the father node
+	 * 
+	 * @return
+	 */
+	public SiteItf getFatherNode() {
 		return FatherNode;
 	}
 
-	public SiteItf getFatherNode() {
-		return FatherNode;
+	public List<SiteItf> getChildNodes() {
+		return childNodes;
+	}
+	
+	public void setFatherNode(SiteItf father) {
+		this.FatherNode = father;
 	}
 
 }

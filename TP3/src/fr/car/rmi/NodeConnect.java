@@ -57,7 +57,11 @@ public class NodeConnect {
 					+ siteName2);
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void getArgs(String[] args) {
 		// create option port
 		Option oConnect1 = new Option("s", "source", true,
