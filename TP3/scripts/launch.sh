@@ -113,6 +113,7 @@ killAll
 # start the rmi registry
 # startRmi
 # start AdressBook
+set -x
 startAdressBook
 
 # Spawn a fixed number of nodes
