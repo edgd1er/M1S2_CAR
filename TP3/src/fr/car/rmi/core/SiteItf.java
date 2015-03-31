@@ -6,9 +6,7 @@ import java.util.List;
 
 /**
  * Serveur allows to send and reveive a message from an RMI Object
- * 
- * @author Emeline SALOMON & Francois DUBIEZ
- * 
+ * @author   Emeline SALOMON & Francois DUBIEZ
  */
 public interface SiteItf extends Remote {
 
@@ -69,8 +67,8 @@ public interface SiteItf extends Remote {
 	
 	/**
 	 * Set a Father to the node
-	 * 
 	 * @return
+	 * @uml.property  name="fatherNode"
 	 */
 	public void setFatherNode(SiteItf father) throws RemoteException;
 
@@ -87,8 +85,9 @@ public interface SiteItf extends Remote {
 	
 	/**
 	 * return a Father to the node.
-	 * 
 	 * @return
+	 * @uml.property  name="fatherNode"
+	 * @uml.associationEnd  
 	 */
 	public SiteItf getFatherNode() throws RemoteException;
 

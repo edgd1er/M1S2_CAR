@@ -79,7 +79,7 @@ function startNode {
     do
         java -jar $JAR_PATH/${NJAR} -s $i -a ${AHOST} -p ${APORT} &
     done
-    sleep 0.3
+    sleep 1
 }
 
 function createTree {

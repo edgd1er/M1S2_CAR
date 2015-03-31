@@ -5,11 +5,8 @@ import java.util.UUID;
 
 
 /**
- * Message implementation: this is the element that will be send to node.
- * It contains a message and a sender name.
- * 
-* @author Emeline SALOMON & Francois DUBIEZ
- *
+ * Message implementation: this is the element that will be send to node. It contains a message and a sender name.
+ * @author   Emeline SALOMON & Francois DUBIEZ
  */
 public class MessageImpl implements MessageItf, Serializable {
 	/**
@@ -18,6 +15,10 @@ public class MessageImpl implements MessageItf, Serializable {
 	private static final long serialVersionUID = 6462432972907426065L;
 	private final UUID id = UUID.randomUUID();
 	private final String content;
+	/**
+	 * @uml.property  name="sender"
+	 * @uml.associationEnd  
+	 */
 	private SiteItf sender;
 
 
@@ -28,7 +29,8 @@ public class MessageImpl implements MessageItf, Serializable {
 	}
 
 	/**
-	 * @see #getContent()
+	 * @see  #getContent()
+	 * @uml.property  name="content"
 	 */
 	@Override
 	public String getContent() {
@@ -36,7 +38,8 @@ public class MessageImpl implements MessageItf, Serializable {
 	}
 
 	/**
-	 * @see #getSender()
+	 * @see  #getSender()
+	 * @uml.property  name="sender"
 	 */
 	@Override
 	public SiteItf getSender() {
@@ -45,10 +48,18 @@ public class MessageImpl implements MessageItf, Serializable {
 
 	
 	
+	/**
+	 * @param  sender
+	 * @uml.property  name="sender"
+	 */
 	public void setSender(SiteItf sender) {
 		this.sender = sender;
 	}
 
+	/**
+	 * @return
+	 * @uml.property  name="id"
+	 */
 	public UUID getId() {
 		return id;
 	}

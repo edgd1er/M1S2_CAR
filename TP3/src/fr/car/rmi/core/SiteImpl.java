@@ -12,9 +12,7 @@ import java.util.List;
 
 /**
  * Server interface allow to send and receive a message from an RMI Object
- * 
- * @author Emeline SALOMON & Francois DUBIEZ
- * 
+ * @author   Emeline SALOMON & Francois DUBIEZ
  */
 public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 		Serializable {
@@ -25,6 +23,10 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 	private static final long serialVersionUID = 3642112121032722800L;
 	private final String name;
 	private final List<SiteItf> childNodes;
+	/**
+	 * @uml.property  name="fatherNode"
+	 * @uml.associationEnd  
+	 */
 	private SiteItf FatherNode;
 	private final List<MessageItf> receivedMessages;
 	private Registry myReg;
@@ -118,7 +120,7 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 
 	/**
 	 * Return node's name
-	 * 
+	 * @uml.property  name="name"
 	 */
 	@Override
 	public String getName() throws RemoteException {
@@ -163,9 +165,9 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 
 	/**
 	 * Get all received messages
-	 * 
 	 * @return
 	 * @throws RemoteException
+	 * @uml.property  name="receivedMessages"
 	 */
 	@Override
 	public List<MessageItf> getReceivedMessages() throws RemoteException {
@@ -174,8 +176,8 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 
 	/**
 	 * set father node
-	 * 
 	 * @return
+	 * @uml.property  name="fatherNode"
 	 */
 	public void setFatherNode(SiteItf father) throws RemoteException {
 		this.FatherNode = father;
@@ -191,9 +193,8 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 	}
 
 	/**
-	 * 
-	 * 
 	 * @return
+	 * @uml.property  name="fatherNode"
 	 */
 	public SiteItf getFatherNode() throws RemoteException {
 		return FatherNode;

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" xmlns:options="options.xmi" size="1054,544" id="fr.car.rmi.core" metadata="uml2-1.0" initialized="true" zoom="0.75" tag="1000" key="32303037303533312D31303030204D3153325F4341525F5450332F64756269657A">
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.1/@sourceConnections.0" name="Node" location="866,448" size="139,170" id="fr.car.rmi/Node" runTimeClassModel="main([Ljava.lang.String;),port,site,host,getArgs([Ljava.lang.String;),registry,siteName">
+    <children xsi:type="editmodel:CompartmentEditModel" size="116,72">
+      <children xsi:type="editmodel:AttributeEditModel" name="host" id="fr.car.rmi/Node#host"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="port" id="fr.car.rmi/Node#port"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="registry" id="fr.car.rmi/Node#registry"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="siteName" id="fr.car.rmi/Node#siteName"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="75,36">
+      <children xsi:type="editmodel:MethodEditModel" name="getArgs" id="fr.car.rmi/Node#getArgs([Ljava.lang.String;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="main" id="fr.car.rmi/Node#main([Ljava.lang.String;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="fr.car.rmi/Node-Soyatec::Import->fr.car.rmi.core/SiteItf" source="//@children.0" target="//@children.1" targetEnd="//@children.0/@sourceConnections.0/@children.2" label="//@children.0/@sourceConnections.0/@children.0" sourceEnd="//@children.0/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="51,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,84" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="180,173"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="fr.car.rmi/Node-Standard::Instantiate->fr.car.rmi.core/SiteImpl" source="//@children.0" target="//@children.2" targetEnd="//@children.0/@sourceConnections.1/@children.2" label="//@children.0/@sourceConnections.1/@children.0" sourceEnd="//@children.0/@sourceConnections.1/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Instantiate»" size="74,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="69,0" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="185,265"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:InterfaceEditModel" targetConnections="//@children.4/@sourceConnections.1 //@children.1/@sourceConnections.1 //@children.0/@sourceConnections.0 //@children.4/@sourceConnections.2 //@children.3/@sourceConnections.0 //@children.2/@sourceConnections.2 //@children.2/@sourceConnections.0" name="SiteItf" location="174,359" size="180,260" id="fr.car.rmi.core/SiteItf" runTimeClassModel="send(Lfr.car.rmi.core.MessageItf;),getName(),clearFatherNodes(),removeFatherNode(),quit(),removeSite(Lfr.car.rmi.core.SiteItf;),getReceivedMessages(),addSite(Lfr.car.rmi.core.SiteItf;),receive(Lfr.car.rmi.core.MessageItf;),getListOfNode(),clearSites()">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="157,198">
+      <children xsi:type="editmodel:MethodEditModel" name="addSite" id="fr.car.rmi.core/SiteItf#addSite(Lfr.car.rmi.core.SiteItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="clearFatherNodes" id="fr.car.rmi.core/SiteItf#clearFatherNodes()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="clearSites" id="fr.car.rmi.core/SiteItf#clearSites()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getListOfNode" id="fr.car.rmi.core/SiteItf#getListOfNode()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getName" id="fr.car.rmi.core/SiteItf#getName()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getReceivedMessages" id="fr.car.rmi.core/SiteItf#getReceivedMessages()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="quit" id="fr.car.rmi.core/SiteItf#quit()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="receive" id="fr.car.rmi.core/SiteItf#receive(Lfr.car.rmi.core.MessageItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="removeFatherNode" id="fr.car.rmi.core/SiteItf#removeFatherNode()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="removeSite" id="fr.car.rmi.core/SiteItf#removeSite(Lfr.car.rmi.core.SiteItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="send" id="fr.car.rmi.core/SiteItf#send(Lfr.car.rmi.core.MessageItf;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="fr.car.rmi.core/SiteItf@site+fr.car.rmi/Node@" source="//@children.1" target="//@children.0" targetEnd="//@children.1/@sourceConnections.0/@children.2" label="//@children.1/@sourceConnections.0/@children.0" sourceEnd="//@children.1/@sourceConnections.0/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="site" location="180,204" id="fr.car.rmi.core/SiteItf@site+fr.car.rmi/Node@|fr.car.rmi.core/SiteItf#site" attachSource="true" multiplicityLabel="//@children.1/@sourceConnections.0/@children.1/@children.2" roleLabel="//@children.1/@sourceConnections.0/@children.1/@children.0" orderingLabel="//@children.1/@sourceConnections.0/@children.1/@children.1" scopeKind="1" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" ~ site" location="360,529" size="38,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="{order}" location="360,569" size="45,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="360,542" size="22,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,113" id="fr.car.rmi.core/SiteItf@site+fr.car.rmi/Node@|fr.car.rmi/Node#"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteItf@" source="//@children.1" target="//@children.1" targetEnd="//@children.1/@sourceConnections.1/@children.2" label="//@children.1/@sourceConnections.1/@children.0" sourceEnd="//@children.1/@sourceConnections.1/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="fatherNode" location="0,20" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteItf@|fr.car.rmi.core/SiteItf#fatherNode" anchorKind="FixedAtEdge" attachSource="true" multiplicityLabel="//@children.1/@sourceConnections.1/@children.1/@children.1" roleLabel="//@children.1/@sourceConnections.1/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" + fatherNode" location="86,385" size="80,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="144,358" size="22,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="20,0" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteItf@|fr.car.rmi.core/SiteItf#" anchorKind="FixedAtEdge"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="fr.car.rmi.core/SiteItf-Soyatec::Import->fr.car.rmi.core/MessageItf" source="//@children.1" target="//@children.3" targetEnd="//@children.1/@sourceConnections.2/@children.2" label="//@children.1/@sourceConnections.2/@children.0" sourceEnd="//@children.1/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="51,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="180,31" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="41,115"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteImpl@" source="//@children.1" target="//@children.2" targetEnd="//@children.1/@sourceConnections.3/@children.2" label="//@children.1/@sourceConnections.3/@children.0" sourceEnd="//@children.1/@sourceConnections.3/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="fatherNode" location="179,158" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteImpl@|fr.car.rmi.core/SiteItf#fatherNode" attachSource="true" multiplicityLabel="//@children.1/@sourceConnections.3/@children.1/@children.1" roleLabel="//@children.1/@sourceConnections.3/@children.1/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" - fatherNode" location="360,523" size="75,13" anchorKind="FirstPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="360,496" size="22,13" anchorKind="FirstPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="10,265" id="fr.car.rmi.core/SiteItf@fatherNode+fr.car.rmi.core/SiteImpl@|fr.car.rmi.core/SiteImpl#"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" targetConnections="//@children.1/@sourceConnections.3 //@children.0/@sourceConnections.1" name="SiteImpl" location="750,59" size="256,265" id="fr.car.rmi.core/SiteImpl" runTimeClassModel="send(Lfr.car.rmi.core.MessageItf;),clearFatherNodes(),removeFatherNode(),name,quit(),removeSite(Lfr.car.rmi.core.SiteItf;),receive(Lfr.car.rmi.core.MessageItf;),addSite(Lfr.car.rmi.core.SiteItf;),getListOfNode(),SiteImpl(Ljava.lang.String;Ljava.lang.Integer;),clearSites(),receivedMessages">
+    <children xsi:type="editmodel:CompartmentEditModel" size="233,36">
+      <children xsi:type="editmodel:AttributeEditModel" name="name" id="fr.car.rmi.core/SiteImpl#name"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="receivedMessages" id="fr.car.rmi.core/SiteImpl#receivedMessages"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="138,180">
+      <children xsi:type="editmodel:MethodEditModel" name="SiteImpl" id="fr.car.rmi.core/SiteImpl#SiteImpl(Ljava.lang.String;Ljava.lang.Integer;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="addSite" id="fr.car.rmi.core/SiteImpl#addSite(Lfr.car.rmi.core.SiteItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="clearFatherNodes" id="fr.car.rmi.core/SiteImpl#clearFatherNodes()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="clearSites" id="fr.car.rmi.core/SiteImpl#clearSites()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getListOfNode" id="fr.car.rmi.core/SiteImpl#getListOfNode()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="quit" id="fr.car.rmi.core/SiteImpl#quit()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="receive" id="fr.car.rmi.core/SiteImpl#receive(Lfr.car.rmi.core.MessageItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="removeFatherNode" id="fr.car.rmi.core/SiteImpl#removeFatherNode()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="removeSite" id="fr.car.rmi.core/SiteImpl#removeSite(Lfr.car.rmi.core.SiteItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="send" id="fr.car.rmi.core/SiteImpl#send(Lfr.car.rmi.core.MessageItf;)"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" id="fr.car.rmi.core/SiteItf&lt;-fr.car.rmi.core/SiteImpl" source="//@children.2" target="//@children.1" targetEnd="//@children.2/@sourceConnections.0/@children.1" sourceEnd="//@children.2/@sourceConnections.0/@children.0" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,194" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="179,138"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="fr.car.rmi.core/SiteImpl-Standard::Call->fr.car.rmi.core/MessageItf*fr.car.rmi.core/SiteImpl-Soyatec::Import->fr.car.rmi.core/MessageItf" source="//@children.2" target="//@children.3" targetEnd="//@children.2/@sourceConnections.1/@children.2" label="//@children.2/@sourceConnections.1/@children.0" sourceEnd="//@children.2/@sourceConnections.1/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Import, Call»" size="80,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,58" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="124,58"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="fr.car.rmi.core/SiteImpl-Standard::Call->fr.car.rmi.core/SiteItf*fr.car.rmi.core/SiteImpl-Soyatec::Import->fr.car.rmi.core/SiteItf*fr.car.rmi.core/SiteImpl-Soyatec::Implement->fr.car.rmi.core/SiteItf" source="//@children.2" target="//@children.1" targetEnd="//@children.2/@sourceConnections.2/@children.2" label="//@children.2/@sourceConnections.2/@children.0" sourceEnd="//@children.2/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Implement, Import, Call»" size="148,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,170" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="179,101"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:InterfaceEditModel" targetConnections="//@children.4/@sourceConnections.0 //@children.2/@sourceConnections.1 //@children.4/@sourceConnections.3 //@children.1/@sourceConnections.2" name="MessageItf" location="539,59" size="124,116" id="fr.car.rmi.core/MessageItf" runTimeClassModel="getSender(),getUUID(),getContent()">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="93,54">
+      <children xsi:type="editmodel:MethodEditModel" name="getContent" id="fr.car.rmi.core/MessageItf#getContent()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getSender" id="fr.car.rmi.core/MessageItf#getSender()"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getUUID" id="fr.car.rmi.core/MessageItf#getUUID()"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="fr.car.rmi.core/MessageItf-Soyatec::Import->fr.car.rmi.core/SiteItf" source="//@children.3" target="//@children.1" targetEnd="//@children.3/@sourceConnections.0/@children.2" label="//@children.3/@sourceConnections.0/@children.0" sourceEnd="//@children.3/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="51,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="90,115" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="179,57"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" name="MessageImpl" location="195,58" size="140,139" id="fr.car.rmi.core/MessageImpl" runTimeClassModel="id,content,getUUID(),equals(Ljava.lang.Object;),MessageImpl(Ljava.lang.String;Lfr.car.rmi.core.SiteItf;)">
+    <children xsi:type="editmodel:CompartmentEditModel" size="103,36">
+      <children xsi:type="editmodel:AttributeEditModel" name="content" id="fr.car.rmi.core/MessageImpl#content"/>
+      <children xsi:type="editmodel:AttributeEditModel" name="id" id="fr.car.rmi.core/MessageImpl#id"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel" size="106,54">
+      <children xsi:type="editmodel:MethodEditModel" name="MessageImpl" id="fr.car.rmi.core/MessageImpl#MessageImpl(Ljava.lang.String;Lfr.car.rmi.core.SiteItf;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="equals" id="fr.car.rmi.core/MessageImpl#equals(Ljava.lang.Object;)"/>
+      <children xsi:type="editmodel:MethodEditModel" name="getUUID" id="fr.car.rmi.core/MessageImpl#getUUID()"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" autoLocated="true" id="fr.car.rmi.core/MessageItf&lt;-fr.car.rmi.core/MessageImpl" source="//@children.4" target="//@children.3" targetEnd="//@children.4/@sourceConnections.0/@children.1" sourceEnd="//@children.4/@sourceConnections.0/@children.0" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="140,58" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,57"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" autoLocated="true" id="fr.car.rmi.core/SiteItf@sender+fr.car.rmi.core/MessageImpl@" source="//@children.4" target="//@children.1" targetEnd="//@children.4/@sourceConnections.1/@children.2" label="//@children.4/@sourceConnections.1/@children.0" sourceEnd="//@children.4/@sourceConnections.1/@children.1" connectionRouterKind="Manhattan">
+      <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="69,139" id="fr.car.rmi.core/SiteItf@sender+fr.car.rmi.core/MessageImpl@|fr.car.rmi.core/MessageImpl#" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" name="sender" location="90,0" id="fr.car.rmi.core/SiteItf@sender+fr.car.rmi.core/MessageImpl@|fr.car.rmi.core/SiteItf#sender" multiplicityLabel="//@children.4/@sourceConnections.1/@children.2/@children.1" roleLabel="//@children.4/@sourceConnections.1/@children.2/@children.0" navigable="true">
+        <children xsi:type="editmodel:LabelEditModel" name=" - sender" location="271,338" size="52,13" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" name="0..1" location="235,338" size="22,13" anchorKind="LastPart"/>
+      </children>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="fr.car.rmi.core/MessageImpl-Soyatec::Import->fr.car.rmi.core/SiteItf" source="//@children.4" target="//@children.1" targetEnd="//@children.4/@sourceConnections.2/@children.2" label="//@children.4/@sourceConnections.2/@children.0" sourceEnd="//@children.4/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="51,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="89,139" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="111,-1"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="fr.car.rmi.core/MessageImpl-Soyatec::Implement->fr.car.rmi.core/MessageItf" source="//@children.4" target="//@children.3" targetEnd="//@children.4/@sourceConnections.3/@children.2" label="//@children.4/@sourceConnections.3/@children.0" sourceEnd="//@children.4/@sourceConnections.3/@children.1" connectionRouterKind="Manual">
+      <children xsi:type="editmodel:WireLabelEditModel" name="«Implement»" size="74,13" anchorKind="MiddlePart"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="140,79" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,78"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+  </children>
+  <diagramOptions xsi:type="options:ClassDiagramOptions" properties="wireOptions=7;Product=eUML2" autoName="false"/>
+  <boardSetting snapToGeometry="true" gridEnabled="true" gridSpacing="15,15" gridOrigin="0,0" rulerUnit="pixel" gridVisibility="false">
+    <leftRuler/>
+    <topRuler/>
+  </boardSetting>
+  <classDiagramPreferences xsi:type="editmodel:UMLClassDiagramPreference" showPopupBars="true" showConnectionHandles="true" attributeSorter="Natural" methodSorter="Natural" showClassStereotype="true" showPackageStereotype="true" showDependencyStereotype="true" showInterfaceStereotype="true" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showStaticAttributes="true" showPublicMethods="true" showPackageMethods="true" showStaticMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3" showAttributeProperty="true"/>
+</editmodel:ClassDiagramEditModel>

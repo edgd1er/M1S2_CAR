@@ -17,11 +17,8 @@ import fr.car.rmi.core.SiteImpl;
 import fr.car.rmi.core.SiteItf;
 
 /**
- * This class create new site knwon as node. three parameters are required:
- * siteName [RMIHost RMIPort].
- * 
- * @author Emeline SALOMON & Francois DUBIEZ
- * 
+ * This class create new site knwon as node. three parameters are required: siteName [RMIHost RMIPort].
+ * @author   Emeline SALOMON & Francois DUBIEZ
  */
 public class Node {
 
@@ -29,6 +26,10 @@ public class Node {
 	static int port = 0;
 	static String siteName = "";
 	static Registry registry;
+	/**
+	 * @uml.property  name="site"
+	 * @uml.associationEnd  
+	 */
 	static SiteItf site;
 
 	public static void main(final String[] args) {
