@@ -103,7 +103,7 @@ public class SendMessage {
 		}
 
 		if ((args.length < 3) || (cmd.hasOption("h"))) {
-			formatter.printHelp("node", options);
+			formatter.printHelp("sendMessage", options);
 			System.exit(-1);
 		}
 
@@ -119,7 +119,7 @@ public class SendMessage {
 			} catch (NumberFormatException e) {
 				System.out
 						.println("Error, number between 1024 and 65535 is expected");
-				formatter.printHelp("addressbook", options);
+				formatter.printHelp("sendMessage", options);
 			}
 		}
 

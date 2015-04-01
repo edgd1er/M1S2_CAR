@@ -74,7 +74,11 @@ public class NodeConnect {
 
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void getArgs(String[] args) {
 		// create option port
 		Option oConnect1 = new Option("s", "source", true,
@@ -114,7 +118,7 @@ public class NodeConnect {
 		}
 
 		if ((args.length < 3) || (cmd.hasOption("h"))) {
-			formatter.printHelp("node", options);
+			formatter.printHelp("NodeConnect", options);
 			System.exit(-1);
 		}
 
@@ -130,7 +134,7 @@ public class NodeConnect {
 			} catch (NumberFormatException e) {
 				System.out
 						.println("Error, number between 1024 and 65535 is expected");
-				formatter.printHelp("addressbook", options);
+				formatter.printHelp("NodeConnect", options);
 			}
 		}
 

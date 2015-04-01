@@ -14,6 +14,7 @@ import java.util.List;
  * Server interface allow to send and receive a message from an RMI Object
  * @author   Emeline SALOMON & Francois DUBIEZ
  */
+
 public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 		Serializable {
 
@@ -44,6 +45,9 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 		System.out.println("Node " + this.getName() + " has been registered");
 	}
 
+	/**
+	 * Allow to send a message
+	 */
 	@Override
 	public void send(MessageItf message) throws RemoteException {
 
@@ -81,7 +85,9 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 								child.send(message);
 							} catch (RemoteException e) {
 								try {
-									System.err.println("Error, node " + child.getName() + " did not send its message!!!");
+									System.err.println("Error, node "
+											+ child.getName()
+											+ " did not send its message!!!");
 								} catch (RemoteException e1) {
 								}
 								e.printStackTrace();
@@ -91,7 +97,7 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 					}
 					myThread t = new myThread(child, message);
 					t.start();
-					
+
 					System.out.println("node " + this.getName()
 							+ " sent a message(" + message.getContent()
 							+ ") to " + child.getName());
@@ -107,8 +113,7 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 	}
 
 	/**
-	 * 
-	 * 
+	 * Allow to receive a message
 	 */
 	@Override
 	public void receive(MessageItf message) throws RemoteException {
@@ -127,9 +132,8 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 		return this.name;
 	}
 
-	/***
-	 * Add a child node
-	 * 
+	/**
+	 * Allow to had a child
 	 */
 	@Override
 	public void addSite(SiteItf node) throws RemoteException {
@@ -141,6 +145,9 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 
 	}
 
+	/**
+	 * Return a list of the message that has been received
+	 */
 	@Override
 	public void removeSite(SiteItf node) throws RemoteException {
 		this.childNodes.remove(node);
@@ -193,12 +200,23 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf,
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * Return the father node
+	 * 
+	 * 
+>>>>>>> dc1e4b31e09a28ea66c7a443392022fa38b9d7f9
 	 * @return
 	 * @uml.property  name="fatherNode"
 	 */
 	public SiteItf getFatherNode() throws RemoteException {
 		return FatherNode;
 	}
+
+	public List<SiteItf> getChildNodes() {
+		return childNodes;
+	}
+
 
 	/**
 	 * Quit after having informed childs recreated the links and remmoved self

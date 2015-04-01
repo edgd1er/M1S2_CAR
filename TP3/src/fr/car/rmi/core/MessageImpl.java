@@ -3,10 +3,12 @@ package fr.car.rmi.core;
 import java.io.Serializable;
 import java.util.UUID;
 
-
 /**
- * Message implementation: this is the element that will be send to node. It contains a message and a sender name.
- * @author   Emeline SALOMON & Francois DUBIEZ
+ * Message implementation: this is the element that will be send to node. It
+ * contains a message and a sender name.
+ * 
+ * @author Emeline SALOMON & Francois DUBIEZ
+ *
  */
 public class MessageImpl implements MessageItf, Serializable {
 	/**
@@ -21,7 +23,6 @@ public class MessageImpl implements MessageItf, Serializable {
 	 */
 	private SiteItf sender;
 
-
 	public MessageImpl(final String content, final SiteItf sender) {
 		super();
 		this.content = content;
@@ -31,6 +32,8 @@ public class MessageImpl implements MessageItf, Serializable {
 	/**
 	 * @see  #getContent()
 	 * @uml.property  name="content"
+	 * Useful to get the content of the message
+	 * 
 	 */
 	@Override
 	public String getContent() {
@@ -40,6 +43,8 @@ public class MessageImpl implements MessageItf, Serializable {
 	/**
 	 * @see  #getSender()
 	 * @uml.property  name="sender"
+	 * Useful to get the sender of the message
+	 * 
 	 */
 	@Override
 	public SiteItf getSender() {
@@ -64,6 +69,9 @@ public class MessageImpl implements MessageItf, Serializable {
 		return id;
 	}
 	
+	/**
+	 * Allows to know if 2 objects are equals or not
+	 */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -75,7 +83,7 @@ public class MessageImpl implements MessageItf, Serializable {
 		if (!(obj instanceof MessageImpl)) {
 			return false;
 		}
-		
+
 		final MessageImpl other = (MessageImpl) obj;
 		if (this.id == null) {
 			if (other.id != null) {

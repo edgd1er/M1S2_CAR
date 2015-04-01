@@ -48,12 +48,12 @@ public class AdressBook {
 		} catch (ParseException e2) {
 			System.out
 					.println("Error, cannot create parser." + e2.getMessage());
-			formatter.printHelp("annuaire", options);
+			formatter.printHelp("adressbook", options);
 			System.exit(-11);
 		}
 
 		if ((args.length< 1) || (cmd.hasOption("h"))) {
-			formatter.printHelp("annuaire", options);
+			formatter.printHelp("adressbook", options);
 			System.exit(-1);
 		}
 
@@ -66,7 +66,7 @@ public class AdressBook {
 			}
 			if (port < 1024 || port > 65535) {
 				System.out.println("Error, port is not a number");
-				formatter.printHelp("annuaire", options);
+				formatter.printHelp("adressbook", options);
 				System.exit(1);
 			}
 		}
@@ -75,16 +75,16 @@ public class AdressBook {
 		// starting registry and check instance
 		try {
 			registry = LocateRegistry.createRegistry(port);
-			System.out.println("L'annuaire a démarré sur le port " + port);
+			System.out.println("Registry started on port " + port);
 		} catch (final ExportException e) {
 			try {
 				registry = LocateRegistry.getRegistry(port);
 			} catch (final RemoteException e1) {
 				throw new RuntimeException(
-						"Impossible de récupérer l'annuaire", e);
+						"Error, cannot start adressbook", e);
 			}
 		} catch (final RemoteException e) {
-			throw new RuntimeException("Impossible de démarrer l'annuaire", e);
+			throw new RuntimeException("Error, cannot start adressbook", e);
 		}
 
 		// waiting for command in std in
@@ -93,7 +93,7 @@ public class AdressBook {
 		while (s.hasNextLine() && (line = s.nextLine()) != null) {
 			if (line.startsWith("help")) {
 				System.out
-						.println("Les commandes disponibles sont: help, quit et list");
+						.println("Availables commands are: help, quit et list");
 			} else if (line.startsWith("quit")) {
 				s.close();
 				System.exit(0);
@@ -110,7 +110,7 @@ public class AdressBook {
 						try {
 							site1 = (SiteItf) registry.lookup(siteName1);
 						} catch (final Exception e) {
-							System.out.println("Impossible de touver le site "
+							System.out.println("Error, cannot find node "
 									+ siteName1);
 							continue;
 						}
@@ -120,7 +120,7 @@ public class AdressBook {
 						try {
 							site2 = (SiteItf) registry.lookup(siteName2);
 						} catch (final Exception e) {
-							System.out.println("Impossible de touver le site "
+							System.out.println("Error, cannot find node "
 									+ siteName2);
 							continue;
 						}
@@ -133,8 +133,8 @@ public class AdressBook {
 								site2.addSite(site1);
 							}
 						} catch (final RemoteException e) {
-							System.out.println("Impossible de connecter "
-									+ siteName1 + " et " + siteName2);
+							System.out.println("Error while connecting node "
+									+ siteName1 + " to node " + siteName2);
 						}
 					}
 				}
@@ -142,14 +142,14 @@ public class AdressBook {
 				// list know local node
 				try {
 					if (registry.list().length == 0) {
-						System.out.println("Annuaire vide");
+						System.out.println("Empty adressBook");
 					}
 					for (final String string : registry.list()) {
 						System.out.println(string);
 					}
 				} catch (final Exception e) {
 					throw new RuntimeException(
-							"Impossible d'accéder à la liste", e);
+							"Error, cannot get the liste of nodes.", e);
 				}
 			} else if (line.startsWith("clearch")){
 				SiteItf site;
@@ -163,9 +163,11 @@ public class AdressBook {
 					System.err.println(e.getMessage());
 				}
 			}else {
-				System.out.println("Commande non trouvée.");
+				System.out.println("Command not found.");
 			}
 		}
+		
+		/**
 		// empecher le programme de s'arrêter
 		new Thread(new Runnable() {
 			@Override
@@ -178,6 +180,7 @@ public class AdressBook {
 				}
 			}
 		}).start();
+		*/
 	}
 	
 	

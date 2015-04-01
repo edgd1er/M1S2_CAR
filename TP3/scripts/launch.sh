@@ -35,10 +35,9 @@ export CLASSPATH=$CLASS_PATH
 function killAll {
     # Kill remaining process
     echo -e "$GRN Killing Java... $WHT"
-    #kill `ps -ef | grep "$AJAR" | awk '{print $2}'` > /dev/null 2&>1
-    kill `ps -ef | grep "$NJAR" | awk '{print $2}'` > /dev/null 2&>1
-    kill `ps -ef | grep "$MJAR" | awk '{print $2}'` > /dev/null 2&>1
-    kill `ps -ef | grep "rmiregistry" | awk '{print $2}'` > /dev/null 2&>1
+    kill `ps -ef | grep "$NJAR" | awk '{print $2}'` > /dev/null 2>&1
+    kill `ps -ef | grep "$MJAR" | awk '{print $2}'` > /dev/null 2>&1
+    kill `ps -ef | grep "rmiregistry" | awk '{print $2}'` > /dev/null 2>&1
 }
 
 function startRmi {
@@ -108,11 +107,9 @@ function createCircle {
 # kill all instances of previous runs
 killAll
 
-
 #AdressBook should be start on another terminal
 # start the rmi registry
 # startRmi
-# start AdressBook
 startAdressBook
 
 # Spawn a fixed number of nodes

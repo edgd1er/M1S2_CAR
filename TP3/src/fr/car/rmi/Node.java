@@ -75,7 +75,11 @@ public class Node {
 		}
 
 	}
-
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void getArgs(String[] args) {
 		// create option port
 		Option oSite = new Option("s", "sitename", true,
@@ -106,7 +110,7 @@ public class Node {
 		} catch (ParseException e2) {
 			System.out
 					.println("Error, cannot create parser." + e2.getMessage());
-			formatter.printHelp("addressbook", options);
+			formatter.printHelp("node", options);
 			System.exit(-11);
 		}
 
