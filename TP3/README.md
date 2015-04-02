@@ -116,9 +116,8 @@ Idée de fonctions a implementer
 
 Une partie des classes du projet ont été testé, les autres ne pouvant pas être tester faute de code testable.
 Voici la liste des classes testée :
-	* MessageImpl ;
-	* SiteImpl ;
-	* ...
+- MessageImpl ;
+- SiteImpl.
 
 
 
