@@ -28,9 +28,12 @@ APORT="2100"
 MJAR="sendmessage.jar"
 CJAR="nodeconnect.jar"
 
-
-
 export CLASSPATH=$CLASS_PATH
+
+
+function usage {
+	echo -e "\nusage: $0 -h for help, -g for graph, -t for tree\n"
+}
 
 function killAll {
     # Kill remaining process
@@ -82,7 +85,7 @@ function startNode {
 }
 
 function createTree {
-    echo -e "$GRN Starting registry and create connections between sites... $WHT"
+    echo -e "$GRN Starting registry and create connections between sites in a tree... $WHT"
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 2
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 5
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 5 -d 6
@@ -92,7 +95,7 @@ function createTree {
 }
 
 function createCircle {
-    echo -e "$GRN Starting registry and create connections between sites... $WHT"
+    echo -e "$GRN Starting registry and create connections between sites in a circle ... $WHT"
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 1 -d 2
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 2 -d 3
     java -jar $JAR_PATH/${CJAR} -a ${AHOST} -p ${APORT} -s 3 -d 4
@@ -102,6 +105,21 @@ function createCircle {
     sleep 0.3
 }
 
+####################################
+# Main
+#
+####################################
+
+while getopts  "hgt" flag
+do
+  #echo "flag: $flag" $OPTIND $OPTARG
+  case "$flag" in
+	h) shift; usage;;
+	g) shift; GRAPH="1";;
+	t) shift; GRAPH="0";;
+	*) exit;;
+  esac
+done
 
 
 # kill all instances of previous runs
@@ -116,8 +134,11 @@ startAdressBook
 startNode
 
 # Connects the nodes
-createTree
-#createCircle
+if [ "$GRAPH" == "0" ]; then 
+	createTree
+else 
+	createCircle
+fi
 
 # start the message jar in another terminal
 startMessage
