@@ -20,3 +20,21 @@ TP1/doc/*
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/TP4/nbproject/private/
+/TP4/TP4-war/nbproject/private/
+/TP4/TP4-ejb/nbproject/private/
+/TP4/TP4-war/build/
+/TP4/TP4-ejb/dist/
+/TP4/TP4-ejb/build/
+/TP4/dist/
+/TP4/build/
+/TP4/TP4-war/dist/
+/TP4b/nbproject/private/
+/TP4b/TP4b-war/nbproject/private/
+/TP4b/TP4b-ejb/nbproject/private/
+/TP4b/TP4b-ejb/dist/
+/TP4b/TP4b-ejb/build/
+/TP4b/dist/
+/TP4b/build/
+/TP4b/TP4b-war/build/
+/TP4b/TP4b-war/dist/
