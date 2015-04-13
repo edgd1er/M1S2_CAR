@@ -38,3 +38,6 @@ hs_err_pid*
 /TP4b/build/
 /TP4b/TP4b-war/build/
 /TP4b/TP4b-war/dist/
+/TP4d/nbproject/private/
+/TP4d/dist/
+/TP4d/build/
