@@ -18,13 +18,13 @@ import javax.persistence.Table;
  * @author user
  */
 @Entity
-        @Table(name = "book")
-        @NamedQueries({
-                @NamedQuery(name = "books.getallbooks", query = "select object(b) from BookEntity b"),
-                @NamedQuery(name = "books.deleteall", query = "delete from BookEntity b"),
-                @NamedQuery(name = "books.findByTitle", query = "SELECT b FROM BookEntity b WHERE b.bookTitle LIKE :title"),
-                @NamedQuery(name = "books.AllAuthors", query = "SELECT distinct b.bookAuhtor FROM BookEntity b"),
-                @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE b.bookAuhtor = :author")
+@Table(name = "book")
+@NamedQueries({
+    @NamedQuery(name = "books.getallbooks", query = "select object(b) from BookEntity b"),
+    @NamedQuery(name = "books.deleteall", query = "delete from BookEntity b"),
+    @NamedQuery(name = "books.findByTitle", query = "SELECT b FROM BookEntity b WHERE b.bookTitle LIKE :title"),
+    @NamedQuery(name = "books.AllAuthors", query = "SELECT distinct b.bookAuhtor FROM BookEntity b"),
+    @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE b.bookAuhtor = :author")
 }
 )
 public class BookEntity implements Serializable {

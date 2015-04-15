@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
+
 <jsp:useBean id="myBook" class="book.BookSessionBean" scope="session"/> 
 
 
@@ -20,40 +21,29 @@
         You entered<BR>
         Book's Title: <%= request.getParameter("title")%><BR>
         Author <%= request.getParameter("author")%><BR>
-        Edition year: <%= request.getParameter("year")%><BR><%%>
+        Edition year: <%= request.getParameter("year")%><BR>
+
+        
+        <% //adding parameters to session for future use
+            session.setAttribute("year", request.getParameter("year"));
+            session.setAttribute("title", request.getParameter("title"));
+            session.setAttribute("author", request.getParameter("author"));
+        %>
         <br>
+        <br>
+        <a href="addtodb">add this book to database</a>
+
         <br>
         <h1>Book(s) in Database</h1>
-        
-        
-        
-        <TABLE BORDER="1"> 
-            <CAPTION> Book's in database </CAPTION> 
-            <TR> 
-                <TH> Author </TH> 
-                <TH> Title </TH> 
-                <TH> Year </TH> 
-            </TR> 
+        <jsp:include page="displaybooks"/>
 
-            <js:
-                    for( book.BookEntity tempBook : myBook.getBooks()){
-            out.print("<TR>"); 
-            out.print("<TH>"+ tempBook.getBookAuhtor() +"</TH>"); 
-            out.print("<TD>"+ tempBook.getBookTitle() +"</TD>"); 
-            out.print("<TD>"+ tempBook.getBookYear()+"</TD>"); 
-            out.print("</TR>");           
-                    }
-           %>
-
-        </TABLE> 
-        <br>
         <br>
         <a href="formulaire.jsp">Go back to the add Book Form</a>
         <br>
-        <a href="addtodb">Go back to the add Book Form</a>
         <br>
         <br>
-        <%response.setHeader("Refresh", "5; URL=formulaire.jsp");%>
+        <%response.setHeader("Refresh", "15; URL=formulaire.jsp");%>
+        <!-- example of jsp include page with parameters send in addition -->
         <jsp:include page="formulaire.jsp">
             <jsp:param name="title" value="<%=request.getParameter("title")%>"/>
             <jsp:param name="author" value="<%=request.getParameter("author")%>"/>

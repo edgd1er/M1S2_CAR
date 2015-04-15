@@ -13,11 +13,10 @@ import javax.ejb.Local;
  * @author user
  */
 @Local
-public interface BookSessionBeanLocal {
+public interface BookSessionBeanItfLocal {
     
     public String createBooks();
     public String createBook(String Title, String Author, int iYear);
-    public String add2db(BookEntity book);
     public void removeFromdb(BookEntity book);
     public String removeAllFromDB();
     public void add2basket(BookEntity book);

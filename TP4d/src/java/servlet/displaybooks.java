@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import javax.ejb.EJB;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,12 +21,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author user
  */
-@WebServlet(name = "init", urlPatterns = {"/init"})
-@TransactionManagement(TransactionManagementType.BEAN)
-public class init extends HttpServlet {
-
-    @EJB
-    private BookSessionBeanItfLocal myBookBean;
+@WebServlet(name = "displaybooks", urlPatterns = {"/displaybooks"})
+public class displaybooks extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,24 +33,21 @@ public class init extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @EJB
+    private BookSessionBeanItfLocal myBookBean;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String ret, msg = "";
-
-        msg = myBookBean.createBooks();
-
         try (PrintWriter out = response.getWriter()) {
-            response.setHeader("Refresh", "5; URL=formulaire.jsp");
+            /* TODO output your page here. You may use following sample code. */
+            response.setHeader("Refresh", "15; URL=formulaire.jsp");
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet init</title>");
+            //out.println("<h1>Servlet displaybooks at " + request.getContextPath() + "</h1>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet init at " + request.getContextPath() + ": Existing books in DB</h1>");
-            out.println(msg);
-
             out.println("<table><tr><TH>Titre</TH><TH>Author</TH><TH>Year</TH></tr>");
             Collection<BookEntity> books = myBookBean.getBooks();
             for (BookEntity tempbook : books) {
@@ -65,12 +56,8 @@ public class init extends HttpServlet {
                 out.print("<td>" + String.valueOf(tempbook.getBookYear()) + "</td></tr>");
             }
             out.println("</table>");
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-        } catch (Exception e) {
-            PrintWriter out = response.getWriter();
-            out.println(e.getMessage() + ":" + e.getCause());
         }
     }
 

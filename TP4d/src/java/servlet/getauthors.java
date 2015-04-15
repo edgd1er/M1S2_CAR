@@ -6,7 +6,7 @@
 package servlet;
 
 import book.BookEntity;
-import book.BookSessionBeanLocal;
+import book.BookSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 public class getauthors extends HttpServlet {
 
     @EJB
-    private BookSessionBeanLocal myBookBean;
+    private BookSessionBeanItfLocal myBookBean;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -65,7 +65,7 @@ public class getauthors extends HttpServlet {
                 out.println("<tr><td>" + author + "</td></tr>");
             }
             out.println("</table>");
-
+            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
         }

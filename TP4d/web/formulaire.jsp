@@ -11,14 +11,21 @@
     String author = request.getParameter("author");
     String year = request.getParameter("year");
 
+    session.setAttribute("year", year);
+    session.setAttribute("title", title);
+    session.setAttribute("author", author);
+    
     if (title == null) {
+        
         title = "Enter book's title";
     }
     if (author == null) {
+        
         author = "Enter book's Author";
     }
     if (year == null) {
-        year = "Enter book's parudtion date";
+        
+        year = "Enter book's parution date";
     }
 %>
 
@@ -34,17 +41,22 @@
         <!--Écrire un fichier HTML contenant un formulaire permettant de saisir les informations
 relatives à un livre représenté par un titre, un nom d’auteur et une année de parution. -->
         <FORM name="form1" method="post"  ENCTYPE="x-www-form-urlencoded" action="formread.jsp">
-            <input name="title" value="<%=title%>" type="text">
-            <input name="author" value="<%=author%>" type="text">
-            <input name="year" value="<%=year%>" type="text">
+            Book's title
+            <input name="title" value="<%=title%>" type="text"><br>
+            Book's author
+            <input name="author" value="<%=author%>" type="text"><br>
+            Book's parution date
+            <input name="year" value="<%=year%>" type="text"><br>
             <input type="submit" value="Add new book to library">
         </FORM>   
             <br>
-            <a href="init">Create 5 books in database (init)</a>
-            <br>
             <a href="cleardb">clear Database (cleardb)</a>
             <br>
-            <a href="getauthors">get list of authors (init)</a>
+            <a href="init">Create 5 books in database (init)</a>
+            <br>
+            <a href="getauthors">get list of authors (getauthors)</a>
+            <br>
+            <a href="displaybooks">get list of books (displaybooks)</a>
             <br>
     </body>
 </html>

@@ -5,14 +5,10 @@
  */
 package servlet;
 
-import book.BookEntity;
 import book.BookSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
 import javax.ejb.EJB;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,9 +19,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author user
  */
-@WebServlet(name = "init", urlPatterns = {"/init"})
-@TransactionManagement(TransactionManagementType.BEAN)
-public class init extends HttpServlet {
+@WebServlet(name = "addtodb", urlPatterns = {"/addtodb"})
+public class addtodb extends HttpServlet {
 
     @EJB
     private BookSessionBeanItfLocal myBookBean;
@@ -42,36 +37,59 @@ public class init extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String ret, msg = "";
-
-        msg = myBookBean.createBooks();
-
+        String ret = "", msg = "", tempTitle = "", tempAuthor = "", tempYear = "";
+        int iYear = 0;
         try (PrintWriter out = response.getWriter()) {
-            response.setHeader("Refresh", "5; URL=formulaire.jsp");
+            tempTitle = request.getSession().getAttribute("title").toString();
+            tempAuthor = request.getSession().getAttribute("author").toString();
+            tempYear = request.getSession().getAttribute("year").toString();
+
+            if ((tempAuthor != null) && (tempTitle != null) && (tempYear != null)) {
+                if ((tempAuthor.length() > 0) && tempTitle.length() > 0) {
+                    try {
+                        msg = "Book named " + tempTitle + " written by "
+                                + tempAuthor + " in "
+                                + tempYear;
+                        iYear = Integer.parseInt(tempYear);
+                        ret = myBookBean.createBook(tempTitle, tempAuthor, iYear);
+                        if (ret.length() < 1) {
+                            msg += " was inserted in the database";
+                            request.getSession().setAttribute("title", null);
+                            request.getSession().setAttribute("author", null);
+                            request.getSession().setAttribute("year", null);
+                        } else {
+                            msg += ret;
+                        }
+                    } catch (Exception e) {
+                        msg += " : error Year parameter is not a number. Please try again. ";
+                    }
+                } else {
+
+                    msg += (tempAuthor.length() < 1) ? "Error Author is not entered<br>" : "";
+                    msg += (tempTitle.length() < 1) ? "Error Title is not entered<br>" : "";
+                    msg += (tempYear.length() < 1) ? "Error Year is not entered or invalid <br>" : "";
+
+                }
+            } else {
+                msg += (tempAuthor == null) ? "Error Author is not entered<br>" : "";
+                msg += (tempTitle == null) ? "Error Title is not entered<br>" : "";
+                msg += (tempYear == null) ? "Error Year is not entered or invalid <br>" : "";
+            }
+
+
+            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet init</title>");
+            out.println("<title>Servlet addtodb</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet init at " + request.getContextPath() + ": Existing books in DB</h1>");
+            out.println("<h1>Servlet addtodb at " + request.getContextPath() + "</h1>");
             out.println(msg);
-
-            out.println("<table><tr><TH>Titre</TH><TH>Author</TH><TH>Year</TH></tr>");
-            Collection<BookEntity> books = myBookBean.getBooks();
-            for (BookEntity tempbook : books) {
-                out.println("<tr><td>" + tempbook.getBookTitle() + "</td>");
-                out.print("<td>" + tempbook.getBookAuhtor() + "</td>");
-                out.print("<td>" + String.valueOf(tempbook.getBookYear()) + "</td></tr>");
-            }
-            out.println("</table>");
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-        } catch (Exception e) {
-            PrintWriter out = response.getWriter();
-            out.println(e.getMessage() + ":" + e.getCause());
         }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
