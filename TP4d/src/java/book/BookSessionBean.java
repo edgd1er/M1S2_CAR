@@ -8,8 +8,6 @@ package book;
 import java.util.Collection;
 import javax.annotation.Resource;
 import javax.ejb.Stateful;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
@@ -18,8 +16,9 @@ import javax.persistence.Query;
 import javax.transaction.UserTransaction;
 
 /**
- *
- * @author user
+ * BookSessionBean exposes all services to handle a BookEntity
+ * 
+ * @author Francois Dubiez
  */
 @Stateful
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -27,16 +26,23 @@ public class BookSessionBean implements BookSessionBeanItfLocal {
 
     @PersistenceContext(unitName = "TP4dPU")
     private EntityManager bem;
-    
+
     @Resource
     private UserTransaction ut;
 
+    /**
+     * Populate database with 5 books
+     * 
+     * @return creation error message
+     */
     public String createBooks() {
         String ret, msg = "";
-        String[][] aBooks = new String[][]{{"Livre1", "Author1", "2001"},
-        {"Livre2", "Author2", "2002"},
-        {"Livre3", "Author3", "2003"}, {"Livre4", "Author4", "2001"},
-        {"Livre5", "Author1", "2004"}};
+        String[][] aBooks = new String[][]{
+            {"Livre1", "Author1", "2001"},
+            {"Livre2", "Author2", "2002"},
+            {"Livre3", "Author3", "2003"},
+            {"Livre4", "Author4", "2001"},
+            {"Livre5", "Author1", "2004"}};
 
         for (String[] abook : aBooks) {
             ret = this.createBook(abook[0], abook[1], Integer.parseInt(abook[2]));
@@ -48,15 +54,24 @@ public class BookSessionBean implements BookSessionBeanItfLocal {
             } else {
                 msg += ret + "<br>";
             }
-            
+
         }
         return msg;
     }
 
+    /**
+     * create an object book with the given parameters using Database
+     * information listed in persistence.xml. (object is mapped to database.)
+     * 
+     * @param Title     Book's title
+     * @param Author     Book's author
+     * @param iYear     Book's editing year
+     * @return          Creation error message. Void if creation is properly handled.
+     */
     @Override
     public String createBook(String Title, String Author, int iYear) {
         String ret = "Error while creating book named " + Title + " written by  "
-                + Author + " in " +  String.valueOf(iYear) + ": improper parameters";
+                + Author + " in " + String.valueOf(iYear) + ": improper parameters";
         if ((Title != null) && (Author != null)) {
             if ((Title.length() > 0) && (Author.length() > 0) && (iYear > 0)) {
                 try {
@@ -67,25 +82,36 @@ public class BookSessionBean implements BookSessionBeanItfLocal {
                     ret = "";
                 } catch (Exception e) {
                     ret = "Error while creating book named " + Title + " written by " + Author + " in "
-                            + String.valueOf(iYear) + ": " + e.getMessage()+ "<br>";
+                            + String.valueOf(iYear) + ": " + e.getMessage() + "<br>";
                 }
             }
         }
 
         return ret;
     }
-
+/**
+ * The object in parameter is removed from database.
+ * 
+ * @param book - book to remove
+ */
     @Override
     public void removeFromdb(BookEntity book) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+     * Clear database from all existing books.
+     * 
+     * @return database operation error.
+     */
     @Override
     public String removeAllFromDB() {
         String msg = "";
         try {
+            ut.begin();
             Query q = bem.createNamedQuery("books.deleteall");
             q.executeUpdate();
+            ut.commit();
         } catch (Exception e) {
             msg = e.getMessage();
         }
@@ -93,15 +119,8 @@ public class BookSessionBean implements BookSessionBeanItfLocal {
         return msg;
     }
 
-    @Override
-    public void add2basket(BookEntity book) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 
-    @Override
-    public void removefromBasket(BookEntity book) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Collection<BookEntity> getBooks() {
@@ -117,11 +136,5 @@ public class BookSessionBean implements BookSessionBeanItfLocal {
         return authors;
     }
 
-    @Override
-    public Collection<BookEntity> getBasketContent() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+ 
 }

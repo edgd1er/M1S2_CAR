@@ -23,8 +23,8 @@ import javax.persistence.Table;
     @NamedQuery(name = "books.getallbooks", query = "select object(b) from BookEntity b"),
     @NamedQuery(name = "books.deleteall", query = "delete from BookEntity b"),
     @NamedQuery(name = "books.findByTitle", query = "SELECT b FROM BookEntity b WHERE b.bookTitle LIKE :title"),
-    @NamedQuery(name = "books.AllAuthors", query = "SELECT distinct b.bookAuhtor FROM BookEntity b"),
-    @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE b.bookAuhtor = :author")
+    @NamedQuery(name = "books.AllAuthors", query = "SELECT distinct b.bookAuthor FROM BookEntity b"),
+    @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE b.bookAuthor = :author")
 }
 )
 public class BookEntity implements Serializable {
@@ -35,7 +35,7 @@ public class BookEntity implements Serializable {
     @Column(name = "title", nullable = false)
     private String bookTitle;
     @Column(name = "author", nullable = false)
-    private String bookAuhtor;
+    private String bookAuthor;
     @Column(name = "book_year", nullable = false)
     private int bookYear;
 
@@ -49,20 +49,20 @@ public class BookEntity implements Serializable {
      * Constructor with parameters. Used by JSP.Servlet to create immediately
      * the Book object.
      *
-     * @param bookTitle
-     * @param bookAuhtor
-     * @param bookYear
+     * @param bookTitle String to give a title to the book
+     * @param bookAuthor String to name the author of the book
+     * @param bookYear  integer to set the publication's year.
      */
-    public BookEntity(String bookTitle, String bookAuhtor, int bookYear) {
+    public BookEntity(String bookTitle, String bookAuthor, int bookYear) {
         this.bookTitle = bookTitle;
-        this.bookAuhtor = bookAuhtor;
+        this.bookAuthor = bookAuthor;
         this.bookYear = bookYear;
     }
 
     /**
      * Getter for book's title
      *
-     * @return book's Title
+     * @return String book's Title
      */
     public String getBookTitle() {
         return bookTitle;
@@ -71,34 +71,34 @@ public class BookEntity implements Serializable {
     /**
      * Book's Title Setter
      *
-     * @param bookTitle
+     * @param String bookTitle
      */
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
 
     /**
-     * Book's Autohor getter
+     * Book's Author getter
      *
-     * @return
+     * @return 
      */
-    public String getBookAuhtor() {
-        return bookAuhtor;
+    public String getBookAuthor() {
+        return bookAuthor;
     }
 
     /**
      * Book's author setter
      *
-     * @param bookAuhtor
+     * @param bookAuthor
      */
-    public void setBookAuhtor(String bookAuhtor) {
-        this.bookAuhtor = bookAuhtor;
+    public void setBookAuhtor(String bookAuthor) {
+        this.bookAuthor = bookAuthor;
     }
 
     /**
      * Book's year getter
      *
-     * @return
+     * @return bookYear book's edited year
      */
     public int getBookYear() {
         return bookYear;
@@ -107,12 +107,17 @@ public class BookEntity implements Serializable {
     /**
      * Book's year setter
      *
-     * @param bookYear
+     * @param bookYear book's edited year
      */
     public void setBookYear(int bookYear) {
         this.bookYear = bookYear;
     }
 
+    /**
+     * Provide a hashcode for the book object.
+     * 
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         int hash = 0;
@@ -120,6 +125,12 @@ public class BookEntity implements Serializable {
         return hash;
     }
 
+    /**
+     * Provide a way to compare to book object.
+     * 
+     * @param object book to compare
+     * @return boolean true if are equals.
+     */
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
@@ -130,6 +141,11 @@ public class BookEntity implements Serializable {
         return !((this.bookTitle == null && other.bookTitle != null) || (this.bookTitle != null && !this.bookTitle.equals(other.bookTitle)));
     }
 
+    /**
+     * provide a way to get book's name. 
+     * 
+     * @return book's title
+     */
     @Override
     public String toString() {
         return "book.BookEntity[ id=" + bookTitle + " ]";

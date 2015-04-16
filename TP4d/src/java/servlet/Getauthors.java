@@ -18,11 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * servlet to request to display Author's list of database's books.
  *
- * @author user
+ * @author François Dubiez
  */
 @WebServlet(name = "getauthors", urlPatterns = {"/getauthors"})
-public class getauthors extends HttpServlet {
+public class Getauthors extends HttpServlet {
 
     @EJB
     private BookSessionBeanItfLocal myBookBean;
@@ -39,17 +40,12 @@ public class getauthors extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String tempTitle, tempAuthor;
-        int tempyear;
+
+        String html = toolsServlet.servletTools.getinstance().getHtmlToDisplayAuthors(myBookBean);
 
         try (PrintWriter out = response.getWriter()) {
-            Collection<String> authors=null;
+            Collection<String> authors = null;
             String msg = "";
-            try {
-                authors = myBookBean.getAuthors();
-            } catch (Exception e) {
-                msg = "<h1>Error while retrieving authors in database (" + e.getMessage() + ")</h1>";
-            }
 
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
@@ -59,12 +55,7 @@ public class getauthors extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet getAuthors at " + request.getContextPath() + ": List Authors in DB</h1>");
-
-            out.println("<table><tr><TH>Titre</TH><TH>Author</TH></tr>");
-            for (String author : authors) {
-                out.println("<tr><td>" + author + "</td></tr>");
-            }
-            out.println("</table>");
+            out.println(html);
             out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");

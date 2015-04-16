@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import javax.ejb.EJB;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,12 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
- * @author user
+ * servlet to request to remove all books from database
+ * 
+ * @author François Dubiez
  */
-@WebServlet(name = "init", urlPatterns = {"/init"})
-@TransactionManagement(TransactionManagementType.BEAN)
-public class init extends HttpServlet {
+@WebServlet(name = "cleardb", urlPatterns = {"/cleardb"})
+public class Cleardb extends HttpServlet {
 
     @EJB
     private BookSessionBeanItfLocal myBookBean;
@@ -42,35 +40,30 @@ public class init extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String ret, msg = "";
-
-        msg = myBookBean.createBooks();
+        String msg="";
 
         try (PrintWriter out = response.getWriter()) {
-            response.setHeader("Refresh", "5; URL=formulaire.jsp");
+           
+            try {
+                msg = myBookBean.removeAllFromDB();
+            } catch (Exception e) {
+                msg="<h1>" +e.getMessage()+ ")</h1>";
+            }
+           
+            msg= msg.length()<1?"Book's table was cleared.":msg;
+
+            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet init</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet init at " + request.getContextPath() + ": Existing books in DB</h1>");
+            out.println("<h1>Servlet init at " + request.getContextPath() + ": deleting table in DB</h1>");
             out.println(msg);
-
-            out.println("<table><tr><TH>Titre</TH><TH>Author</TH><TH>Year</TH></tr>");
-            Collection<BookEntity> books = myBookBean.getBooks();
-            for (BookEntity tempbook : books) {
-                out.println("<tr><td>" + tempbook.getBookTitle() + "</td>");
-                out.print("<td>" + tempbook.getBookAuhtor() + "</td>");
-                out.print("<td>" + String.valueOf(tempbook.getBookYear()) + "</td></tr>");
-            }
-            out.println("</table>");
             out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-        } catch (Exception e) {
-            PrintWriter out = response.getWriter();
-            out.println(e.getMessage() + ":" + e.getCause());
         }
     }
 

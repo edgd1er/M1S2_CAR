@@ -18,14 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Servlet to request to display books found in database.
  *
- * @author user
+ * @author François Dubiez
  */
-@WebServlet(name = "cleardb", urlPatterns = {"/cleardb"})
-public class cleardb extends HttpServlet {
-
-    @EJB
-    private BookSessionBeanItfLocal myBookBean;
+@WebServlet(name = "displaybooks", urlPatterns = {"/displaybooks"})
+public class Displaybooks extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,29 +34,26 @@ public class cleardb extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @EJB
+    private BookSessionBeanItfLocal myBookBean;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String msg="Book's table was cleared.";
+
+        String html = toolsServlet.servletTools.getinstance().getHtmlBooksToDisplay(myBookBean);
 
         try (PrintWriter out = response.getWriter()) {
-           
-            try {
-                myBookBean.removeAllFromDB();
-            } catch (Exception e) {
-                msg="<h1>" +e.getMessage()+ ")</h1>";
-            }
-          
-
             /* TODO output your page here. You may use following sample code. */
+            response.setHeader("Refresh", "15; URL=formulaire.jsp");
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet init</title>");
+            //out.println("<h1>Servlet Displaybooks at " + request.getContextPath() + "</h1>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet init at " + request.getContextPath() + ": deleting table in DB</h1>");
-            out.println(msg);
+            out.printf(html);
+            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
         }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package book;
+package cart;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
@@ -16,7 +16,7 @@ import javax.persistence.Id;
  * @author user
  */
 @Entity
-public class BasketEntity implements Serializable {
+public class FinalizedCartEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,10 +40,10 @@ public class BasketEntity implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof BasketEntity)) {
+        if (!(object instanceof FinalizedCartEntity)) {
             return false;
         }
-        BasketEntity other = (BasketEntity) object;
+        FinalizedCartEntity other = (FinalizedCartEntity) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }

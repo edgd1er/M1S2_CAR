@@ -6,6 +6,8 @@
 package servlet;
 
 import book.BookSessionBeanItfLocal;
+import cart.CartEntity;
+import cart.CartSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.ejb.EJB;
@@ -14,16 +16,15 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
+ * Servlet to request confirmation of an order
  *
  * @author user
  */
-@WebServlet(name = "addtodb", urlPatterns = {"/addtodb"})
-public class addtodb extends HttpServlet {
-
-    @EJB
-    private BookSessionBeanItfLocal myBookBean;
+@WebServlet(name = "buyabook", urlPatterns = {"/buyabook"})
+public class Buyabook extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,65 +35,71 @@ public class addtodb extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @EJB
+    private BookSessionBeanItfLocal myBookBean;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String ret = "", msg = "", tempTitle = "", tempAuthor = "", tempYear = "";
-        int iYear = 0;
-        try (PrintWriter out = response.getWriter()) {
-            tempTitle = request.getSession().getAttribute("title").toString();
-            tempAuthor = request.getSession().getAttribute("author").toString();
-            tempYear = request.getSession().getAttribute("year").toString();
 
-            if ((tempAuthor != null) && (tempTitle != null) && (tempYear != null)) {
-                if ((tempAuthor.length() > 0) && tempTitle.length() > 0) {
-                    try {
-                        msg = "Book named " + tempTitle + " written by "
-                                + tempAuthor + " in "
-                                + tempYear;
-                        iYear = Integer.parseInt(tempYear);
-                        ret = myBookBean.createBook(tempTitle, tempAuthor, iYear);
-                        if (ret.length() < 1) {
-                            msg += " was inserted in the database";
-                            request.getSession().setAttribute("title", null);
-                            request.getSession().setAttribute("author", null);
-                            request.getSession().setAttribute("year", null);
-                        } else {
-                            msg += ret;
-                        }
-                    } catch (Exception e) {
-                        msg += " : error Year parameter is not a number. Please try again. ";
-                    }
-                } else {
+        CartEntity myCart = null;
+        String book2buy = request.getParameter("id");
+        String action = request.getParameter("action");
+        
+        action = (action == null)?"none":action;
 
-                    msg += (tempAuthor.length() < 1) ? "Error Author is not entered<br>" : "";
-                    msg += (tempTitle.length() < 1) ? "Error Title is not entered<br>" : "";
-                    msg += (tempYear.length() < 1) ? "Error Year is not entered or invalid <br>" : "";
-
-                }
-            } else {
-                msg += (tempAuthor == null) ? "Error Author is not entered<br>" : "";
-                msg += (tempTitle == null) ? "Error Title is not entered<br>" : "";
-                msg += (tempYear == null) ? "Error Year is not entered or invalid <br>" : "";
+        if (!action.isEmpty()) {
+            HttpSession session = request.getSession(true);
+            myCart = (CartEntity) session.getAttribute("myCart");
+            if (myCart == null) {
+                myCart = new CartEntity();
             }
 
+            /**
+            switch (action) {
+                case "add":
+                    myCart.add(book2buy);
+                    break;
 
+                case "remove":
+                    myCart.remove(book2buy);
+                    break;
+                case "clearall":
+                    myCart = new CartEntity();
+                    break;
+                default:    
+            }
+*/
+            
+            if (action.equals("add")){ myCart.add(book2buy);}
+            if (action.equals("remove")){ myCart.remove(book2buy);}
+            if (action.equals("clearall")){ myCart = new CartEntity();}
+            session.setAttribute("myCart", myCart);
+        }
+
+        String html = toolsServlet.servletTools.getinstance().getHtmlBooksToBuy(this.getServletName(), myBookBean);
+        String html2 = toolsServlet.servletTools.getinstance().getHtmlCartContents(this.getServletName(),myCart);
+
+        try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet addtodb</title>");
+            out.println("<title>Servlet buyabook</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet addtodb at " + request.getContextPath() + "</h1>");
-            out.println(msg);
+            out.println("<h1>Servlet buyabook at " + request.getContextPath() + "</h1>");
+            out.println(html);
+            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
+            out.println("<br><a href=\"" + this.getServletName() + "?action=clearall\">Remove all items from basket</td>");
+            out.println("<br><a href='confirmordercart'>Proceed to checkout.</a>");
+            out.println(html2);
             out.println("</body>");
             out.println("</html>");
         }
-
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

@@ -52,11 +52,13 @@ relatives à un livre représenté par un titre, un nom d’auteur et une année
             <br>
             <a href="cleardb">clear Database (cleardb)</a>
             <br>
-            <a href="init">Create 5 books in database (init)</a>
+            <a href="initbooks">Create 5 books in database (init)</a>
             <br>
             <a href="getauthors">get list of authors (getauthors)</a>
             <br>
             <a href="displaybooks">get list of books (displaybooks)</a>
+            <br>
+            <a href="buyabook">get list of books to buy (buyabook)</a>
             <br>
     </body>
 </html>
