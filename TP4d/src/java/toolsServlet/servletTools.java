@@ -245,8 +245,11 @@ public class servletTools {
         String html = null;
         Collection<BookEntity> books = null;
         FinalizedCartEntity tempFinCartEntity = null;
+        html="<h2>No order found</h2>";
 
         tempFinCartEntity = myCartSession.getLastOrder();
+        
+        if (tempFinCartEntity!=null){
         html = "<table><tr><TH>Clientid</th><th>OrderId</th><th>Title</TH><TH>Author</TH><TH>Year</TH></tr>";
 
         for (BookEntity be : tempFinCartEntity.getBooks()) {
@@ -257,7 +260,7 @@ public class servletTools {
                     + "</td><td>" + String.valueOf(be.getBookYear()) + "</td></tr>";
         }
 
-        html += "</table>";
+        html += "</table>";}
         return html+getMenuLinks();
     }
 
