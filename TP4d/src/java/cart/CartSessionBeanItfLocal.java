@@ -10,15 +10,35 @@ import java.util.Collection;
 import javax.ejb.Local;
 
 /**
+ * Session Bean to handle an basket(add, remove) and to set/get order to/from
+ * database
  *
- * @author user
+ * @author François Dubiez
  */
 @Local
 public interface CartSessionBeanItfLocal {
-    
-    public void add2basket(BookEntity book);
-    public void removefromBasket(BookEntity book);
-    public Collection<BookEntity> getBasketContent();
 
-    
+    /**
+     * create on order with the given books for the client clientId
+     *
+     * @param clientId 
+     * @param myCart
+     * @return Error creation status message.
+     */
+    public String add2Order(Object clientId, CartEntity myCart);
+
+    /**
+     * get the last order object.
+     *
+     * @return
+     */
+    public FinalizedCartEntity getLastOrder();
+
+    /**
+     * Get the Last ClientId to create the next one.
+     *
+     * @return id for the next client
+     */
+    public Long getNextCLientId();
+
 }

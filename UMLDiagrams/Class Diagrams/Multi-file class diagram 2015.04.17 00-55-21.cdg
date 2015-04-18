@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ClassDiagram name="Multi-file class diagram">
+  <ClassDiagramComponents>
+    <Class name="CartEntity" package="cart" visibility="public" xPosition="61.0" yPosition="240.0">
+      <Fields>
+        <Field name="serialVersionUID" type="long" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="id" type="Long" visibility="private"/>
+        <Field name="booksId" type="Collection&lt;String&gt;" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public"/>
+      </Constructors>
+      <Methods>
+        <Method name="getId" returnType="Long" visibility="public"/>
+        <Method name="setId" returnType="void" visibility="public">
+          <Argument type="Long" name="id"/>
+        </Method>
+        <Method name="hashCode" returnType="int" visibility="public"/>
+        <Method name="equals" returnType="boolean" visibility="public">
+          <Argument type="Object" name="object"/>
+        </Method>
+        <Method name="toString" returnType="String" visibility="public"/>
+        <Method name="add" returnType="boolean" visibility="public">
+          <Argument type="String" name="book2buy"/>
+        </Method>
+        <Method name="remove" returnType="boolean" visibility="public">
+          <Argument type="String" name="book2buy"/>
+        </Method>
+        <Method name="getContents" returnType="Collection&lt;String&gt;" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="CartSessionBeanImpl" package="cart" visibility="public" xPosition="320.0" yPosition="20.0">
+      <Fields>
+        <Field name="bem" type="EntityManager" visibility="private"/>
+        <Field name="ut" type="UserTransaction" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="add2Order" returnType="//@Remove String" visibility="public">
+          <Argument type="Object" name="clientId"/>
+          <Argument type="CartEntity" name="myCart"/>
+        </Method>
+        <Method name="getLastOrder" returnType="FinalizedCartEntity" visibility="public"/>
+        <Method name="getNextCLientId" returnType="Long" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="FinalizedCartEntity" package="cart" visibility="public" xPosition="724.0" yPosition="240.0">
+      <Fields>
+        <Field name="serialVersionUID" type="long" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="orderId" type="Long" visibility="private"/>
+        <Field name="clientId" type="Long" visibility="protected"/>
+        <Field name="books" type="Set&lt;book.BookEntity&gt;" visibility="protected"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getBooks" returnType="Set&lt;BookEntity&gt;" visibility="public"/>
+        <Method name="addBook" returnType="void" visibility="public">
+          <Argument type="BookEntity" name="be"/>
+        </Method>
+        <Method name="removeBook" returnType="void" visibility="public">
+          <Argument type="BookEntity" name="be"/>
+        </Method>
+        <Method name="setBooks" returnType="void" visibility="public">
+          <Argument type="Set&lt;BookEntity&gt;" name="books"/>
+        </Method>
+        <Method name="getClientId" returnType="Long" visibility="public"/>
+        <Method name="setClientId" returnType="void" visibility="public">
+          <Argument type="Long" name="clientId"/>
+        </Method>
+        <Method name="getOrderId" returnType="Long" visibility="public"/>
+        <Method name="setOrderId" returnType="void" visibility="public">
+          <Argument type="Long" name="orderId"/>
+        </Method>
+        <Method name="hashCode" returnType="int" visibility="public"/>
+        <Method name="equals" returnType="boolean" visibility="public">
+          <Argument type="Object" name="object"/>
+        </Method>
+        <Method name="toString" returnType="String" visibility="public"/>
+      </Methods>
+    </Class>
+    <Interface name="CartSessionBeanItfLocal" package="cart" visibility="public" xPosition="357.0" yPosition="723.0">
+      <Methods>
+        <Method name="add2Order" returnType="String" visibility="public">
+          <Argument type="Object" name="clientId"/>
+          <Argument type="CartEntity" name="myCart"/>
+        </Method>
+        <Method name="getLastOrder" returnType="FinalizedCartEntity" visibility="public"/>
+        <Method name="getNextCLientId" returnType="Long" visibility="public"/>
+      </Methods>
+    </Interface>
+  </ClassDiagramComponents>
+  <ClassDiagramRelations>
+    <UseRelation source="cart.CartSessionBeanItfLocal" target="cart.FinalizedCartEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="cart.CartSessionBeanImpl" target="cart.CartEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <ImplementsRelation name="&lt;&lt;implements&gt;&gt;" source="cart.CartSessionBeanImpl" target="cart.CartSessionBeanItfLocal"/>
+    <UseRelation source="cart.CartSessionBeanItfLocal" target="cart.CartEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="cart.CartSessionBeanImpl" target="cart.FinalizedCartEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+  </ClassDiagramRelations>
+</ClassDiagram>

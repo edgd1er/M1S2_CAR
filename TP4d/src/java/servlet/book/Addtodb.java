@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package servlet.book;
 
 import book.BookSessionBeanItfLocal;
 import java.io.IOException;
@@ -36,6 +36,13 @@ public class Addtodb extends HttpServlet {
       @EJB
     private BookSessionBeanItfLocal myBookBean;
       
+    /**
+     *Handle Request for post and get method
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");

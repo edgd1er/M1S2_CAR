@@ -3,28 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package servlet.book;
 
+import book.BookEntity;
 import book.BookSessionBeanItfLocal;
-import cart.CartEntity;
-import cart.CartSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
- * Servlet to request confirmation of an order
- *
- * @author user
+ * servlet to request to remove all books from database
+ * 
+ * @author François Dubiez
  */
-@WebServlet(name = "buyabook", urlPatterns = {"/buyabook"})
-public class Buyabook extends HttpServlet {
+@WebServlet(name = "cleardb", urlPatterns = {"/cleardb"})
+public class Cleardb extends HttpServlet {
+
+    @EJB
+    private BookSessionBeanItfLocal myBookBean;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,71 +37,37 @@ public class Buyabook extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @EJB
-    private BookSessionBeanItfLocal myBookBean;
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
-        CartEntity myCart = null;
-        String book2buy = request.getParameter("id");
-        String action = request.getParameter("action");
-        
-        action = (action == null)?"none":action;
-
-        if (!action.isEmpty()) {
-            HttpSession session = request.getSession(true);
-            myCart = (CartEntity) session.getAttribute("myCart");
-            if (myCart == null) {
-                myCart = new CartEntity();
-            }
-
-            /**
-            switch (action) {
-                case "add":
-                    myCart.add(book2buy);
-                    break;
-
-                case "remove":
-                    myCart.remove(book2buy);
-                    break;
-                case "clearall":
-                    myCart = new CartEntity();
-                    break;
-                default:    
-            }
-*/
-            
-            if (action.equals("add")){ myCart.add(book2buy);}
-            if (action.equals("remove")){ myCart.remove(book2buy);}
-            if (action.equals("clearall")){ myCart = new CartEntity();}
-            session.setAttribute("myCart", myCart);
-        }
-
-        String html = toolsServlet.servletTools.getinstance().getHtmlBooksToBuy(this.getServletName(), myBookBean);
-        String html2 = toolsServlet.servletTools.getinstance().getHtmlCartContents(this.getServletName(),myCart);
+        String msg="";
 
         try (PrintWriter out = response.getWriter()) {
+           
+            try {
+                msg = myBookBean.removeAllFromDB();
+            } catch (Exception e) {
+                msg="<h1>" +e.getMessage()+ ")</h1>";
+            }
+           
+            msg= msg.length()<1?"Book's table was cleared.":msg;
+
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet buyabook</title>");
+            out.println("<title>Servlet init</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet buyabook at " + request.getContextPath() + "</h1>");
-            out.println(html);
+            out.println("<h1>Servlet init at " + request.getContextPath() + ": deleting table in DB</h1>");
+            out.println(msg);
             out.println("<br><a href='formulaire.jsp'>Back to form</a>");
-            out.println("<br><a href=\"" + this.getServletName() + "?action=clearall\">Remove all items from basket</td>");
-            out.println("<br><a href='confirmordercart'>Proceed to checkout.</a>");
-            out.println(html2);
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

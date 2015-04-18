@@ -3,13 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package servlet.cart;
 
-import book.BookEntity;
-import book.BookSessionBeanItfLocal;
+import cart.CartSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,12 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet to request to display books found in database.
  *
- * @author François Dubiez
+ * @author user
  */
-@WebServlet(name = "displaybooks", urlPatterns = {"/displaybooks"})
-public class Displaybooks extends HttpServlet {
+@WebServlet(name = "getLastOrder", urlPatterns = {"/getlastorder"})
+public class getLastOrder extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,25 +32,27 @@ public class Displaybooks extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    private BookSessionBeanItfLocal myBookBean;
+    private CartSessionBeanItfLocal myCartBean;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
-        String html = toolsServlet.servletTools.getinstance().getHtmlBooksToDisplay(myBookBean);
-
+        
+        String html="";
+        
+        html = toolsServlet.servletTools.getinstance().getHtmlLastOrder(myCartBean);
+        
+        
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            response.setHeader("Refresh", "15; URL=formulaire.jsp");
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            //out.println("<h1>Servlet Displaybooks at " + request.getContextPath() + "</h1>");
+            out.println("<title>Servlet getLastOrder</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.printf(html);
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
+            out.println("<h1>Servlet getLastOrder at " + request.getContextPath() + "</h1>");
+            out.println(html);
             out.println("</body>");
             out.println("</html>");
         }

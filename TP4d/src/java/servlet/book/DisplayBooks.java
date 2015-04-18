@@ -3,12 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet.cart;
+package servlet.book;
 
 import book.BookSessionBeanItfLocal;
-import cart.CartEntity;
-import cart.CartSessionBeanItfLocal;
-import cart.FinalizedCartEntity;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.ejb.EJB;
@@ -17,17 +14,17 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
+ * servlet to request to display Author's list of database's books.
  *
- * @author user
+ * @author François Dubiez
  */
-@WebServlet(name = "ConfirmOrderCart", urlPatterns = {"/confirmordercart"})
-public class ConfirmOrderCart extends HttpServlet {
+@WebServlet(name = "DisplayBooks", urlPatterns = {"/displaybooks"})
+public class DisplayBooks extends HttpServlet {
 
     @EJB
-    private CartSessionBeanItfLocal myCartBean;
+    private BookSessionBeanItfLocal myBookBean;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,38 +38,24 @@ public class ConfirmOrderCart extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String html = "", action = "", res = "";
 
-        HttpSession session = request.getSession(true);
-        CartEntity myCart = (CartEntity) session.getAttribute("myCart");
-
-        html = toolsServlet.servletTools.getinstance().getHtmlCartContents(this.getServletName(), myCart);
-
-        action = request.getParameter("action");
-        if (action.equals("paying")) {
-            html = "<h2>Error while writing information to database. Please Try Again.</h2>";
-
-            res = myCartBean.add2Order(session.getAttribute("userId"), myCart);
-
-            html = (res.contains("Your basket is empty")) ? res :
-                    "Books Bought. Well done !";
-        }
-
-    
+        String html = toolsServlet.servletTools.getinstance().getHtmlBooksToDisplay(myBookBean);
+        html+=toolsServlet.servletTools.getinstance().getMenuLinks();
+        
         try (PrintWriter out = response.getWriter()) {
+
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ConfirmOrderCart</title>");
+            out.println("<title>Servlet getAuthors</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ConfirmOrderCart at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet getAuthors at " + request.getContextPath() + ": List Authors in DB</h1>");
             out.println(html);
+            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
-            out.println("<br><a href='buyabook?action=clearall'>Remove all items from basket</a>");
         }
     }
 

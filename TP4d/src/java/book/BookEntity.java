@@ -6,9 +6,12 @@
 package book;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -22,9 +25,11 @@ import javax.persistence.Table;
 @NamedQueries({
     @NamedQuery(name = "books.getallbooks", query = "select object(b) from BookEntity b"),
     @NamedQuery(name = "books.deleteall", query = "delete from BookEntity b"),
-    @NamedQuery(name = "books.findByTitle", query = "SELECT b FROM BookEntity b WHERE b.bookTitle LIKE :title"),
     @NamedQuery(name = "books.AllAuthors", query = "SELECT distinct b.bookAuthor FROM BookEntity b"),
-    @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE b.bookAuthor = :author")
+    @NamedQuery(name = "books.findByAuthor", query = "SELECT b FROM BookEntity b WHERE lower(b.bookAuthor) LIKE :author"),
+    @NamedQuery(name = "books.findByTitle", query = "SELECT b FROM BookEntity b WHERE lower(b.bookTitle) LIKE :title"),
+    @NamedQuery(name = "books.findByYear", query = "SELECT b FROM BookEntity b WHERE b.bookYear = :year"),
+    
 }
 )
 public class BookEntity implements Serializable {
@@ -38,6 +43,9 @@ public class BookEntity implements Serializable {
     private String bookAuthor;
     @Column(name = "book_year", nullable = false)
     private int bookYear;
+    
+    @ManyToMany
+    protected List<BookEntity> books;
 
     /**
      * Empry constructor (default)
@@ -80,7 +88,7 @@ public class BookEntity implements Serializable {
     /**
      * Book's Author getter
      *
-     * @return 
+     * @return book's author
      */
     public String getBookAuthor() {
         return bookAuthor;

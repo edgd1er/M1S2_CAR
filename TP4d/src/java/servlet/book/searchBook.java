@@ -3,13 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package servlet.book;
 
-import book.BookEntity;
 import book.BookSessionBeanItfLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,12 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * servlet to request to display Author's list of database's books.
  *
- * @author François Dubiez
+ * @author user
  */
-@WebServlet(name = "getauthors", urlPatterns = {"/getauthors"})
-public class Getauthors extends HttpServlet {
+@WebServlet(name = "searchBook", urlPatterns = {"/searchbook"})
+public class searchBook extends HttpServlet {
 
     @EJB
     private BookSessionBeanItfLocal myBookBean;
@@ -40,23 +37,52 @@ public class Getauthors extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        String title, author, year, crit, html, html2;
+        title = request.getParameter("title");
+        author = request.getParameter("author");
+        year = request.getParameter("year");
+        crit = request.getParameter("type");
 
-        String html = toolsServlet.servletTools.getinstance().getHtmlToDisplayAuthors(myBookBean);
+        try {
+            title = title.isEmpty() ? "" : title;
+        } catch (Exception e) {
+            title = "";
+        }
+        try {
+            author = author.isEmpty() ? "" : author;
+        } catch (Exception e) {
+            author = "";
+        }
+        try {
+            year = year.isEmpty() ? "" : year;
+        } catch (Exception e) {
+            year = "";
+        }
+        try{
+            crit = crit.isEmpty() ? "" : crit;
+        } catch (Exception e) {
+            crit = "none";
+        
+        }
+
+// html code for crteria search
+         html = toolsServlet.servletTools.getinstance().htmlGetSearchForms(this.getServletName().toLowerCase(), title, author, year);
+         
+         html2=toolsServlet.servletTools.getinstance().htmlGetResultsForSearch(myBookBean,title,author,year, crit);
+
 
         try (PrintWriter out = response.getWriter()) {
-            Collection<String> authors = null;
-            String msg = "";
-
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet getAuthors</title>");
+            out.println("<title>Servlet searchBook</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet getAuthors at " + request.getContextPath() + ": List Authors in DB</h1>");
+            out.println("<h1>Servlet searchBook at " + request.getContextPath() + "</h1>");
             out.println(html);
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
+            out.println("results");
+            out.println(html2);
             out.println("</body>");
             out.println("</html>");
         }
@@ -98,7 +124,7 @@ public class Getauthors extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "This page allows to search for a book according different criteria";
     }// </editor-fold>
 
 }

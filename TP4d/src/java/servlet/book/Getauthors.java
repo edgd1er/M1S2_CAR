@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package servlet.book;
 
 import book.BookEntity;
 import book.BookSessionBeanItfLocal;
@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import javax.ejb.EJB;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,13 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet to request database add of 5 books.
+ * servlet to request to display Author's list of database's books.
  *
- * @author user
+ * @author François Dubiez
  */
-@WebServlet(name = "initbooks", urlPatterns = {"/initbooks"})
-@TransactionManagement(TransactionManagementType.BEAN)
-public class InitBooks extends HttpServlet {
+@WebServlet(name = "getauthors", urlPatterns = {"/getauthors"})
+public class Getauthors extends HttpServlet {
 
     @EJB
     private BookSessionBeanItfLocal myBookBean;
@@ -43,28 +40,24 @@ public class InitBooks extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String html, msg = "";
 
-        msg = myBookBean.createBooks();
-        html = toolsServlet.servletTools.getinstance().getHtmlBooksToDisplay(myBookBean);
+        String html = toolsServlet.servletTools.getinstance().getHtmlToDisplayAuthors(myBookBean);
 
         try (PrintWriter out = response.getWriter()) {
-            response.setHeader("Refresh", "5; URL=formulaire.jsp");
+            String msg = "";
+
+            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet init</title>");
+            out.println("<title>Servlet getAuthors</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet init at " + request.getContextPath() + ": Existing books in DB</h1>");
-            out.println(msg);
+            out.println("<h1>Servlet getAuthors at " + request.getContextPath() + ": List Authors in DB</h1>");
             out.println(html);
             out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-        } catch (Exception e) {
-            PrintWriter out = response.getWriter();
-            out.println(e.getMessage() + ":" + e.getCause());
         }
     }
 

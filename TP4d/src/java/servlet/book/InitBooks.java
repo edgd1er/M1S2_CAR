@@ -3,31 +3,31 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet.cart;
+package servlet.book;
 
 import book.BookSessionBeanItfLocal;
-import cart.CartEntity;
-import cart.CartSessionBeanItfLocal;
-import cart.FinalizedCartEntity;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.ejb.EJB;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
+ * Servlet to request database add of 5 books.
  *
  * @author user
  */
-@WebServlet(name = "ConfirmOrderCart", urlPatterns = {"/confirmordercart"})
-public class ConfirmOrderCart extends HttpServlet {
+@WebServlet(name = "initbooks", urlPatterns = {"/initbooks"})
+@TransactionManagement(TransactionManagementType.BEAN)
+public class InitBooks extends HttpServlet {
 
     @EJB
-    private CartSessionBeanItfLocal myCartBean;
+    private BookSessionBeanItfLocal myBookBean;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,38 +41,32 @@ public class ConfirmOrderCart extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String html = "", action = "", res = "";
+        String html, msg = "";
 
-        HttpSession session = request.getSession(true);
-        CartEntity myCart = (CartEntity) session.getAttribute("myCart");
-
-        html = toolsServlet.servletTools.getinstance().getHtmlCartContents(this.getServletName(), myCart);
-
-        action = request.getParameter("action");
-        if (action.equals("paying")) {
-            html = "<h2>Error while writing information to database. Please Try Again.</h2>";
-
-            res = myCartBean.add2Order(session.getAttribute("userId"), myCart);
-
-            html = (res.contains("Your basket is empty")) ? res :
-                    "Books Bought. Well done !";
+        try {
+            msg = myBookBean.createBooks();
+            html = toolsServlet.servletTools.getinstance().getHtmlBooksToDisplay(myBookBean);
+        } catch (Exception e) {
+            html = "<h2>Error, " + e.getMessage() + e.getCause()+"</h2>";
         }
 
-    
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
+            response.setHeader("Refresh", "5; URL=formulaire.jsp");
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ConfirmOrderCart</title>");
+            out.println("<title>Servlet init</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ConfirmOrderCart at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet init at " + request.getContextPath() + ": Existing books in DB</h1>");
+            out.println(msg);
             out.println(html);
+            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
             out.println("</body>");
             out.println("</html>");
-            out.println("<br><a href='formulaire.jsp'>Back to form</a>");
-            out.println("<br><a href='buyabook?action=clearall'>Remove all items from basket</a>");
+        } catch (Exception e) {
+            PrintWriter out = response.getWriter();
+            out.println(e.getMessage() + ":" + e.getCause());
         }
     }
 

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ClassDiagram name="Multi-file class diagram">
+  <ClassDiagramComponents>
+    <Class name="BookEntity" package="book" visibility="public" xPosition="20.0" yPosition="20.0">
+      <Fields>
+        <Field name="serialVersionUID" type="long" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="bookTitle" type="String" visibility="private"/>
+        <Field name="bookAuthor" type="String" visibility="private"/>
+        <Field name="bookYear" type="int" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public"/>
+        <Constructor visibility="public">
+          <Argument type="String" name="bookTitle"/>
+          <Argument type="String" name="bookAuthor"/>
+          <Argument type="int" name="bookYear"/>
+        </Constructor>
+      </Constructors>
+      <Methods>
+        <Method name="getBookTitle" returnType="String" visibility="public"/>
+        <Method name="setBookTitle" returnType="void" visibility="public">
+          <Argument type="String" name="bookTitle"/>
+        </Method>
+        <Method name="getBookAuthor" returnType="String" visibility="public"/>
+        <Method name="setBookAuhtor" returnType="void" visibility="public">
+          <Argument type="String" name="bookAuthor"/>
+        </Method>
+        <Method name="getBookYear" returnType="int" visibility="public"/>
+        <Method name="setBookYear" returnType="void" visibility="public">
+          <Argument type="int" name="bookYear"/>
+        </Method>
+        <Method name="hashCode" returnType="int" visibility="public"/>
+        <Method name="equals" returnType="boolean" visibility="public">
+          <Argument type="Object" name="object"/>
+        </Method>
+        <Method name="toString" returnType="String" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="BookSessionBean" package="book" visibility="public" xPosition="563.0" yPosition="20.0">
+      <Fields>
+        <Field name="bem" type="EntityManager" visibility="private"/>
+        <Field name="ut" type="UserTransaction" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="createBooks" returnType="String" visibility="public"/>
+        <Method name="createBook" returnType="String" visibility="public">
+          <Argument type="String" name="Title"/>
+          <Argument type="String" name="Author"/>
+          <Argument type="int" name="iYear"/>
+        </Method>
+        <Method name="removeFromdb" returnType="void" visibility="public">
+          <Argument type="BookEntity" name="book"/>
+        </Method>
+        <Method name="removeAllFromDB" returnType="String" visibility="public"/>
+        <Method name="getBooks" returnType="Collection&lt;BookEntity&gt;" visibility="public"/>
+        <Method name="getAuthors" returnType="Collection&lt;String&gt;" visibility="public"/>
+      </Methods>
+    </Class>
+    <Interface name="BookSessionBeanItfLocal" package="book" visibility="public" xPosition="325.0" yPosition="512.0">
+      <Methods>
+        <Method name="createBooks" returnType="String" visibility="public"/>
+        <Method name="createBook" returnType="String" visibility="public">
+          <Argument type="String" name="Title"/>
+          <Argument type="String" name="Author"/>
+          <Argument type="int" name="iYear"/>
+        </Method>
+        <Method name="removeFromdb" returnType="void" visibility="public">
+          <Argument type="BookEntity" name="book"/>
+        </Method>
+        <Method name="removeAllFromDB" returnType="String" visibility="public"/>
+        <Method name="getBooks" returnType="Collection&lt;BookEntity&gt;" visibility="public"/>
+        <Method name="getAuthors" returnType="Collection&lt;String&gt;" visibility="public"/>
+      </Methods>
+    </Interface>
+  </ClassDiagramComponents>
+  <ClassDiagramRelations>
+    <UseRelation source="book.BookSessionBean" target="book.BookEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <ImplementsRelation name="&lt;&lt;implements&gt;&gt;" source="book.BookSessionBean" target="book.BookSessionBeanItfLocal"/>
+    <UseRelation source="book.BookSessionBeanItfLocal" target="book.BookEntity" sourceCardinality="1..1" targetCardinality="1..1"/>
+  </ClassDiagramRelations>
+</ClassDiagram>

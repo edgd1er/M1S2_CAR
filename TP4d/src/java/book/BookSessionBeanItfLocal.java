@@ -60,4 +60,9 @@ public interface BookSessionBeanItfLocal {
      * @return Collection of String containing the authors.
      */
     public Collection<String> getAuthors();
+    
+    public Collection<BookEntity> getBooksByAuthors(String Author);
+    public Collection<BookEntity> getBooksByTitle(String Title);
+    public Collection<BookEntity> getBooksByYear(int iYear);
+    
 }

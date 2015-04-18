@@ -14,8 +14,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
- * @author user
+ * Entity Bean to Handle a basket being paid.
+ * 
+ * 
+ * @author Francois Dubiez
  */
 @Entity
 public class CartEntity implements Serializable {
@@ -27,14 +29,25 @@ public class CartEntity implements Serializable {
 
     private Collection<String> booksId;
 
+    /**
+     *Default Constructor
+     */
     public CartEntity() {
         booksId = new ArrayList();
     }
 
+    /**
+     *
+     * @return
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(Long id) {
         this.id = id;
     }
@@ -48,7 +61,6 @@ public class CartEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof CartEntity)) {
             return false;
         }
@@ -64,6 +76,12 @@ public class CartEntity implements Serializable {
         return "cart.CartEntity[ id=" + id + " ]";
     }
 
+    /**
+     *Add a Book to buy in the basket
+     * 
+     * @param book2buy
+     * @return true or false
+     */
     public boolean add(String book2buy) {
         if (book2buy == null) {
             return false;
@@ -75,6 +93,11 @@ public class CartEntity implements Serializable {
         return true;
     }
 
+    /**
+     * Remove a book from Basket
+     * @param book2buy
+     * @return true or false
+     */
     public boolean remove(String book2buy) {
         if (book2buy == null) {
             return false;
@@ -90,6 +113,10 @@ public class CartEntity implements Serializable {
 
     }
 
+    /**
+     * Get All books in the basket
+     * @return
+     */
     public Collection<String> getContents() {
         return booksId;
     }
