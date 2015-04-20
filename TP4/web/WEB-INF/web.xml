@@ -10,7 +10,7 @@
         <web-resource-collection>
             <web-resource-name>carjee</web-resource-name>
             <description>carjee</description>
-            <url-pattern>/addtodb</url-pattern>
+            <url-pattern>/testthislogin</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description/>
